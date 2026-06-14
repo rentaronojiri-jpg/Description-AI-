@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>塗装工事 見積書</title>
+<style>
+  body {
+    font-family: "MS Gothic", "Yu Gothic", sans-serif;
+    font-size: 11pt;
+    margin: 30px 40px;
+    color: #000;
+    background: #fff;
+  }
+  h1 {
+    text-align: center;
+    font-size: 20pt;
+    letter-spacing: 10px;
+    margin-bottom: 5px;
+    border-bottom: 3px double #000;
+    padding-bottom: 8px;
+  }
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0 30px 0;
+  }
+  .client-info {
+    width: 55%;
+  }
+  .company-info {
+    width: 40%;
+    text-align: right;
+    font-size: 10pt;
+    line-height: 1.8;
+  }
+  .client-name {
+    font-size: 16pt;
+    border-bottom: 2px solid #000;
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+    display: inline-block;
+  }
+  .estimate-meta {
+    margin: 10px 0 15px 0;
+    line-height: 2;
+  }
+  .estimate-meta td {
+    padding-right: 20px;
+  }
+  .summary-box {
+    border: 2px solid #000;
+    padding: 10px 20px;
+    margin: 15px 0 25px 0;
+    display: inline-block;
+    min-width: 280px;
+  }
+  .summary-box .label {
+    font-size: 10pt;
+    color: #333;
+  }
+  .summary-box .total-amount {
+    font-size: 18pt;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+  table.items {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 10.5pt;
+  }
+  table.items th {
+    background: #1a1a4e;
+    color: #fff;
+    padding: 8px 5px;
+    text-align: center;
+    border: 1px solid #000;
+    font-weight: normal;
+  }
+  table.items td {
+    padding: 7px 5px;
+    border: 1px solid #aaa;
+    vertical-align: middle;
+  }
+  table.items .section-header {
+    background: #e8e8f0;
+    font-weight: bold;
+    padding: 6px 8px;
+    font-size: 10pt;
+    border: 1px solid #000;
+  }
+  table.items .num {
+    text-align: right;
+    padding-right: 8px;
+  }
+  table.items .center {
+    text-align: center;
+  }
+  table.items tr:nth-child(even):not(.section-row) td {
+    background: #f9f9f9;
+  }
+  .subtotal-row td {
+    background: #f0f0e8 !important;
+    font-weight: bold;
+    border-top: 2px solid #555;
+  }
+  .total-row td {
+    background: #1a1a4e !important;
+    color: #fff;
+    font-weight: bold;
+    font-size: 12pt;
+  }
+  .tax-row td {
+    background: #e0e0f0 !important;
+    font-weight: bold;
+  }
+  .note-section {
+    margin-top: 25px;
+    font-size: 9.5pt;
+    line-height: 1.9;
+    border: 1px solid #aaa;
+    padding: 10px 15px;
+    background: #fafafa;
+  }
+  .note-section h3 {
+    font-size: 10.5pt;
+    margin: 0 0 5px 0;
+    border-bottom: 1px solid #aaa;
+    padding-bottom: 4px;
+  }
+  .validity {
+    margin-top: 15px;
+    font-size: 9.5pt;
+    color: #444;
+  }
+  .stamp-area {
+    margin-top: 20px;
+    text-align: right;
+  }
+  .stamp-box {
+    display: inline-block;
+    border: 1px solid #000;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    line-height: 60px;
+    font-size: 8pt;
+    color: #999;
+    margin-left: 10px;
+    vertical-align: top;
+  }
+  @media print {
+    body { margin: 15px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>見 積 書</h1>
+
+<div class="header-section">
+  <div class="client-info">
+    <div class="estimate-meta">
+      <table>
+        <tr><td>見積番号</td><td>：</td><td>2026-0613-001</td></tr>
+        <tr><td>見積日付</td><td>：</td><td>2026年6月13日</td></tr>
+        <tr><td>有効期限</td><td>：</td><td>2026年7月13日</td></tr>
+        <tr><td>工　事　名</td><td>：</td><td>内装壁面塗装工事</td></tr>
+        <tr><td>工事場所</td><td>：</td><td>（別途調整）</td></tr>
+        <tr><td>工期予定</td><td>：</td><td>約 2〜3 日間（養生・乾燥含む）</td></tr>
+      </table>
+    </div>
+
+    <div style="margin-top:18px;">
+      <span class="client-name">御　担　当　者　様</span>
+    </div>
+
+    <div class="summary-box" style="margin-top:15px;">
+      <div class="label">御見積金額（税込）</div>
+      <div class="total-amount">￥ 168,300 －</div>
+      <div class="label" style="margin-top:4px;">※ 下記明細をご確認ください</div>
+    </div>
+  </div>
+
+  <div class="company-info">
+    <strong>株式会社 ○○ペイント</strong><br>
+    〒 000-0000<br>
+    ○○県○○市○○町 0-0-0<br>
+    TEL：000-000-0000<br>
+    FAX：000-000-0000<br>
+    担当：○○ ○○<br>
+    <div class="stamp-area">
+      <div class="stamp-box">社印</div>
+      <div class="stamp-box">担当印</div>
+    </div>
+  </div>
+</div>
+
+<!-- 明細表 -->
+<table class="items">
+  <thead>
+    <tr>
+      <th style="width:4%">No.</th>
+      <th style="width:28%">工　種　・　品　名</th>
+      <th style="width:22%">仕　様　・　規　格</th>
+      <th style="width:8%">数量</th>
+      <th style="width:6%">単位</th>
+      <th style="width:12%">単　価</th>
+      <th style="width:12%">金　額</th>
+      <th style="width:8%">備　考</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <!-- セクション1 -->
+    <tr class="section-row">
+      <td colspan="8" class="section-header">【1】 下地調整工事</td>
+    </tr>
+    <tr>
+      <td class="center">1</td>
+      <td>ペーパーがけ（目粗し）</td>
+      <td>＃120〜＃240 空研ぎペーパー</td>
+      <td class="num">34.0</td>
+      <td class="center">㎡</td>
+      <td class="num">¥500</td>
+      <td class="num">¥17,000</td>
+      <td class="center">壁面全体</td>
+    </tr>
+    <tr>
+      <td class="center">2</td>
+      <td>パテ補修・不陸調整</td>
+      <td>ポリパテ・下地パテ（既存パテ済部の補修）</td>
+      <td class="num">34.0</td>
+      <td class="center">㎡</td>
+      <td class="num">¥400</td>
+      <td class="num">¥13,600</td>
+      <td class="center">※既施工パテ含む</td>
+    </tr>
+    <tr>
+      <td class="center">3</td>
+      <td>清掃・ゴミ処理</td>
+      <td>研磨粉・ゴミ除去</td>
+      <td class="num">1</td>
+      <td class="center">式</td>
+      <td class="num">¥3,000</td>
+      <td class="num">¥3,000</td>
+      <td class="center"></td>
+    </tr>
+
+    <!-- セクション2 -->
+    <tr class="section-row">
+      <td colspan="8" class="section-header">【2】 下塗り工事</td>
+    </tr>
+    <tr>
+      <td class="center">4</td>
+      <td>シーラー塗布（下塗り）</td>
+      <td>水性シーラー 1回塗り<br>（吸い込み止め・密着向上）</td>
+      <td class="num">34.0</td>
+      <td class="center">㎡</td>
+      <td class="num">¥800</td>
+      <td class="num">¥27,200</td>
+      <td class="center">全壁面</td>
+    </tr>
+
+    <!-- セクション3 -->
+    <tr class="section-row">
+      <td colspan="8" class="section-header">【3】 仕上げ塗装工事</td>
+    </tr>
+    <tr>
+      <td class="center">5</td>
+      <td>内装用エマルション塗装<br>（中塗り）</td>
+      <td>合成樹脂エマルションペイント<br>1回目塗り</td>
+      <td class="num">34.0</td>
+      <td class="center">㎡</td>
+      <td class="num">¥1,000</td>
+      <td class="num">¥34,000</td>
+      <td class="center">色番指定</td>
+    </tr>
+    <tr>
+      <td class="center">6</td>
+      <td>内装用エマルション塗装<br>（上塗り）</td>
+      <td>合成樹脂エマルションペイント<br>2回目塗り（最終仕上げ）</td>
+      <td class="num">34.0</td>
+      <td class="center">㎡</td>
+      <td class="num">¥1,000</td>
+      <td class="num">¥34,000</td>
+      <td class="center">色番指定</td>
+    </tr>
+
+    <!-- セクション4 -->
+    <tr class="section-row">
+      <td colspan="8" class="section-header">【4】 養生・諸経費</td>
+    </tr>
+    <tr>
+      <td class="center">7</td>
+      <td>養生工事</td>
+      <td>床面・建具・金物類<br>マスキングテープ・養生シート</td>
+      <td class="num">1</td>
+      <td class="center">式</td>
+      <td class="num">¥12,000</td>
+      <td class="num">¥12,000</td>
+      <td class="center">撤去含む</td>
+    </tr>
+    <tr>
+      <td class="center">8</td>
+      <td>廃材・産業廃棄物処理費</td>
+      <td>空き缶・マスキング材等</td>
+      <td class="num">1</td>
+      <td class="center">式</td>
+      <td class="num">¥5,000</td>
+      <td class="num">¥5,000</td>
+      <td class="center"></td>
+    </tr>
+    <tr>
+      <td class="center">9</td>
+      <td>諸経費・交通費</td>
+      <td>現場管理・材料搬入等</td>
+      <td class="num">1</td>
+      <td class="center">式</td>
+      <td class="num">¥8,000</td>
+      <td class="num">¥8,000</td>
+      <td class="center"></td>
+    </tr>
+
+    <!-- 小計 -->
+    <tr class="subtotal-row">
+      <td colspan="6" style="text-align:right; padding-right:10px;">小　　計</td>
+      <td class="num">¥153,800</td>
+      <td></td>
+    </tr>
+    <tr class="tax-row">
+      <td colspan="6" style="text-align:right; padding-right:10px;">消費税（10%）</td>
+      <td class="num" style="background:#e0e0f0 !important; color:#000;">¥15,380</td>
+      <td></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="6" style="text-align:right; padding-right:10px;">合　計　（税込）</td>
+      <td class="num">¥168,300</td>
+      <td style="text-align:center; font-size:9pt;">（端数処理済）</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 備考・注意事項 -->
+<div class="note-section">
+  <h3>【 注意事項・特記事項 】</h3>
+  <ol style="margin:0; padding-left:18px;">
+    <li>本見積書は動画（IMG_4873.MOV）より現場状況を確認し作成しております。<br>
+        <strong>壁面面積は動画より推定（約34㎡）しており、実測値と異なる場合は精算が必要です。</strong></li>
+    <li>塗装色は別途ご指定ください。指定色・特注色の場合は材料費が変動する場合があります。</li>
+    <li>既存パテ処理部分（目地・ビス穴）については既施工ですが、塗装前に補修・ペーパーがけを実施します。不陸が著しい場合は別途追加見積となります。</li>
+    <li>システム天井・床養生シート・マスキングテープは現況施工済のものを一部流用可能な場合があります（要確認）。</li>
+    <li>本見積にタオルバー等金物類の脱着工事は含まれておりません。必要な場合は別途ご相談ください。</li>
+    <li>工事中の換気・乾燥時間を十分に確保いただける環境をお願いいたします。</li>
+    <li>本見積の有効期限は発行日より30日間です。材料価格変動により再見積となる場合があります。</li>
+  </ol>
+</div>
+
+<div class="validity" style="margin-top:12px; text-align:right; font-size:9.5pt;">
+  以上、よろしくご検討のほどお願い申し上げます。
+</div>
+
+</body>
+</html>

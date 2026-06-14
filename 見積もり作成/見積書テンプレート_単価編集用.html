@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>見積書テンプレート（単価編集用）</title>
+<style>
+  :root {
+    --navy: #1a1a4e;
+    --light-blue: #e0e0f0;
+    --section-bg: #e8e8f0;
+    --subtotal-bg: #f0f0e8;
+    --stripe: #f9f9f9;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "MS Gothic", "Yu Gothic", sans-serif;
+    font-size: 11pt;
+    margin: 30px 40px;
+    color: #000;
+    background: #fff;
+  }
+
+  /* ===== 編集モードUI ===== */
+  #edit-toolbar {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 9999;
+    display: flex;
+    gap: 8px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #edit-toolbar button {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10pt;
+    font-family: inherit;
+  }
+  #btn-add-row    { background: #2563eb; color: #fff; }
+  #btn-add-section { background: #16a34a; color: #fff; }
+  #btn-print      { background: var(--navy); color: #fff; }
+  #btn-add-row:hover    { background: #1d4ed8; }
+  #btn-add-section:hover { background: #15803d; }
+  #btn-print:hover      { background: #111133; }
+
+  /* ===== ヘッダー ===== */
+  h1 {
+    text-align: center;
+    font-size: 16pt;
+    letter-spacing: 8px;
+    margin: 0 0 4px 0;
+    border-bottom: 3px double #000;
+    padding-bottom: 5px;
+  }
+  .header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 10px 0 12px 0;
+    gap: 16px;
+  }
+  .client-info  { width: 58%; }
+  .company-info {
+    width: 38%;
+    text-align: right;
+    font-size: 9.5pt;
+    line-height: 1.55;
+  }
+  .client-name {
+    font-size: 13pt;
+    border-bottom: 2px solid #000;
+    padding-bottom: 2px;
+    margin-bottom: 5px;
+    display: inline-block;
+  }
+  .estimate-meta    { margin: 4px 0 6px 0; line-height: 1.55; font-size: 9.5pt; }
+  .estimate-meta td { padding-right: 10px; }
+
+  .summary-box {
+    border: 2px solid #000;
+    padding: 5px 14px;
+    margin: 6px 0 8px 0;
+    display: inline-block;
+    min-width: 220px;
+  }
+  .summary-box .label        { font-size: 9pt; color: #333; }
+  .summary-box .total-amount { font-size: 14pt; font-weight: bold; letter-spacing: 1px; }
+
+  .stamp-area { margin-top: 8px; text-align: right; }
+  .stamp-box {
+    display: inline-block;
+    border: 1px solid #000;
+    width: 45px; height: 45px;
+    text-align: center;
+    line-height: 45px;
+    font-size: 7.5pt; color: #999;
+    margin-left: 6px;
+    vertical-align: top;
+  }
+
+  /* ===== 明細テーブル ===== */
+  table.items {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 10.5pt;
+  }
+  table.items th {
+    background: var(--navy);
+    color: #fff;
+    padding: 8px 5px;
+    text-align: center;
+    border: 1px solid #000;
+    font-weight: normal;
+  }
+  table.items td {
+    padding: 5px 5px;
+    border: 1px solid #aaa;
+    vertical-align: middle;
+  }
+  table.items .section-header {
+    background: var(--section-bg);
+    font-weight: bold;
+    padding: 6px 8px;
+    font-size: 10pt;
+    border: 1px solid #000;
+  }
+  table.items .num    { text-align: right; padding-right: 8px; }
+  table.items .center { text-align: center; }
+  table.items tbody tr:nth-child(even):not(.section-row):not(.subtotal-row):not(.tax-row):not(.total-row) td {
+    background: var(--stripe);
+  }
+  .subtotal-row td { background: var(--subtotal-bg) !important; font-weight: bold; border-top: 2px solid #555; }
+  .total-row    td { background: var(--navy) !important; color: #fff; font-weight: bold; font-size: 12pt; }
+  .tax-row      td { background: var(--light-blue) !important; font-weight: bold; }
+
+  /* ===== 編集用 input ===== */
+  input.editable {
+    width: 100%;
+    border: 1px dashed #2563eb;
+    background: #f0f6ff;
+    padding: 2px 4px;
+    font-size: 10.5pt;
+    font-family: inherit;
+    text-align: right;
+    color: #000;
+    border-radius: 2px;
+  }
+  input.editable.left  { text-align: left; }
+  input.editable.center { text-align: center; }
+  input.editable:focus { outline: 2px solid #2563eb; background: #dbeafe; }
+
+  .amount-cell { font-weight: normal; }
+
+  /* 行削除ボタン */
+  .del-btn {
+    cursor: pointer;
+    color: #dc2626;
+    font-size: 9pt;
+    background: none;
+    border: none;
+    padding: 0 2px;
+    display: none; /* 印刷時非表示 */
+  }
+  table.items:hover .del-btn { display: inline; }
+
+  /* ===== 備考 ===== */
+  .note-section {
+    margin-top: 25px;
+    font-size: 9.5pt;
+    line-height: 1.9;
+    border: 1px solid #aaa;
+    padding: 10px 15px;
+    background: #fafafa;
+  }
+  .note-section h3 { font-size: 10.5pt; margin: 0 0 5px 0; border-bottom: 1px solid #aaa; padding-bottom: 4px; }
+
+  .validity { margin-top: 15px; font-size: 9.5pt; color: #444; }
+
+  /* ===== 印刷スタイル ===== */
+  @media print {
+    #edit-toolbar, .del-btn { display: none !important; }
+    input.editable {
+      border: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+    }
+    body { margin: 15px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 編集ツールバー -->
+<div id="edit-toolbar">
+  <button id="btn-add-section">＋ セクション追加</button>
+  <button id="btn-add-row">＋ 行追加</button>
+  <button id="btn-print">印刷 / PDF保存</button>
+</div>
+
+<h1>見 積 書</h1>
+
+<div class="header-section">
+  <div class="client-info">
+    <div class="estimate-meta">
+      <table>
+        <tr><td>見積番号</td><td>：</td><td><input class="editable left" style="width:180px" value="2026-0613-001"></td></tr>
+        <tr><td>見積日付</td><td>：</td><td><input class="editable left" style="width:180px" id="estimate-date" value="2026年6月13日"></td></tr>
+        <tr><td>有効期限</td><td>：</td><td><input class="editable left" style="width:180px" value="2026年7月13日"></td></tr>
+        <tr><td>工　事　名</td><td>：</td><td><input class="editable left" style="width:220px" value="内装壁面塗装工事"></td></tr>
+        <tr><td>工事場所</td><td>：</td><td><input class="editable left" style="width:220px" value="（別途調整）"></td></tr>
+        <tr><td>工期予定</td><td>：</td><td><input class="editable left" style="width:220px" value="約 2〜3 日間（養生・乾燥含む）"></td></tr>
+      </table>
+    </div>
+    <div style="margin-top:18px;">
+      <span class="client-name"><input class="editable left" style="width:240px; font-size:16pt;" value="御　担　当　者　様"></span>
+    </div>
+    <div class="summary-box" style="margin-top:15px;">
+      <div class="label">御見積金額（税込）</div>
+      <div class="total-amount">￥ <span id="display-total">0</span> －</div>
+      <div class="label" style="margin-top:4px;">※ 下記明細をご確認ください</div>
+    </div>
+  </div>
+
+  <div class="company-info">
+    <strong><input class="editable left" style="width:200px; font-weight:bold;" value="株式会社 ○○ペイント"></strong><br>
+    〒 <input class="editable left" style="width:80px;" value="000-0000"><br>
+    <input class="editable left" style="width:200px;" value="○○県○○市○○町 0-0-0"><br>
+    TEL：<input class="editable left" style="width:130px;" value="000-000-0000"><br>
+    FAX：<input class="editable left" style="width:130px;" value="000-000-0000"><br>
+    担当：<input class="editable left" style="width:100px;" value="○○ ○○"><br>
+    <div class="stamp-area">
+      <div class="stamp-box">社印</div>
+      <div class="stamp-box">担当印</div>
+    </div>
+  </div>
+</div>
+
+<!-- 明細テーブル -->
+<table class="items" id="items-table">
+  <thead>
+    <tr>
+      <th style="width:4%">No.</th>
+      <th style="width:26%">工　種　・　品　名</th>
+      <th style="width:22%">仕　様　・　規　格</th>
+      <th style="width:8%">数量</th>
+      <th style="width:6%">単位</th>
+      <th style="width:12%">単　価</th>
+      <th style="width:12%">金　額</th>
+      <th style="width:7%">備　考</th>
+      <th style="width:3%" class="no-print"></th>
+    </tr>
+  </thead>
+  <tbody id="items-body">
+
+    <!-- セクション1 -->
+    <tr class="section-row">
+      <td colspan="8" class="section-header">
+        <input class="editable left" style="width:95%; background:#e8e8f0; font-weight:bold;" value="【1】 下地調整工事">
+      </td>
+      <td style="border:1px solid #aaa; background:var(--section-bg);">
+        <button class="del-btn" onclick="delRow(this)" title="削除">✕</button>
+      </td>
+    </tr>
+    <tr>
+      <td class="center">1</td>
+      <td><input class="editable left" style="width:100%;" value="ペーパーがけ（目粗し）"></td>
+      <td><input class="editable left" style="width:100%;" value="＃120〜＃240 空研ぎペーパー"></td>
+      <td><input class="editable num" style="width:100%;" type="number" step="0.1" value="34.0" oninput="recalc()"></td>
+      <td><input class="editable center" style="width:100%;" value="㎡"></td>
+      <td><input class="editable num" style="width:100%;" type="number" value="500" oninput="recalc()"></td>
+      <td class="num amount-cell" data-amount="0"></td>
+      <td><input class="editable center" style="width:100%;" value="壁面全体"></td>
+      <td><button class="del-btn" onclick="delRow(this)" title="削除">✕</button></td>
+    </tr>
+    <tr>
+      <td class="center">2</td>
+      <td><input class="editable left" style="width:100%;" value="パテ補修・不陸調整"></td>
+      <td><input class="editable left" style="width:100%;" value="ポリパテ・下地パテ（補修）"></td>
+      <td><input class="editable num" style="width:100%;" type="number" step="0.1" value="34.0" oninput="recalc()"></td>
+      <td><input class="editable center" style="width:100%;" value="㎡"></td>
+      <td><input class="editable num" style="width:100%;" type="number" value="400" oninput="recalc()"></td>
+      <td class="num amount-cell" data-amount="0"></td>
+      <td><input class="editable center" style="width:100%;" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)" title="削除">✕</button></td>
+    </tr>
+    <tr>
+      <td class="center">3</td>
+      <td><input class="editable left" style="width:100%;" value="清掃・ゴミ処理"></td>
+      <td><input class="editable left" style="width:100%;" value="研磨粉・ゴミ除去"></td>
+      <td><input class="editable num" style="width:100%;" type="number" step="0.1" value="1" oninput="recalc()"></td>
+      <td><input class="editable center" style="width:100%;" value="式"></td>
+      <td><input class="editable num" style="width:100%;" type="number" value="3000" oninput="recalc()"></td>
+      <td class="num amount-cell" data-amount="0"></td>
+      <td><input class="editable center" style="width:100%;" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)" title="削除">✕</button></td>
+    </tr>
+
+    <!-- セクション2 -->
+    <tr class="section-row">
+      <td colspan="8" class="section-header">
+        <input class="editable left" style="width:95%; background:#e8e8f0; font-weight:bold;" value="【2】 下塗り工事">
+      </td>
+      <td style="border:1px solid #aaa; background:var(--section-bg);">
+        <button class="del-btn" onclick="delRow(this)" title="削除">✕</button>
+      </td>
+    </tr>
+    <tr>
+      <td class="center">4</td>
+      <td><input class="editable left" style="width:100%;" value="シーラー塗布（下塗り）"></td>
+      <td><input class="editable left" style="width:100%;" value="水性シーラー 1回塗り"></td>
+      <td><input class="editable num" style="width:100%;" type="number" step="0.1" value="34.0" oninput="recalc()"></td>
+      <td><input class="editable center" style="width:100%;" value="㎡"></td>
+      <td><input class="editable num" style="width:100%;" type="number" value="800" oninput="recalc()"></td>
+      <td class="num amount-cell" data-amount="0"></td>
+      <td><input class="editable center" style="width:100%;" value="全壁面"></td>
+      <td><button class="del-btn" onclick="delRow(this)" title="削除">✕</button></td>
+    </tr>
+
+    <!-- セクション3 -->
+    <tr class="section-row">
+      <td colspan="8" class="section-header">
+        <input class="editable left" style="width:95%; background:#e8e8f0; font-weight:bold;" value="【3】 仕上げ塗装工事">
+      </td>
+      <td style="border:1px solid #aaa; background:var(--section-bg);">
+        <button class="del-btn" onclick="delRow(this)" title="削除">✕</button>
+      </td>
+    </tr>
+    <tr>
+      <td class="center">5</td>
+      <td><input class="editable left" style="width:100%;" value="内装用エマルション塗装（中塗り）"></td>
+      <td><input class="editable left" style="width:100%;" value="合成樹脂エマルションペイント 1回目"></td>
+      <td><input class="editable num" style="width:100%;" type="number" step="0.1" value="34.0" oninput="recalc()"></td>
+      <td><input class="editable center" style="width:100%;" value="㎡"></td>
+      <td><input class="editable num" style="width:100%;" type="number" value="1000" oninput="recalc()"></td>
+      <td class="num amount-cell" data-amount="0"></td>
+      <td><input class="editable center" style="width:100%;" value="色番指定"></td>
+      <td><button class="del-btn" onclick="delRow(this)" title="削除">✕</button></td>
+    </tr>
+    <tr>
+      <td class="center">6</td>
+      <td><input class="editable left" style="width:100%;" value="内装用エマルション塗装（上塗り）"></td>
+      <td><input class="editable left" style="width:100%;" value="合成樹脂エマルションペイント 2回目（最終仕上げ）"></td>
+      <td><input class="editable num" style="width:100%;" type="number" step="0.1" value="34.0" oninput="recalc()"></td>
+      <td><input class="editable center" style="width:100%;" value="㎡"></td>
+      <td><input class="editable num" style="width:100%;" type="number" value="1000" oninput="recalc()"></td>
+      <td class="num amount-cell" data-amount="0"></td>
+      <td><input class="editable center" style="width:100%;" value="色番指定"></td>
+      <td><button class="del-btn" onclick="delRow(this)" title="削除">✕</button></td>
+    </tr>
+
+    <!-- セクション4 -->
+    <tr class="section-row">
+      <td colspan="8" class="section-header">
+        <input class="editable left" style="width:95%; background:#e8e8f0; font-weight:bold;" value="【4】 養生・諸経費">
+      </td>
+      <td style="border:1px solid #aaa; background:var(--section-bg);">
+        <button class="del-btn" onclick="delRow(this)" title="削除">✕</button>
+      </td>
+    </tr>
+    <tr>
+      <td class="center">7</td>
+      <td><input class="editable left" style="width:100%;" value="養生工事"></td>
+      <td><input class="editable left" style="width:100%;" value="床面・建具・金物類 養生シート"></td>
+      <td><input class="editable num" style="width:100%;" type="number" step="0.1" value="1" oninput="recalc()"></td>
+      <td><input class="editable center" style="width:100%;" value="式"></td>
+      <td><input class="editable num" style="width:100%;" type="number" value="12000" oninput="recalc()"></td>
+      <td class="num amount-cell" data-amount="0"></td>
+      <td><input class="editable center" style="width:100%;" value="撤去含む"></td>
+      <td><button class="del-btn" onclick="delRow(this)" title="削除">✕</button></td>
+    </tr>
+    <tr>
+      <td class="center">8</td>
+      <td><input class="editable left" style="width:100%;" value="廃材・産業廃棄物処理費"></td>
+      <td><input class="editable left" style="width:100%;" value="空き缶・マスキング材等"></td>
+      <td><input class="editable num" style="width:100%;" type="number" step="0.1" value="1" oninput="recalc()"></td>
+      <td><input class="editable center" style="width:100%;" value="式"></td>
+      <td><input class="editable num" style="width:100%;" type="number" value="5000" oninput="recalc()"></td>
+      <td class="num amount-cell" data-amount="0"></td>
+      <td><input class="editable center" style="width:100%;" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)" title="削除">✕</button></td>
+    </tr>
+    <tr>
+      <td class="center">9</td>
+      <td><input class="editable left" style="width:100%;" value="諸経費・交通費"></td>
+      <td><input class="editable left" style="width:100%;" value="現場管理・材料搬入等"></td>
+      <td><input class="editable num" style="width:100%;" type="number" step="0.1" value="1" oninput="recalc()"></td>
+      <td><input class="editable center" style="width:100%;" value="式"></td>
+      <td><input class="editable num" style="width:100%;" type="number" value="8000" oninput="recalc()"></td>
+      <td class="num amount-cell" data-amount="0"></td>
+      <td><input class="editable center" style="width:100%;" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)" title="削除">✕</button></td>
+    </tr>
+
+  </tbody>
+  <tfoot>
+    <tr class="subtotal-row">
+      <td colspan="6" style="text-align:right; padding-right:10px;">小　　計</td>
+      <td class="num" id="subtotal-cell">¥0</td>
+      <td colspan="2"></td>
+    </tr>
+    <tr class="tax-row">
+      <td colspan="5" style="text-align:right; padding-right:10px;">消費税（
+        <input class="editable center" id="tax-rate-input" type="number" value="10" min="0" max="100" style="width:40px; background:var(--light-blue);" oninput="recalc()">
+        %）
+      </td>
+      <td></td>
+      <td class="num" id="tax-cell" style="background:var(--light-blue) !important; color:#000;">¥0</td>
+      <td colspan="2"></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="6" style="text-align:right; padding-right:10px;">合　計　（税込）</td>
+      <td class="num" id="total-cell">¥0</td>
+      <td style="text-align:center; font-size:9pt;">（端数処理済）</td>
+      <td></td>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- 備考 -->
+<div class="note-section">
+  <h3>【 注意事項・特記事項 】</h3>
+  <textarea style="width:100%; min-height:100px; border:1px dashed #2563eb; background:#f0f6ff; font-family:inherit; font-size:9.5pt; line-height:1.9; padding:6px; resize:vertical;">1. 本見積書は現場状況を確認し作成しております。実測値と異なる場合は精算が必要です。
+2. 塗装色は別途ご指定ください。指定色・特注色の場合は材料費が変動する場合があります。
+3. 本見積の有効期限は発行日より30日間です。材料価格変動により再見積となる場合があります。</textarea>
+</div>
+
+<div class="validity" style="margin-top:12px; text-align:right; font-size:9.5pt;">
+  以上、よろしくご検討のほどお願い申し上げます。
+</div>
+
+<script>
+  // ===== 合計計算 =====
+  function recalc() {
+    const tbody = document.getElementById('items-body');
+    const rows = tbody.querySelectorAll('tr:not(.section-row)');
+    let subtotal = 0;
+
+    rows.forEach(row => {
+      const inputs = row.querySelectorAll('input[type="number"]');
+      if (inputs.length < 2) return;
+      const qty   = parseFloat(inputs[0].value) || 0;
+      const price = parseFloat(inputs[1].value) || 0;
+      const amount = Math.round(qty * price);
+      const cell = row.querySelector('.amount-cell');
+      if (cell) {
+        cell.textContent = '¥' + amount.toLocaleString();
+        cell.dataset.amount = amount;
+      }
+      subtotal += amount;
+    });
+
+    const taxRate = parseFloat(document.getElementById('tax-rate-input').value) || 0;
+    const tax   = Math.round(subtotal * taxRate / 100);
+    const total = subtotal + tax;
+
+    document.getElementById('subtotal-cell').textContent = '¥' + subtotal.toLocaleString();
+    document.getElementById('tax-cell').textContent      = '¥' + tax.toLocaleString();
+    document.getElementById('total-cell').textContent    = '¥' + total.toLocaleString();
+    document.getElementById('display-total').textContent = total.toLocaleString();
+
+    // 行番号リナンバー
+    let no = 1;
+    rows.forEach(row => {
+      const firstCell = row.cells[0];
+      if (firstCell && !row.classList.contains('section-row')) {
+        firstCell.textContent = no++;
+      }
+    });
+  }
+
+  // ===== 行削除 =====
+  function delRow(btn) {
+    if (!confirm('この行を削除しますか？')) return;
+    btn.closest('tr').remove();
+    recalc();
+  }
+
+  // ===== 行追加 =====
+  document.getElementById('btn-add-row').addEventListener('click', () => {
+    const tbody = document.getElementById('items-body');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="center">-</td>
+      <td><input class="editable left" style="width:100%;" value="品名を入力"></td>
+      <td><input class="editable left" style="width:100%;" value="仕様を入力"></td>
+      <td><input class="editable num" style="width:100%;" type="number" step="0.1" value="1" oninput="recalc()"></td>
+      <td><input class="editable center" style="width:100%;" value="式"></td>
+      <td><input class="editable num" style="width:100%;" type="number" value="0" oninput="recalc()"></td>
+      <td class="num amount-cell" data-amount="0">¥0</td>
+      <td><input class="editable center" style="width:100%;" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)" title="削除">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+    recalc();
+    tr.querySelector('input').focus();
+  });
+
+  // ===== セクション追加 =====
+  document.getElementById('btn-add-section').addEventListener('click', () => {
+    const tbody = document.getElementById('items-body');
+    const sectionCount = tbody.querySelectorAll('.section-row').length + 1;
+    const tr = document.createElement('tr');
+    tr.className = 'section-row';
+    tr.innerHTML = `
+      <td colspan="8" class="section-header">
+        <input class="editable left" style="width:95%; background:#e8e8f0; font-weight:bold;" value="【${sectionCount}】 セクション名を入力">
+      </td>
+      <td style="border:1px solid #aaa; background:var(--section-bg);">
+        <button class="del-btn" onclick="delRow(this)" title="削除">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+    tr.querySelector('input').select();
+  });
+
+  // ===== 印刷 =====
+  document.getElementById('btn-print').addEventListener('click', () => {
+    window.print();
+  });
+
+  // ===== 初期計算 =====
+  recalc();
+</script>
+</body>
+</html>
