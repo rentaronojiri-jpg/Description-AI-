@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>工程表 - 練馬区関町3-24-3 リノベーション工事</title>
+  <style>
+    @page {
+      size: A3 landscape;
+      margin: 8mm;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Meiryo', 'MS Gothic', 'Yu Gothic', sans-serif;
+      font-size: 9.5px;
+      color: #111;
+      background: #fff;
+      padding: 6mm;
+    }
+
+    .doc-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 8px;
+      margin-bottom: 6px;
+      border-bottom: 2px solid #1a3a6b;
+      padding-bottom: 4px;
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+      font-size: 9.5px;
+    }
+    .info-table td { border: 1px solid #aaa; padding: 3px 7px; }
+    .info-table .label {
+      background: #dde4f0;
+      font-weight: bold;
+      width: 70px;
+      white-space: nowrap;
+    }
+
+    /* ======= ガントチャート ======= */
+    .gantt {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9px;
+      table-layout: fixed;
+    }
+    .gantt th, .gantt td {
+      border: 1px solid #888;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .col-no   { width: 24px; }
+    .col-name { width: 185px; }
+    .col-w    { width: 82px; }   /* 6週 × 82px = 492px */
+    .col-note { width: 110px; }
+
+    /* 月ヘッダー */
+    .hd-jun { background: #2e5d9e; color: #fff; font-weight: bold; font-size: 11px; padding: 5px 2px; }
+    .hd-jul { background: #1a7a3a; color: #fff; font-weight: bold; font-size: 11px; padding: 5px 2px; }
+
+    /* 週ヘッダー */
+    .hw-jun { background: #4a7dcc; color: #fff; font-weight: bold; padding: 4px 2px; font-size: 10px; }
+    .hw-jul { background: #3a9a5a; color: #fff; font-weight: bold; padding: 4px 2px; font-size: 10px; }
+    .hw-jul-hl { background: #c17f00; color: #fff; font-weight: bold; padding: 4px 2px; font-size: 10px; border-left: 3px solid #ff6600 !important; }
+    .hw-jul-fin { background: #5a3a8b; color: #fff; font-weight: bold; padding: 4px 2px; font-size: 10px; }
+
+    /* 日付ヘッダー */
+    .hd-jun { background: #d0dcf4; }
+    .date-jun { background: #d0dcf4; color: #111; padding: 3px 1px; font-size: 8px; }
+    .date-jul { background: #c8ecd4; color: #111; padding: 3px 1px; font-size: 8px; }
+    .date-hl  { background: #fff0cc; color: #b00; padding: 3px 1px; font-size: 8px; font-weight: bold; border-left: 3px solid #ff6600 !important; }
+    .date-fin { background: #ede0ff; color: #5a3a8b; padding: 3px 1px; font-size: 8px; font-weight: bold; }
+
+    .hd-label { background: #e8eaf6; font-weight: bold; padding: 3px 4px; }
+
+    /* 工事行 */
+    .task-row td { padding: 2px 3px; height: 26px; }
+    .task-row:nth-child(odd)  { background: #fafafa; }
+    .task-row:nth-child(even) { background: #f0f4fb; }
+    .task-name-cell { text-align: left; padding: 3px 6px !important; line-height: 1.4; }
+    .task-sub { font-size: 7.5px; color: #555; }
+
+    /* バー */
+    .bar {
+      display: block;
+      height: 15px;
+      border-radius: 3px;
+      margin: 2px auto;
+      width: 88%;
+    }
+    .bar-hl {
+      display: block;
+      height: 15px;
+      border-radius: 3px;
+      margin: 2px auto;
+      width: 88%;
+      box-shadow: 0 0 0 2px #ff6600;
+    }
+
+    /* 各工事色 */
+    .c-prep   { background: #455a64; }
+    .c-demo   { background: #e53935; }
+    .c-carp   { background: #e64a19; }
+    .c-equip  { background: #2e7d32; }
+    .c-unit   { background: #7b1fa2; }
+    .c-elec   { background: #f57f17; }
+    .c-kitch  { background: #00796b; }
+    .c-wash   { background: #0277bd; }
+    .c-toilet { background: #6d4c41; }
+    .c-floor  { background: #1565c0; }
+    .c-door   { background: #c62828; }
+    .c-cross  { background: #00897b; }
+    .c-other  { background: #546e7a; }
+    .c-clean  { background: #78909c; }
+
+    .star { font-size: 20px; color: #c0ca33; line-height: 1; }
+
+    /* 分類帯 */
+    .section-row td {
+      background: #e8eaf6;
+      font-weight: bold;
+      font-size: 8.5px;
+      padding: 2px 6px;
+      color: #1a3a6b;
+      letter-spacing: 1px;
+    }
+
+    /* 竣工セル */
+    .final-cell {
+      background: #f5f0ff !important;
+      border: 2px solid #5a3a8b !important;
+    }
+
+    /* 凡例 */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 14px;
+      margin-top: 6px;
+      padding: 5px 10px;
+      border: 1px solid #bbb;
+      background: #fafafa;
+    }
+    .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; }
+    .legend-box  { width: 20px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+
+    /* フッター */
+    .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 6px; }
+    .note-text { font-size: 8px; color: #555; line-height: 1.7; }
+    .sign-area { display: flex; gap: 8px; }
+    .sign-box { border: 1px solid #888; width: 82px; padding: 3px 4px; text-align: center; font-size: 8.5px; }
+    .sign-box .sign-label { border-bottom: 1px solid #aaa; padding-bottom: 2px; margin-bottom: 2px; font-weight: bold; }
+    .sign-box .sign-space { height: 24px; }
+
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="doc-title">工　程　表</div>
+
+<table class="info-table">
+  <tr>
+    <td class="label">工事名称</td>
+    <td colspan="3">練馬区関町3-24-3　リノベーション工事（脱衣所間仕切りリノベ込）</td>
+    <td class="label">発注者</td>
+    <td>蛭田 様</td>
+    <td class="label">作成日</td>
+    <td>2026年6月17日</td>
+  </tr>
+  <tr>
+    <td class="label">施工場所</td>
+    <td colspan="3">東京都練馬区関町3丁目24番3号</td>
+    <td class="label">担　当</td>
+    <td>菊池 匠（090-9825-2087）</td>
+    <td class="label">施工業者</td>
+    <td>英進工業株式会社</td>
+  </tr>
+  <tr>
+    <td class="label">工事期間</td>
+    <td colspan="3"><strong>2026年6月23日（火）〜 2026年7月31日（金）　約6週間</strong></td>
+    <td class="label">工事金額</td>
+    <td>¥10,638,980（税込）</td>
+    <td class="label">竣工予定</td>
+    <td><strong>2026年7月31日（予定）</strong></td>
+  </tr>
+</table>
+
+<table class="gantt">
+  <colgroup>
+    <col class="col-no">
+    <col class="col-name">
+    <col class="col-w"><!-- W1 6/23-28 -->
+    <col class="col-w"><!-- W2 6/29-7/5 -->
+    <col class="col-w"><!-- W3 7/6-12 -->
+    <col class="col-w"><!-- W4 7/13-19 -->
+    <col class="col-w"><!-- W5 7/20-26 ★7/24 -->
+    <col class="col-w"><!-- W6 7/27-31 竣工 -->
+    <col class="col-note">
+  </colgroup>
+
+  <thead>
+    <tr>
+      <th class="hd-label col-no" rowspan="3">No.</th>
+      <th class="hd-label col-name" rowspan="3" style="text-align:center;">工　事　種　別</th>
+      <th style="background:#2e5d9e; color:#fff; font-weight:bold; font-size:11px; padding:5px 2px;" colspan="1">6月</th>
+      <th style="background:#1a7a3a; color:#fff; font-weight:bold; font-size:11px; padding:5px 2px;" colspan="5">2026年　7月</th>
+      <th class="hd-label col-note" rowspan="3" style="text-align:center;">備　考</th>
+    </tr>
+    <tr>
+      <th class="hw-jun">第１週</th>
+      <th class="hw-jul">第２週</th>
+      <th class="hw-jul">第３週</th>
+      <th class="hw-jul">第４週</th>
+      <th class="hw-jul-hl">第５週</th>
+      <th class="hw-jul-fin">第６週</th>
+    </tr>
+    <tr>
+      <th class="date-jun">6/23（火）<br>〜 6/28（日）</th>
+      <th class="date-jul">6/29（月）<br>〜 7/5（日）</th>
+      <th class="date-jul">7/6（月）<br>〜 7/12（日）</th>
+      <th class="date-jul">7/13（月）<br>〜 7/19（日）</th>
+      <th class="date-hl">7/20（月）〜 7/26（日）<br><strong>★ UB・台所 7/24（木）</strong></th>
+      <th class="date-fin">7/27（月）〜 7/31（金）<br><strong>竣工・引渡し</strong></th>
+    </tr>
+  </thead>
+
+  <tbody>
+
+    <!-- ▼ 着工準備・解体 -->
+    <tr class="section-row"><td colspan="9">▼ 着工準備・解体工事</td></tr>
+
+    <tr class="task-row">
+      <td>1</td>
+      <td class="task-name-cell">仮設・共通工事<br><span class="task-sub">養生 / アスベスト調査（解体前先行実施）</span></td>
+      <td><span class="bar c-prep"></span></td><!-- W1 -->
+      <td></td><td></td><td></td><td></td><td></td>
+      <td class="task-name-cell">6/23 着工・先行調査</td>
+    </tr>
+
+    <tr class="task-row">
+      <td>2</td>
+      <td class="task-name-cell">解体工事<br><span class="task-sub">UB・キッチン・洗面・トイレ1F・和室等</span></td>
+      <td><span class="bar c-demo"></span></td><!-- W1 6/23〜 -->
+      <td><span class="bar c-demo"></span></td><!-- W2 -->
+      <td></td><td></td><td></td><td></td>
+      <td class="task-name-cell"><strong>6/23 解体開始</strong><br><span class="task-sub">アスベスト処理含む</span></td>
+    </tr>
+
+    <!-- ▼ 躯体・設備 -->
+    <tr class="section-row"><td colspan="9">▼ 躯体・設備工事</td></tr>
+
+    <tr class="task-row">
+      <td>3</td>
+      <td class="task-name-cell">大工・造作工事<br><span class="task-sub">解体補修・下地補強・床壁造作・脱衣室間仕切り</span></td>
+      <td></td>
+      <td><span class="bar c-carp"></span></td><!-- W2 -->
+      <td><span class="bar c-carp"></span></td><!-- W3 -->
+      <td><span class="bar c-carp"></span></td><!-- W4 -->
+      <td></td><td></td>
+      <td class="task-name-cell">脱衣室リノベ・引き戸込</td>
+    </tr>
+
+    <tr class="task-row">
+      <td>4</td>
+      <td class="task-name-cell">設備工事<br><span class="task-sub">給排水管切り回し・洗濯水栓</span></td>
+      <td></td>
+      <td><span class="bar c-equip"></span></td><!-- W2 -->
+      <td><span class="bar c-equip"></span></td><!-- W3 -->
+      <td></td><td></td><td></td>
+      <td class="task-name-cell">UB・キッチン・トイレ配管</td>
+    </tr>
+
+    <tr class="task-row">
+      <td>5</td>
+      <td class="task-name-cell">電気工事（一次）<br><span class="task-sub">配線・分電盤増設・専用回路（食洗器等）</span></td>
+      <td></td>
+      <td><span class="bar c-elec"></span></td><!-- W2 -->
+      <td><span class="bar c-elec"></span></td><!-- W3 -->
+      <td><span class="bar c-elec"></span></td><!-- W4 -->
+      <td></td><td></td>
+      <td class="task-name-cell">容量増設・専用回路</td>
+    </tr>
+
+    <!-- ▼ 設備機器取付 -->
+    <tr class="section-row"><td colspan="9">▼ 設備機器取付　（7/24 集中搬入）</td></tr>
+
+    <tr class="task-row">
+      <td>6</td>
+      <td class="task-name-cell">ユニット工事（UB）<br><span class="task-sub">TOTO サザナ1317 Sタイプ / 浴室換気乾燥機</span></td>
+      <td></td><td></td><td></td><td></td>
+      <td style="border-left:3px solid #ff6600;"><span class="bar-hl c-unit"></span></td><!-- W5 ★7/24 -->
+      <td></td>
+      <td class="task-name-cell"><strong style="color:#c00;">7/24（木）搬入・設置</strong><br><span class="task-sub">入口枠取付含む</span></td>
+    </tr>
+
+    <tr class="task-row">
+      <td>7</td>
+      <td class="task-name-cell">キッチン工事<br><span class="task-sub">クリナップ ラクエラ デュアルトップ対面型 / 食洗器</span></td>
+      <td></td><td></td><td></td><td></td>
+      <td style="border-left:3px solid #ff6600;"><span class="bar-hl c-kitch"></span></td><!-- W5 ★7/24 -->
+      <td><span class="bar c-kitch"></span></td><!-- W6 ガス等仕上げ -->
+      <td class="task-name-cell"><strong style="color:#c00;">7/24（木）搬入・設置</strong><br><span class="task-sub">ガス切り回し・食洗器</span></td>
+    </tr>
+
+    <tr class="task-row">
+      <td>8</td>
+      <td class="task-name-cell">洗面室工事<br><span class="task-sub">Panasonic シーライン GC-755P（材工）</span></td>
+      <td></td><td></td><td></td>
+      <td><span class="bar c-wash"></span></td><!-- W4 -->
+      <td><span class="bar c-wash"></span></td><!-- W5 -->
+      <td></td>
+      <td class="task-name-cell">洗濯水栓・排水含む</td>
+    </tr>
+
+    <tr class="task-row">
+      <td>9</td>
+      <td class="task-name-cell">トイレ工事<br><span class="task-sub">TOTO ZR1（お客様支給品 取付）</span></td>
+      <td></td><td></td><td></td><td></td>
+      <td><span class="bar c-toilet"></span></td><!-- W5 -->
+      <td></td>
+      <td class="task-name-cell">お客様支給品</td>
+    </tr>
+
+    <!-- ▼ 仕上げ -->
+    <tr class="section-row"><td colspan="9">▼ 仕上げ工事</td></tr>
+
+    <tr class="task-row">
+      <td>10</td>
+      <td class="task-name-cell">床工事<br><span class="task-sub">フロアタイル上張り（70㎡）/ 階段 / 畳張替（7枚）/ 障子</span></td>
+      <td></td><td></td><td></td>
+      <td><span class="bar c-floor"></span></td><!-- W4 -->
+      <td><span class="bar c-floor"></span></td><!-- W5 -->
+      <td></td>
+      <td class="task-name-cell">ベニヤ下地調整含む</td>
+    </tr>
+
+    <tr class="task-row">
+      <td>11</td>
+      <td class="task-name-cell">建具工事<br><span class="task-sub">Panasonic ベリティス 1F・2F 計6か所</span></td>
+      <td></td><td></td><td></td><td></td>
+      <td><span class="bar c-door"></span></td><!-- W5 -->
+      <td><span class="bar c-door"></span></td><!-- W6 -->
+      <td class="task-name-cell">LDK・洋室・洗面・トイレ</td>
+    </tr>
+
+    <tr class="task-row">
+      <td>12</td>
+      <td class="task-name-cell">クロス工事<br><span class="task-sub">全室 壁・天井 張替（実施面積 455㎡）</span></td>
+      <td></td><td></td><td></td><td></td>
+      <td><span class="bar c-cross"></span></td><!-- W5 -->
+      <td><span class="bar c-cross"></span></td><!-- W6 -->
+      <td class="task-name-cell">白クロス・ポイント等</td>
+    </tr>
+
+    <tr class="task-row">
+      <td>13</td>
+      <td class="task-name-cell">電気工事（二次）<br><span class="task-sub">器具取付・スイッチ仕上げ / 火災報知器×7</span></td>
+      <td></td><td></td><td></td><td></td><td></td>
+      <td><span class="bar c-elec"></span></td><!-- W6 -->
+      <td class="task-name-cell">火報7か所・器具仕上げ</td>
+    </tr>
+
+    <tr class="task-row">
+      <td>14</td>
+      <td class="task-name-cell">その他工事<br><span class="task-sub">換気口交換・脱衣室引き戸新設・構造金物</span></td>
+      <td></td><td></td><td></td><td></td>
+      <td><span class="bar c-other"></span></td><!-- W5 -->
+      <td><span class="bar c-other"></span></td><!-- W6 -->
+      <td class="task-name-cell">脱衣室LDK引き戸含む</td>
+    </tr>
+
+    <!-- ▼ 竣工 -->
+    <tr class="section-row"><td colspan="9">▼ 竣工・引渡し</td></tr>
+
+    <tr class="task-row">
+      <td>15</td>
+      <td class="task-name-cell">清掃・竣工検査<br><span class="task-sub">全室クリーニング・施主立会い確認</span></td>
+      <td></td><td></td><td></td><td></td><td></td>
+      <td><span class="bar c-clean"></span></td><!-- W6 -->
+      <td class="task-name-cell">産廃搬出・最終確認</td>
+    </tr>
+
+    <tr class="task-row">
+      <td>—</td>
+      <td class="task-name-cell"><strong>竣工・引渡し</strong></td>
+      <td></td><td></td><td></td><td></td><td></td>
+      <td class="final-cell"><span class="star">★</span></td><!-- W6 7/31 -->
+      <td class="task-name-cell"><strong style="color:#5a3a8b;">7/31（金）竣工・引渡し</strong></td>
+    </tr>
+
+  </tbody>
+</table>
+
+<!-- 凡例 -->
+<div class="legend">
+  <strong style="font-size:9px; margin-right:4px;">凡例：</strong>
+  <div class="legend-item"><div class="legend-box c-prep"></div>仮設・共通</div>
+  <div class="legend-item"><div class="legend-box c-demo"></div>解体工事</div>
+  <div class="legend-item"><div class="legend-box c-carp"></div>大工・造作</div>
+  <div class="legend-item"><div class="legend-box c-equip"></div>設備工事</div>
+  <div class="legend-item"><div class="legend-box c-unit"></div>ユニット（UB）</div>
+  <div class="legend-item"><div class="legend-box c-elec"></div>電気工事</div>
+  <div class="legend-item"><div class="legend-box c-kitch"></div>キッチン工事</div>
+  <div class="legend-item"><div class="legend-box c-wash"></div>洗面室工事</div>
+  <div class="legend-item"><div class="legend-box c-toilet"></div>トイレ工事</div>
+  <div class="legend-item"><div class="legend-box c-floor"></div>床工事</div>
+  <div class="legend-item"><div class="legend-box c-door"></div>建具工事</div>
+  <div class="legend-item"><div class="legend-box c-cross"></div>クロス工事</div>
+  <div class="legend-item"><div class="legend-box c-other"></div>その他工事</div>
+  <div class="legend-item"><div class="legend-box c-clean"></div>清掃・検査</div>
+  <div class="legend-item"><span class="star" style="font-size:13px; line-height:1;">★</span>竣工・引渡し</div>
+  <div class="legend-item" style="margin-left:14px; border-left:3px solid #ff6600; padding-left:6px; color:#b00;">
+    <strong>オレンジライン：UB・キッチン 7/24（木）搬入日</strong>
+  </div>
+</div>
+
+<!-- フッター -->
+<div class="footer">
+  <div class="note-text">
+    ※本工程表は現時点での予定工程です。着工後、現場状況により変更が生じる場合があります。<br>
+    ※アスベスト調査結果によっては解体工期が変動する可能性があります。<br>
+    ※お客様支給品（TOTO ZR1 等）は第4週（7/13）開始前にご準備ください。<br>
+    ※7/24（木）はユニットバス・システムキッチンの搬入・設置日です。駐車スペースのご確保をお願いします。
+  </div>
+  <div class="sign-area">
+    <div class="sign-box">
+      <div class="sign-label">発注者確認</div>
+      <div class="sign-space"></div>
+      <div>蛭田 様</div>
+    </div>
+    <div class="sign-box">
+      <div class="sign-label">施　工　者</div>
+      <div class="sign-space"></div>
+      <div>英進工業㈱</div>
+    </div>
+    <div class="sign-box">
+      <div class="sign-label">担当・印</div>
+      <div class="sign-space"></div>
+      <div>菊池 匠</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

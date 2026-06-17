@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif;
+  background: #f1f5f9;
+  overscroll-behavior: none;
+}
+
+#root {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: #f1f5f9;
+  position: relative;
+}
+
+.gantt-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.status-未着手 { @apply bg-gray-100 text-gray-600; }
+.status-進行中 { @apply bg-blue-100 text-blue-700; }
+.status-完了   { @apply bg-green-100 text-green-700; }
+.status-遅延   { @apply bg-red-100 text-red-700; }

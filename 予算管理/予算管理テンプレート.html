@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>工事予算管理表</title>
+<style>
+  :root {
+    --navy:   #1a1a4e;
+    --green:  #1a4e2e;
+    --light-blue: #e0e0f0;
+    --light-green:#e0f0e0;
+    --warn:   #fff3cd;
+    --danger: #fde8e8;
+    --ok:     #e8f5e9;
+    --stripe: #f9f9f9;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "MS Gothic","Yu Gothic",sans-serif;
+    font-size: 10.5pt;
+    margin: 28px 36px;
+    color: #000;
+    background: #fff;
+  }
+
+  /* ===== ツールバー ===== */
+  #toolbar {
+    position: fixed;
+    top: 10px; right: 10px;
+    z-index: 9999;
+    display: flex;
+    gap: 6px;
+    background: rgba(255,255,255,0.97);
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 7px 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #toolbar button {
+    padding: 5px 13px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 9.5pt;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  #btn-add-row     { background:#2563eb; color:#fff; }
+  #btn-add-vendor  { background:#16a34a; color:#fff; }
+  #btn-add-billing { background:#d97706; color:#fff; }
+  #btn-recalc      { background:#7c3aed; color:#fff; }
+  #btn-print       { background:var(--navy); color:#fff; }
+  #toolbar button:hover { filter: brightness(0.88); }
+
+  @media print {
+    #toolbar { display:none; }
+    body { margin: 15px 20px; font-size:9.5pt; }
+    .no-print { display:none; }
+  }
+
+  /* ===== タイトル ===== */
+  h1 {
+    text-align: center;
+    font-size: 15pt;
+    letter-spacing: 6px;
+    margin: 0 0 4px 0;
+    border-bottom: 3px double #000;
+    padding-bottom: 5px;
+  }
+
+  /* ===== プロジェクト情報 ===== */
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 10px 0 14px 0;
+    gap: 16px;
+  }
+  .project-info { width: 62%; }
+  .project-info table { border-collapse: collapse; width: 100%; }
+  .project-info td {
+    padding: 3px 8px;
+    border: 1px solid #ccc;
+    font-size: 9.5pt;
+  }
+  .project-info td:first-child {
+    background: var(--light-blue);
+    font-weight: bold;
+    width: 90px;
+    text-align: center;
+  }
+  .company-block {
+    width: 34%;
+    text-align: right;
+    font-size: 9pt;
+    line-height: 1.6;
+  }
+  .company-block .company-name { font-size: 11pt; font-weight: bold; }
+
+  /* ===== サマリーカード ===== */
+  .summary-cards {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0 18px 0;
+    flex-wrap: wrap;
+  }
+  .card {
+    flex: 1;
+    min-width: 140px;
+    border: 2px solid #000;
+    border-radius: 6px;
+    padding: 7px 10px;
+    text-align: center;
+  }
+  .card .card-label { font-size: 8.5pt; color: #555; margin-bottom: 3px; }
+  .card .card-value { font-size: 13pt; font-weight: bold; }
+  .card.contract  { border-color: var(--navy); background: #f0f0fa; }
+  .card.budget    { border-color: var(--green); background: #f0faf0; }
+  .card.actual    { border-color: #b45309; background: #fffbeb; }
+  .card.variance  { border-color: #555; background: #f5f5f5; }
+  .card.profit    { border-color: #be185d; background: #fdf2f8; }
+  .card.profit-rate { border-color: #be185d; background: #fdf2f8; }
+  .positive { color: #15803d; }
+  .negative { color: #dc2626; }
+
+  /* ===== セクション見出し ===== */
+  h2 {
+    font-size: 11pt;
+    background: var(--navy);
+    color: #fff;
+    padding: 4px 12px;
+    margin: 22px 0 8px 0;
+    border-radius: 3px;
+    letter-spacing: 2px;
+  }
+  h3 {
+    font-size: 10.5pt;
+    background: var(--green);
+    color: #fff;
+    padding: 3px 12px;
+    margin: 18px 0 6px 0;
+    border-radius: 3px;
+    letter-spacing: 1px;
+  }
+
+  /* ===== 工種別予算テーブル ===== */
+  table.budget-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin-bottom: 6px;
+  }
+  table.budget-table th {
+    background: var(--navy);
+    color: #fff;
+    padding: 6px 4px;
+    text-align: center;
+    border: 1px solid #000;
+    font-weight: normal;
+    white-space: nowrap;
+  }
+  table.budget-table td {
+    padding: 4px 5px;
+    border: 1px solid #bbb;
+    vertical-align: middle;
+  }
+  table.budget-table td.num  { text-align: right; }
+  table.budget-table td.center { text-align: center; }
+  table.budget-table tr:nth-child(even) td { background: var(--stripe); }
+
+  .cat-header td {
+    background: #e8e8f0 !important;
+    font-weight: bold;
+    font-size: 9pt;
+  }
+  .subtotal-row td {
+    background: #f0f0e8 !important;
+    font-weight: bold;
+    border-top: 2px solid #888;
+  }
+  .total-row td {
+    background: var(--light-blue) !important;
+    font-weight: bold;
+    border-top: 3px double #000;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 8pt;
+    white-space: nowrap;
+  }
+  .badge-none    { background:#e5e7eb; color:#374151; }
+  .badge-quote   { background:#dbeafe; color:#1e40af; }
+  .badge-ordered { background:#d1fae5; color:#065f46; }
+  .badge-done    { background:#ede9fe; color:#5b21b6; }
+  .badge-issue   { background:#fee2e2; color:#991b1b; }
+
+  td[contenteditable="true"] {
+    outline: none;
+    background-color: #fffde7 !important;
+  }
+  td[contenteditable="true"]:focus {
+    background-color: #fff9c4 !important;
+    box-shadow: inset 0 0 0 1px #f59e0b;
+  }
+
+  /* ===== 業者支払管理テーブル ===== */
+  table.vendor-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin-bottom: 6px;
+  }
+  table.vendor-table th {
+    background: var(--green);
+    color: #fff;
+    padding: 6px 4px;
+    text-align: center;
+    border: 1px solid #000;
+    font-weight: normal;
+    white-space: nowrap;
+  }
+  table.vendor-table td {
+    padding: 4px 5px;
+    border: 1px solid #bbb;
+    vertical-align: middle;
+  }
+  table.vendor-table td.num    { text-align: right; }
+  table.vendor-table td.center { text-align: center; }
+  table.vendor-table tr:nth-child(even) td { background: var(--stripe); }
+  .vendor-total-row td { background: var(--light-green) !important; font-weight: bold; border-top: 3px double #000; }
+
+  /* ===== 入金管理テーブル ===== */
+  table.billing-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin-bottom: 6px;
+  }
+  table.billing-table th {
+    background: #7c3aed;
+    color: #fff;
+    padding: 6px 4px;
+    text-align: center;
+    border: 1px solid #000;
+    font-weight: normal;
+    white-space: nowrap;
+  }
+  table.billing-table td {
+    padding: 4px 5px;
+    border: 1px solid #bbb;
+    vertical-align: middle;
+  }
+  table.billing-table td.num    { text-align: right; }
+  table.billing-table td.center { text-align: center; }
+  table.billing-table tr:nth-child(even) td { background: var(--stripe); }
+  .billing-total-row td { background: #f3e8ff !important; font-weight: bold; border-top: 3px double #000; }
+
+  /* ===== 備考 ===== */
+  .notes-box {
+    border: 1px solid #bbb;
+    border-radius: 4px;
+    padding: 8px 12px;
+    min-height: 60px;
+    font-size: 9.5pt;
+    margin-top: 6px;
+    outline: none;
+  }
+  .notes-box:focus { box-shadow: inset 0 0 0 1px #2563eb; }
+</style>
+</head>
+<body>
+
+<!-- ===== ツールバー ===== -->
+<div id="toolbar" class="no-print">
+  <button id="btn-add-row"     onclick="addBudgetRow()">＋ 工種追加</button>
+  <button id="btn-add-vendor"  onclick="addVendorRow()">＋ 業者追加</button>
+  <button id="btn-add-billing" onclick="addBillingRow()">＋ 請求追加</button>
+  <button id="btn-recalc"      onclick="recalcAll()">再計算</button>
+  <button id="btn-print"       onclick="window.print()">印刷 / PDF</button>
+</div>
+
+<!-- ===== タイトル ===== -->
+<h1>工 事 予 算 管 理 表</h1>
+
+<!-- ===== プロジェクト情報 ===== -->
+<div class="project-header">
+  <div class="project-info">
+    <table>
+      <tr>
+        <td>工事名</td>
+        <td contenteditable="true" id="proj-name">ドレステーブル YANMER TOKYO 7F 移転プロジェクト</td>
+        <td style="width:70px;background:var(--light-blue);text-align:center;font-weight:bold;">整理番号</td>
+        <td contenteditable="true" style="width:90px;"></td>
+      </tr>
+      <tr>
+        <td>現場住所</td>
+        <td colspan="3" contenteditable="true"></td>
+      </tr>
+      <tr>
+        <td>発注者</td>
+        <td contenteditable="true">株式会社AXIS</td>
+        <td style="background:var(--light-blue);text-align:center;font-weight:bold;">担当者</td>
+        <td contenteditable="true"></td>
+      </tr>
+      <tr>
+        <td>工期</td>
+        <td contenteditable="true" id="proj-start"></td>
+        <td style="background:var(--light-blue);text-align:center;font-weight:bold;">完了日</td>
+        <td contenteditable="true" id="proj-end"></td>
+      </tr>
+      <tr>
+        <td>作成日</td>
+        <td contenteditable="true" id="proj-date"></td>
+        <td style="background:var(--light-blue);text-align:center;font-weight:bold;">更新日</td>
+        <td contenteditable="true" id="proj-update"></td>
+      </tr>
+    </table>
+  </div>
+  <div class="company-block">
+    <div class="company-name" contenteditable="true">株式会社　◯◯</div>
+    <div contenteditable="true">〒000-0000<br>東京都　◯◯区　◯◯<br>TEL: 00-0000-0000<br>担当: </div>
+  </div>
+</div>
+
+<!-- ===== サマリーカード ===== -->
+<div class="summary-cards">
+  <div class="card contract">
+    <div class="card-label">請負金額（税込）</div>
+    <div class="card-value" id="sum-contract">¥0</div>
+  </div>
+  <div class="card budget">
+    <div class="card-label">実行予算合計</div>
+    <div class="card-value" id="sum-budget">¥0</div>
+  </div>
+  <div class="card actual">
+    <div class="card-label">実績金額合計</div>
+    <div class="card-value" id="sum-actual">¥0</div>
+  </div>
+  <div class="card variance">
+    <div class="card-label">予算差異（予算－実績）</div>
+    <div class="card-value" id="sum-variance">¥0</div>
+  </div>
+  <div class="card profit">
+    <div class="card-label">粗利（請負－実行予算）</div>
+    <div class="card-value" id="sum-profit">¥0</div>
+  </div>
+  <div class="card profit-rate">
+    <div class="card-label">粗利率</div>
+    <div class="card-value" id="sum-profit-rate">0.0%</div>
+  </div>
+</div>
+
+<!-- ===== 請負金額入力 ===== -->
+<div style="margin-bottom:14px; display:flex; align-items:center; gap:12px;">
+  <label style="font-weight:bold; white-space:nowrap;">請負金額（税込）を入力：</label>
+  <input type="number" id="input-contract" placeholder="例: 5500000"
+    style="width:180px; padding:4px 8px; border:1px solid #888; border-radius:4px; font-size:10.5pt;"
+    oninput="recalcAll()">
+  <span style="font-size:9pt; color:#555;">← ここに入力するとサマリーが自動更新されます</span>
+</div>
+
+<!-- ===== 工種別予算管理 ===== -->
+<h2>工種別 予算管理</h2>
+
+<table class="budget-table" id="budget-table">
+  <thead>
+    <tr>
+      <th style="width:30px;">No.</th>
+      <th style="width:120px;">工種・項目</th>
+      <th style="width:90px;">見積金額（税抜）</th>
+      <th style="width:90px;">実行予算（税抜）</th>
+      <th style="width:90px;">発注金額（税抜）</th>
+      <th style="width:90px;">実績金額（税抜）</th>
+      <th style="width:75px;">差異<br>（予算－実績）</th>
+      <th style="width:75px;">発注状況</th>
+      <th style="width:100px;">担当業者</th>
+      <th style="width:80px;">支払条件</th>
+      <th class="no-print" style="width:30px;">削除</th>
+    </tr>
+  </thead>
+  <tbody id="budget-body">
+    <!-- カテゴリ：解体工事 -->
+    <tr class="cat-header"><td colspan="11">【 解体工事 】</td></tr>
+    <tr>
+      <td class="center">1</td>
+      <td contenteditable="true">内部解体・諸経費</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">575,000</td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">575,000</td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-quote">見積済</span></td>
+      <td contenteditable="true">堀之内内装</td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">2</td>
+      <td contenteditable="true">産廃処理</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-none">未発注</span></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <!-- カテゴリ：仮設工事 -->
+    <tr class="cat-header"><td colspan="11">【 仮設工事 】</td></tr>
+    <tr>
+      <td class="center">3</td>
+      <td contenteditable="true">足場・養生</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-none">未発注</span></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <!-- カテゴリ：建築工事 -->
+    <tr class="cat-header"><td colspan="11">【 建築工事 】</td></tr>
+    <tr>
+      <td class="center">4</td>
+      <td contenteditable="true">大工工事</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-none">未発注</span></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">5</td>
+      <td contenteditable="true">内装工事（ライニング・間仕切・ボード）</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">2,150,100</td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">2,150,100</td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-quote">見積済</span></td>
+      <td contenteditable="true">堀之内内装</td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">6</td>
+      <td contenteditable="true">塗装工事</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">654,000</td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">654,000</td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-quote">見積済</span></td>
+      <td contenteditable="true">中野工業</td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <!-- カテゴリ：設備工事 -->
+    <tr class="cat-header"><td colspan="11">【 設備工事 】</td></tr>
+    <tr>
+      <td class="center">7</td>
+      <td contenteditable="true">電気工事</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-none">未発注</span></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">8</td>
+      <td contenteditable="true">給排水工事</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">374,930</td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">374,930</td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-quote">見積済</span></td>
+      <td contenteditable="true">多賀建設</td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <!-- カテゴリ：諸経費 -->
+    <tr class="cat-header"><td colspan="11">【 諸経費 】</td></tr>
+    <tr>
+      <td class="center">9</td>
+      <td contenteditable="true">現場管理費</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-none">未発注</span></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">10</td>
+      <td contenteditable="true">その他諸経費</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-none">未発注</span></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:center;">合　計（税抜）</td>
+      <td class="num" id="total-estimate">¥0</td>
+      <td class="num" id="total-budget">¥0</td>
+      <td class="num" id="total-order">¥0</td>
+      <td class="num" id="total-actual">¥0</td>
+      <td class="num" id="total-var">¥0</td>
+      <td colspan="4"></td>
+    </tr>
+    <tr class="total-row" style="background:#dde8f5 !important;">
+      <td colspan="2" style="text-align:center;">消費税（10%）</td>
+      <td class="num" id="tax-estimate">¥0</td>
+      <td class="num" id="tax-budget">¥0</td>
+      <td class="num" id="tax-order">¥0</td>
+      <td class="num" id="tax-actual">¥0</td>
+      <td colspan="5"></td>
+    </tr>
+    <tr class="total-row" style="background:#c8d8f0 !important; font-size:11pt;">
+      <td colspan="2" style="text-align:center;">合　計（税込）</td>
+      <td class="num" id="taxin-estimate">¥0</td>
+      <td class="num" id="taxin-budget">¥0</td>
+      <td class="num" id="taxin-order">¥0</td>
+      <td class="num" id="taxin-actual">¥0</td>
+      <td colspan="5"></td>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- ===== 業者支払管理 ===== -->
+<h2>業者 支払管理</h2>
+
+<table class="vendor-table" id="vendor-table">
+  <thead>
+    <tr>
+      <th style="width:30px;">No.</th>
+      <th style="width:110px;">業者名</th>
+      <th style="width:100px;">工種</th>
+      <th style="width:85px;">発注金額（税抜）</th>
+      <th style="width:85px;">発注金額（税込）</th>
+      <th style="width:80px;">支払条件</th>
+      <th style="width:80px;">支払予定日</th>
+      <th style="width:80px;">支払済金額</th>
+      <th style="width:75px;">残額</th>
+      <th style="width:70px;">支払状況</th>
+      <th style="width:80px;">備考</th>
+      <th class="no-print" style="width:30px;">削除</th>
+    </tr>
+  </thead>
+  <tbody id="vendor-body">
+    <tr>
+      <td class="center">1</td>
+      <td contenteditable="true">堀之内内装</td>
+      <td contenteditable="true">解体工事</td>
+      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">575,000</td>
+      <td class="num vendor-order-in"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td class="num vendor-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未払</span></td>
+      <td contenteditable="true">令和8年5月7日見積／現場名：ドレステーブル</td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">2</td>
+      <td contenteditable="true">堀之内内装</td>
+      <td contenteditable="true">ライニング・壁見切り・自動ドア</td>
+      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">130,000</td>
+      <td class="num vendor-order-in"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td class="num vendor-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未払</span></td>
+      <td contenteditable="true">令和8年6月1日見積／現場名：ドレステーブル</td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">3</td>
+      <td contenteditable="true">堀之内内装</td>
+      <td contenteditable="true">間仕切り工事</td>
+      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">1,738,100</td>
+      <td class="num vendor-order-in"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td class="num vendor-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未払</span></td>
+      <td contenteditable="true">令和8年6月12日見積／現場名：ドレステーブル</td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">4</td>
+      <td contenteditable="true">堀之内内装</td>
+      <td contenteditable="true">追加ボード張り</td>
+      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">282,000</td>
+      <td class="num vendor-order-in"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td class="num vendor-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未払</span></td>
+      <td contenteditable="true">令和8年6月12日見積／現場名：ドレステーブル</td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">5</td>
+      <td contenteditable="true">中野工業</td>
+      <td contenteditable="true">塗装工事</td>
+      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">456,000</td>
+      <td class="num vendor-order-in"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td class="num vendor-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未払</span></td>
+      <td contenteditable="true">2026年5月20日見積／YANMAR TOKYO</td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">6</td>
+      <td contenteditable="true">中野工業</td>
+      <td contenteditable="true">追加塗装工事</td>
+      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">198,000</td>
+      <td class="num vendor-order-in"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td class="num vendor-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未払</span></td>
+      <td contenteditable="true">2026年6月9日見積／実際税込213,000円（材料・交通費は非課税のため差異あり）</td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">7</td>
+      <td contenteditable="true">多賀建設</td>
+      <td contenteditable="true">給排水工事</td>
+      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">374,930</td>
+      <td class="num vendor-order-in"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td class="num vendor-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未払</span></td>
+      <td contenteditable="true">2026年6月11日見積／八重洲ヤンマービル（税込412,423円）</td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr class="vendor-total-row">
+      <td colspan="3" style="text-align:center;">合　計</td>
+      <td class="num" id="vtotal-order-ex">¥0</td>
+      <td class="num" id="vtotal-order-in">¥0</td>
+      <td colspan="2"></td>
+      <td class="num" id="vtotal-paid">¥0</td>
+      <td class="num" id="vtotal-remain">¥0</td>
+      <td colspan="3"></td>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- ===== 入金・請求管理 ===== -->
+<h2>入金 / 請求管理</h2>
+
+<table class="billing-table" id="billing-table">
+  <thead>
+    <tr>
+      <th style="width:30px;">No.</th>
+      <th style="width:80px;">請求日</th>
+      <th style="width:100px;">請求内容</th>
+      <th style="width:90px;">請求金額（税込）</th>
+      <th style="width:90px;">入金日</th>
+      <th style="width:90px;">入金額（税込）</th>
+      <th style="width:90px;">残額</th>
+      <th style="width:80px;">入金状況</th>
+      <th style="width:100px;">備考</th>
+      <th class="no-print" style="width:30px;">削除</th>
+    </tr>
+  </thead>
+  <tbody id="billing-body">
+    <tr>
+      <td class="center">1</td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true">着手金</td>
+      <td contenteditable="true" class="num billing-invoice" oninput="recalcBilling()"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num billing-received" oninput="recalcBilling()"></td>
+      <td class="num billing-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未入金</span></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">2</td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true">中間金</td>
+      <td contenteditable="true" class="num billing-invoice" oninput="recalcBilling()"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num billing-received" oninput="recalcBilling()"></td>
+      <td class="num billing-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未入金</span></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">3</td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true">完成金</td>
+      <td contenteditable="true" class="num billing-invoice" oninput="recalcBilling()"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num billing-received" oninput="recalcBilling()"></td>
+      <td class="num billing-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未入金</span></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr class="billing-total-row">
+      <td colspan="3" style="text-align:center;">合　計</td>
+      <td class="num" id="btotal-invoice">¥0</td>
+      <td></td>
+      <td class="num" id="btotal-received">¥0</td>
+      <td class="num" id="btotal-remain">¥0</td>
+      <td colspan="3"></td>
+    </tr>
+  </tfoot>
+</table>
+
+<!-- ===== 備考 ===== -->
+<h2>備考 / 特記事項</h2>
+<div class="notes-box" contenteditable="true" style="min-height:80px;"></div>
+
+<div style="margin-top:30px; text-align:right; font-size:8.5pt; color:#888;">
+  工事予算管理表 — 印刷時はA4横推奨
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+  const fmt = (n) => '¥' + Math.round(n).toLocaleString('ja-JP');
+  const parse = (el) => {
+    const t = (el.innerText || el.textContent || '').replace(/[¥,\s]/g,'');
+    return parseFloat(t) || 0;
+  };
+
+  function recalcAll() {
+    // 工種別集計
+    const rows = document.querySelectorAll('#budget-body tr:not(.cat-header):not(.subtotal-row)');
+    let sumEst=0, sumBud=0, sumOrd=0, sumAct=0;
+    rows.forEach(row => {
+      const est = parse(row.querySelector('.estimate-cell'));
+      const bud = parse(row.querySelector('.budget-cell'));
+      const ord = parse(row.querySelector('.order-cell'));
+      const act = parse(row.querySelector('.actual-cell'));
+      const varCell = row.querySelector('.var-cell');
+      if (varCell) {
+        const v = bud - act;
+        varCell.textContent = bud || act ? fmt(v) : '';
+        varCell.style.color = v >= 0 ? '' : '#dc2626';
+      }
+      sumEst += est; sumBud += bud; sumOrd += ord; sumAct += act;
+    });
+
+    document.getElementById('total-estimate').textContent = fmt(sumEst);
+    document.getElementById('total-budget').textContent   = fmt(sumBud);
+    document.getElementById('total-order').textContent    = fmt(sumOrd);
+    document.getElementById('total-actual').textContent   = fmt(sumAct);
+    const totalVar = sumBud - sumAct;
+    const tvEl = document.getElementById('total-var');
+    tvEl.textContent  = fmt(totalVar);
+    tvEl.style.color  = totalVar >= 0 ? '' : '#dc2626';
+
+    document.getElementById('tax-estimate').textContent  = fmt(sumEst * 0.1);
+    document.getElementById('tax-budget').textContent    = fmt(sumBud * 0.1);
+    document.getElementById('tax-order').textContent     = fmt(sumOrd * 0.1);
+    document.getElementById('tax-actual').textContent    = fmt(sumAct * 0.1);
+
+    document.getElementById('taxin-estimate').textContent = fmt(sumEst * 1.1);
+    document.getElementById('taxin-budget').textContent   = fmt(sumBud * 1.1);
+    document.getElementById('taxin-order').textContent    = fmt(sumOrd * 1.1);
+    document.getElementById('taxin-actual').textContent   = fmt(sumAct * 1.1);
+
+    // サマリーカード
+    const contract = parseFloat(document.getElementById('input-contract').value) || 0;
+    const profit   = contract - sumBud * 1.1;
+    const profRate = contract > 0 ? (profit / contract * 100) : 0;
+    const variance = sumBud - sumAct;
+
+    document.getElementById('sum-contract').textContent   = fmt(contract);
+    document.getElementById('sum-budget').textContent     = fmt(sumBud * 1.1);
+    document.getElementById('sum-actual').textContent     = fmt(sumAct * 1.1);
+
+    const varEl = document.getElementById('sum-variance');
+    varEl.textContent  = fmt(variance * 1.1);
+    varEl.className    = 'card-value ' + (variance >= 0 ? 'positive' : 'negative');
+
+    const profEl = document.getElementById('sum-profit');
+    profEl.textContent = fmt(profit);
+    profEl.className   = 'card-value ' + (profit >= 0 ? 'positive' : 'negative');
+
+    const rateEl = document.getElementById('sum-profit-rate');
+    rateEl.textContent = profRate.toFixed(1) + '%';
+    rateEl.className   = 'card-value ' + (profRate >= 0 ? 'positive' : 'negative');
+
+    recalcVendor();
+    recalcBilling();
+  }
+
+  function recalcVendor() {
+    let totalEx=0, totalIn=0, totalPaid=0, totalRemain=0;
+    document.querySelectorAll('#vendor-body tr').forEach(row => {
+      const exCell     = row.querySelector('.vendor-order-ex');
+      const inCell     = row.querySelector('.vendor-order-in');
+      const paidCell   = row.querySelector('.vendor-paid');
+      const remainCell = row.querySelector('.vendor-remain');
+      if (!exCell) return;
+      const ex   = parse(exCell);
+      const inp  = ex * 1.1;
+      const paid = parse(paidCell);
+      const rem  = inp - paid;
+      inCell.textContent     = ex   ? fmt(inp)  : '';
+      remainCell.textContent = ex   ? fmt(rem)   : '';
+      remainCell.style.color = rem > 0 ? '#dc2626' : '';
+      totalEx   += ex;
+      totalIn   += inp;
+      totalPaid += paid;
+      totalRemain += rem;
+    });
+    document.getElementById('vtotal-order-ex').textContent = fmt(totalEx);
+    document.getElementById('vtotal-order-in').textContent = fmt(totalIn);
+    document.getElementById('vtotal-paid').textContent     = fmt(totalPaid);
+    const vr = document.getElementById('vtotal-remain');
+    vr.textContent  = fmt(totalRemain);
+    vr.style.color  = totalRemain > 0 ? '#dc2626' : '';
+  }
+
+  function recalcBilling() {
+    let totalInv=0, totalRec=0, totalRem=0;
+    document.querySelectorAll('#billing-body tr').forEach(row => {
+      const invCell = row.querySelector('.billing-invoice');
+      const recCell = row.querySelector('.billing-received');
+      const remCell = row.querySelector('.billing-remain');
+      if (!invCell) return;
+      const inv = parse(invCell);
+      const rec = parse(recCell);
+      const rem = inv - rec;
+      remCell.textContent = inv ? fmt(rem) : '';
+      remCell.style.color = rem > 0 ? '#dc2626' : '';
+      totalInv += inv;
+      totalRec += rec;
+      totalRem += rem;
+    });
+    document.getElementById('btotal-invoice').textContent  = fmt(totalInv);
+    document.getElementById('btotal-received').textContent = fmt(totalRec);
+    const br = document.getElementById('btotal-remain');
+    br.textContent = fmt(totalRem);
+    br.style.color = totalRem > 0 ? '#dc2626' : '';
+  }
+
+  // 行番号を振り直す
+  function reindex(tbodyId) {
+    let i = 1;
+    document.querySelectorAll('#' + tbodyId + ' tr:not(.cat-header)').forEach(row => {
+      const c = row.querySelector('td:first-child');
+      if (c && !row.classList.contains('subtotal-row')) { c.textContent = i++; }
+    });
+  }
+
+  function removeRow(btn) {
+    const row = btn.closest('tr');
+    row.remove();
+    recalcAll();
+  }
+
+  function addBudgetRow() {
+    const tbody = document.getElementById('budget-body');
+    const rows  = tbody.querySelectorAll('tr:not(.cat-header)');
+    const no    = rows.length + 1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="center">${no}</td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
+      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
+      <td class="num var-cell"></td>
+      <td class="center"><span class="status-badge badge-none">未発注</span></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>`;
+    tbody.appendChild(tr);
+  }
+
+  function addVendorRow() {
+    const tbody = document.getElementById('vendor-body');
+    const no    = tbody.querySelectorAll('tr').length + 1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="center">${no}</td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-order-ex" oninput="recalcVendor()"></td>
+      <td class="num vendor-order-in"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-paid"     oninput="recalcVendor()"></td>
+      <td class="num vendor-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未払</span></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>`;
+    tbody.appendChild(tr);
+  }
+
+  function addBillingRow() {
+    const tbody = document.getElementById('billing-body');
+    const no    = tbody.querySelectorAll('tr').length + 1;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="center">${no}</td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num billing-invoice"  oninput="recalcBilling()"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num billing-received" oninput="recalcBilling()"></td>
+      <td class="num billing-remain"></td>
+      <td class="center"><span class="status-badge badge-none">未入金</span></td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>`;
+    tbody.appendChild(tr);
+  }
+
+  // 初期化
+  const today = new Date();
+  const ymd = today.getFullYear() + '年' + (today.getMonth()+1) + '月' + today.getDate() + '日';
+  document.getElementById('proj-date').textContent   = ymd;
+  document.getElementById('proj-update').textContent = ymd;
+  recalcAll();
+</script>
+</body>
+</html>
