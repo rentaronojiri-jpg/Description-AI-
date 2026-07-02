@@ -6,15 +6,19 @@
 
 起動:
     py webapp/server.py
-    → http://127.0.0.1:8765 をブラウザで開く（起動batが自動で開く）
+    → サーバーが実際に応答可能になった時点で自動的にブラウザが開く
 """
 
+import socket
 import sys
+import threading
+import time
+import webbrowser
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request
 
 from analysis_core import (
     analyze,
@@ -25,6 +29,9 @@ from analysis_core import (
     resolve_query_auto,
     search_quotes,
 )
+
+HOST = "127.0.0.1"
+PORT = 8765
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 
@@ -190,10 +197,28 @@ def api_analyze():
     return jsonify(payload)
 
 
+def open_browser_when_ready(host: str, port: int, timeout: float = 30.0):
+    """サーバーが実際に接続を受け付けるようになるまで待ってからブラウザを開く。
+    固定秒数の待機だと初回起動時のインポート遅延などで間に合わず
+    「このページに到達できません」になることがあるため、ポート到達を確認してから開く。"""
+    url = f"http://{host}:{port}"
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            with socket.create_connection((host, port), timeout=0.5):
+                webbrowser.open(url)
+                return
+        except OSError:
+            time.sleep(0.2)
+    print(f"[警告] {timeout:.0f}秒待ってもサーバーに接続できなかったため、"
+          f"ブラウザを自動で開けませんでした。手動で {url} を開いてください。")
+
+
 if __name__ == "__main__":
     print("=" * 60)
-    print(" 株予測ツール Web版を起動しました")
-    print(" ブラウザで http://127.0.0.1:8765 を開いてください")
+    print(" 株予測ツール Web版を起動しています…")
+    print(f" 準備ができ次第、自動的に http://{HOST}:{PORT} をブラウザで開きます")
     print(" 終了するにはこのウィンドウで Ctrl+C を押してください")
     print("=" * 60)
-    app.run(host="127.0.0.1", port=8765, debug=False)
+    threading.Thread(target=open_browser_when_ready, args=(HOST, PORT), daemon=True).start()
+    app.run(host=HOST, port=PORT, debug=False)
