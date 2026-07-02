@@ -6,9 +6,11 @@
 簡易的な株価トレンド予測を行う。
 
 使い方:
+    py stock_predictor.py                    # 対話モード（銘柄コード・会社名を入力して分析）
     py stock_predictor.py 7203
     py stock_predictor.py 7203 9984 6758 --forecast-days 15
     py stock_predictor.py 7203 --tech-weight 0.7
+    py stock_predictor.py "Toyota"            # 会社名（英語表記）でも検索可能
 
 出力:
     - コンソールにサマリーレポートを表示
@@ -18,6 +20,7 @@
 import argparse
 import base64
 import io
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -32,6 +35,7 @@ import pandas as pd
 import yfinance as yf
 
 try:
+    sys.stdin.reconfigure(encoding="utf-8")
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
 except Exception:
@@ -57,6 +61,60 @@ def normalize_ticker(code: str) -> str:
     if code.isdigit() and "." not in code:
         return f"{code}.T"
     return code
+
+
+def search_and_select(query: str):
+    """会社名などのあいまいな入力から候補を検索し、対話的に選択させてティッカーを返す"""
+    try:
+        results = yf.Search(query, max_results=8).quotes
+    except Exception as e:
+        print(f"[検索エラー] '{query}' の検索に失敗しました: {e}")
+        return None
+
+    results = [r for r in results if r.get("symbol") and r.get("quoteType") == "EQUITY"]
+    if not results:
+        print(
+            f"'{query}' に一致する銘柄が見つかりませんでした。"
+            " 会社名は英語表記（例: Toyota, SoftBank）か、証券コード（例: 7203）でお試しください。"
+        )
+        return None
+
+    if len(results) == 1:
+        chosen = results[0]
+    else:
+        print(f"\n'{query}' の検索結果:")
+        for i, r in enumerate(results, 1):
+            display_name = r.get("shortname") or r.get("longname") or ""
+            print(f"  {i}. {r.get('symbol'):<10} {display_name}  ({r.get('exchDisp', '')})")
+        sel = input("番号を選択してください（Enterで1番目）: ").strip()
+        if not sel:
+            chosen = results[0]
+        else:
+            try:
+                chosen = results[int(sel) - 1]
+            except (ValueError, IndexError):
+                print("無効な選択のため1番目を使用します。")
+                chosen = results[0]
+
+    symbol = chosen.get("symbol")
+    display_name = chosen.get("shortname") or chosen.get("longname") or symbol
+    print(f"→ {symbol}（{display_name}）を使用します。")
+    return symbol
+
+
+def resolve_query(query: str):
+    """入力文字列（証券コード／ティッカー／会社名）から実際のティッカーシンボルを解決する"""
+    query = query.strip().lstrip("﻿")
+    if not query:
+        return None
+    compact = query.replace(".", "")
+    if compact.isdigit():
+        return normalize_ticker(query)
+    # 短い英字のみ（例: AAPL, TM）はティッカーとしてそのまま扱う
+    if query.replace(".", "").isalpha() and len(query) <= 6 and " " not in query:
+        return query.upper()
+    # それ以外は会社名として検索
+    return search_and_select(query)
 
 
 def fetch_data(code: str, period: str = "1y"):
@@ -180,6 +238,28 @@ def technical_score(df: pd.DataFrame) -> dict:
     return {"score": score, "reasons": reasons}
 
 
+def get_dividend_yield_pct(info: dict):
+    """配当利回りを%単位で返す。dividendYieldはyfinanceのバージョンにより
+    比率(0.037)と%表記(3.67)のどちらで返るか揺れるため、より安定した
+    trailingAnnualDividendYield（常に比率）を優先的に使用する。"""
+    ratio = info.get("trailingAnnualDividendYield")
+    if ratio is not None:
+        return ratio * 100
+    raw = info.get("dividendYield")
+    if raw is None:
+        return None
+    return raw if raw > 1 else raw * 100
+
+
+def get_roe_pct(info: dict):
+    """自己資本利益率(ROE)を%単位で返す。returnOnEquityは常に比率で
+    返るため一律で100倍する（好業績企業ではROEが100%を超えることもある）。"""
+    roe = info.get("returnOnEquity")
+    if roe is None:
+        return None
+    return roe * 100
+
+
 def fundamental_score(info: dict) -> dict:
     reasons = []
     score = 0
@@ -209,10 +289,8 @@ def fundamental_score(info: dict) -> dict:
             score -= 15
             reasons.append(f"PBR {pbr:.2f}倍で割高水準（-15）")
 
-    div_yield = info.get("dividendYield")
-    if div_yield is not None:
-        # yfinanceは環境によって%表記(3.67)か比率(0.0367)かが揺れるため正規化
-        dy_pct = div_yield if div_yield > 1 else div_yield * 100
+    dy_pct = get_dividend_yield_pct(info)
+    if dy_pct is not None:
         if dy_pct >= 3:
             score += 15
             reasons.append(f"配当利回り{dy_pct:.2f}%で高配当（+15）")
@@ -220,9 +298,8 @@ def fundamental_score(info: dict) -> dict:
             score += 5
             reasons.append(f"配当利回り{dy_pct:.2f}%（+5）")
 
-    roe = info.get("returnOnEquity")
-    if roe is not None:
-        roe_pct = roe * 100 if abs(roe) < 1 else roe
+    roe_pct = get_roe_pct(info)
+    if roe_pct is not None:
         if roe_pct >= 10:
             score += 15
             reasons.append(f"ROE {roe_pct:.1f}%で高い資本効率（+15）")
@@ -361,6 +438,7 @@ def build_html_report(ticker_symbol, name, hist, info, tech, fund, combined, for
     change = last_close - prev_close
     change_pct = change / prev_close * 100 if prev_close else 0
     change_color = "#c0392b" if change > 0 else ("#1e8449" if change < 0 else "#333")
+    sym = currency_symbol(info)
 
     tech_reasons = "".join(f"<li>{r}</li>" for r in tech["reasons"]) or "<li>該当する指標なし</li>"
     fund_reasons = "".join(f"<li>{r}</li>" for r in fund["reasons"]) or "<li>ファンダメンタルズ情報が取得できませんでした</li>"
@@ -396,7 +474,7 @@ def build_html_report(ticker_symbol, name, hist, info, tech, fund, combined, for
   <div class="card">
     <h1>{name}（{ticker_symbol}）</h1>
     <div class="sub">分析日時: {generated_at}</div>
-    <div class="price">¥{last_close:,.0f}
+    <div class="price">{sym}{last_close:,.0f}
       <span class="change" style="color:{change_color};">{'+' if change>=0 else ''}{change:,.0f}（{'+' if change_pct>=0 else ''}{change_pct:.2f}%）</span>
     </div>
     <div class="signal-badge" style="background:{'#1e8449' if combined['score']>=20 else ('#c0392b' if combined['score']<=-20 else '#7f8c8d')};">
@@ -436,9 +514,9 @@ def build_html_report(ticker_symbol, name, hist, info, tech, fund, combined, for
     <table>
       <tr><th>PER</th><td>{_fmt(info.get('trailingPE'), '倍')}</td>
           <th>PBR</th><td>{_fmt(info.get('priceToBook'), '倍')}</td></tr>
-      <tr><th>配当利回り</th><td>{_fmt_pct(info.get('dividendYield'))}</td>
-          <th>ROE</th><td>{_fmt_pct(info.get('returnOnEquity'), ratio=True)}</td></tr>
-      <tr><th>時価総額</th><td>{_fmt_marketcap(info.get('marketCap'))}</td>
+      <tr><th>配当利回り</th><td>{_fmt_optional_pct(get_dividend_yield_pct(info))}</td>
+          <th>ROE</th><td>{_fmt_optional_pct(get_roe_pct(info))}</td></tr>
+      <tr><th>時価総額</th><td>{_fmt_marketcap(info.get('marketCap'), info)}</td>
           <th>52週高値/安値</th><td>{_fmt(info.get('fiftyTwoWeekHigh'))} / {_fmt(info.get('fiftyTwoWeekLow'))}</td></tr>
       <tr><th>RSI(14)</th><td>{hist['RSI14'].iloc[-1]:.1f}</td>
           <th>出来高</th><td>{last['Volume']:,.0f}</td></tr>
@@ -462,31 +540,49 @@ def _fmt(v, unit=""):
         return str(v)
 
 
-def _fmt_pct(v, ratio=False):
-    if v is None:
+def _fmt_optional_pct(pct):
+    if pct is None:
         return "N/A"
-    pct = v * 100 if (ratio and abs(v) < 1) or (not ratio and v <= 1) else v
     return f"{pct:.2f}%"
 
 
-def _fmt_marketcap(v):
+_CURRENCY_SYMBOLS = {"JPY": "¥", "USD": "$", "EUR": "€", "GBP": "£"}
+
+
+def currency_symbol(info: dict) -> str:
+    code = (info or {}).get("currency") or "JPY"
+    return _CURRENCY_SYMBOLS.get(code, code + " ")
+
+
+def _fmt_marketcap(v, info=None):
     if v is None:
         return "N/A"
+    currency = (info or {}).get("currency") or "JPY"
+    if currency == "JPY":
+        if v >= 1e12:
+            return f"{v/1e12:.2f}兆円"
+        if v >= 1e8:
+            return f"{v/1e8:.1f}億円"
+        return f"{v:,.0f}円"
+    sym = currency_symbol(info)
     if v >= 1e12:
-        return f"{v/1e12:.2f}兆円"
-    if v >= 1e8:
-        return f"{v/1e8:.1f}億円"
-    return f"{v:,.0f}円"
+        return f"{sym}{v/1e12:.2f}T"
+    if v >= 1e9:
+        return f"{sym}{v/1e9:.2f}B"
+    if v >= 1e6:
+        return f"{sym}{v/1e6:.1f}M"
+    return f"{sym}{v:,.0f}"
 
 
 # ---------------------------------------------------------------------------
 # コンソール出力
 # ---------------------------------------------------------------------------
 
-def print_console_report(ticker_symbol, name, hist, tech, fund, combined, forecast):
+def print_console_report(ticker_symbol, name, hist, info, tech, fund, combined, forecast):
     last_close = hist["Close"].iloc[-1]
+    sym = currency_symbol(info)
     print("=" * 60)
-    print(f" {name}（{ticker_symbol}）  現在値: ¥{last_close:,.0f}")
+    print(f" {name}（{ticker_symbol}）  現在値: {sym}{last_close:,.0f}")
     print("=" * 60)
     print(f" 総合判定: {combined['label']}  (スコア {combined['score']:+d} / -100〜+100)")
     print(f"   - テクニカルスコア: {tech['score']:+d}")
@@ -513,7 +609,7 @@ def analyze_one(code: str, forecast_days: int, tech_weight: float, output_dir: P
     combined = combined_signal(tech, fund, tech_weight)
     forecast = simple_forecast(hist, forecast_days=forecast_days)
 
-    print_console_report(ticker_symbol, name, hist, tech, fund, combined, forecast)
+    print_console_report(ticker_symbol, name, hist, info, tech, fund, combined, forecast)
 
     candle_img = make_candle_chart(hist, name)
     forecast_img = make_forecast_chart(hist, forecast, name)
@@ -529,20 +625,58 @@ def analyze_one(code: str, forecast_days: int, tech_weight: float, output_dir: P
     return out_path
 
 
+def run_one_query(query: str, forecast_days: float, tech_weight: float, output_dir: Path, auto_open: bool):
+    symbol = resolve_query(query)
+    if not symbol:
+        return
+    try:
+        out_path = analyze_one(symbol, forecast_days, tech_weight, output_dir)
+        if auto_open and out_path is not None:
+            try:
+                os.startfile(out_path)
+            except Exception:
+                pass
+    except Exception as e:
+        print(f"[エラー] {query}: {e}", file=sys.stderr)
+
+
+def interactive_loop(forecast_days: float, tech_weight: float, output_dir: Path):
+    print("=" * 60)
+    print(" 株予測ツール（対話モード）")
+    print(" 証券コード（例: 7203）、ティッカー（例: AAPL）、")
+    print(" または会社名（英語表記、例: Toyota）を入力してください。")
+    print(" 複数銘柄はカンマ区切りで入力できます。")
+    print(" 何も入力せず Enter を押すと終了します。")
+    print("=" * 60)
+    while True:
+        raw = input("\n銘柄を入力 > ").strip()
+        if not raw:
+            print("終了します。")
+            break
+        for q in [q.strip() for q in raw.split(",") if q.strip()]:
+            run_one_query(q, forecast_days, tech_weight, output_dir, auto_open=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description="ファンダメンタルズ×テクニカル分析による株予測ツール")
-    parser.add_argument("tickers", nargs="+", help="銘柄コード（例: 7203, 9984, AAPL）")
+    parser.add_argument(
+        "tickers", nargs="*",
+        help="銘柄コード・ティッカー・会社名（例: 7203, 9984, AAPL, Toyota）。省略すると対話モードで入力できます。",
+    )
     parser.add_argument("--forecast-days", type=int, default=10, help="トレンド予測日数（デフォルト10営業日）")
     parser.add_argument("--tech-weight", type=float, default=0.55, help="テクニカル分析の重み（0〜1、デフォルト0.55）")
     parser.add_argument("--output-dir", type=str, default=str(OUTPUT_DIR), help="HTML出力先ディレクトリ")
+    parser.add_argument("--open", action="store_true", help="生成したHTMLレポートを既定のブラウザで自動的に開く")
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
-    for code in args.tickers:
-        try:
-            analyze_one(code, args.forecast_days, args.tech_weight, output_dir)
-        except Exception as e:
-            print(f"[エラー] {code}: {e}", file=sys.stderr)
+
+    if not args.tickers:
+        interactive_loop(args.forecast_days, args.tech_weight, output_dir)
+        return
+
+    for query in args.tickers:
+        run_one_query(query, args.forecast_days, args.tech_weight, output_dir, auto_open=args.open)
 
 
 if __name__ == "__main__":

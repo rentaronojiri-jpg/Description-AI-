@@ -1,2 +1,6 @@
 # PDFは顧客・金額情報を含むためGit管理対象外
 *.pdf
+
+# Pythonキャッシュ
+__pycache__/
+*.pyc
