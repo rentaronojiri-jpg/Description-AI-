@@ -1,9 +1,8 @@
-\
 # -*- coding: utf-8 -*-
 """
-株予測ツール
-ファンダメンタルズ分析とテクニカル分析を組み合わせ、日本株の売買シグナルと
-簡易的な株価トレンド予測を行う。
+株予測ツール（CLI版）
+ファンダメンタルズ分析とテクニカル分析を組み合わせ、売買シグナルと
+簡易的な株価トレンド予測を行い、自己完結型のHTMLレポートを出力する。
 
 使い方:
     py stock_predictor.py                    # 対話モード（銘柄コード・会社名を入力して分析）
@@ -11,6 +10,9 @@
     py stock_predictor.py 7203 9984 6758 --forecast-days 15
     py stock_predictor.py 7203 --tech-weight 0.7
     py stock_predictor.py "Toyota"            # 会社名（英語表記）でも検索可能
+
+常にオンラインでyfinanceから最新データを取得する。
+ブラウザでリアルタイムに使いたい場合は webapp/ のWeb版を利用のこと。
 
 出力:
     - コンソールにサマリーレポートを表示
@@ -30,9 +32,15 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 import mplfinance as mpf
-import numpy as np
-import pandas as pd
-import yfinance as yf
+
+from analysis_core import (
+    analyze,
+    currency_symbol,
+    format_marketcap,
+    get_dividend_yield_pct,
+    get_roe_pct,
+    resolve_query_auto,
+)
 
 try:
     sys.stdin.reconfigure(encoding="utf-8")
@@ -52,316 +60,43 @@ plt.rcParams["axes.unicode_minus"] = False
 
 
 # ---------------------------------------------------------------------------
-# データ取得
+# 銘柄解決（対話的な候補選択つき）
 # ---------------------------------------------------------------------------
 
-def normalize_ticker(code: str) -> str:
-    """4桁数字のみなら日本株として .T を付与する"""
-    code = code.strip().upper()
-    if code.isdigit() and "." not in code:
-        return f"{code}.T"
-    return code
+def resolve_query_interactive(query: str):
+    """CLI向け：会社名検索で複数候補があれば対話的に選択させる"""
+    symbol, candidates = resolve_query_auto(query)
+    if symbol and len(candidates) <= 1:
+        return symbol
 
-
-def search_and_select(query: str):
-    """会社名などのあいまいな入力から候補を検索し、対話的に選択させてティッカーを返す"""
-    try:
-        results = yf.Search(query, max_results=8).quotes
-    except Exception as e:
-        print(f"[検索エラー] '{query}' の検索に失敗しました: {e}")
-        return None
-
-    results = [r for r in results if r.get("symbol") and r.get("quoteType") == "EQUITY"]
-    if not results:
+    if not candidates:
+        # resolve_query_autoが証券コード/ティッカーとして即決した場合
+        if symbol:
+            return symbol
         print(
             f"'{query}' に一致する銘柄が見つかりませんでした。"
             " 会社名は英語表記（例: Toyota, SoftBank）か、証券コード（例: 7203）でお試しください。"
         )
         return None
 
-    if len(results) == 1:
-        chosen = results[0]
+    print(f"\n'{query}' の検索結果:")
+    for i, r in enumerate(candidates, 1):
+        display_name = r.get("shortname") or r.get("longname") or ""
+        print(f"  {i}. {r.get('symbol'):<10} {display_name}  ({r.get('exchDisp', '')})")
+    sel = input("番号を選択してください（Enterで1番目）: ").strip()
+    if not sel:
+        chosen = candidates[0]
     else:
-        print(f"\n'{query}' の検索結果:")
-        for i, r in enumerate(results, 1):
-            display_name = r.get("shortname") or r.get("longname") or ""
-            print(f"  {i}. {r.get('symbol'):<10} {display_name}  ({r.get('exchDisp', '')})")
-        sel = input("番号を選択してください（Enterで1番目）: ").strip()
-        if not sel:
-            chosen = results[0]
-        else:
-            try:
-                chosen = results[int(sel) - 1]
-            except (ValueError, IndexError):
-                print("無効な選択のため1番目を使用します。")
-                chosen = results[0]
+        try:
+            chosen = candidates[int(sel) - 1]
+        except (ValueError, IndexError):
+            print("無効な選択のため1番目を使用します。")
+            chosen = candidates[0]
 
-    symbol = chosen.get("symbol")
-    display_name = chosen.get("shortname") or chosen.get("longname") or symbol
-    print(f"→ {symbol}（{display_name}）を使用します。")
-    return symbol
-
-
-def resolve_query(query: str):
-    """入力文字列（証券コード／ティッカー／会社名）から実際のティッカーシンボルを解決する"""
-    query = query.strip().lstrip("﻿")
-    if not query:
-        return None
-    compact = query.replace(".", "")
-    if compact.isdigit():
-        return normalize_ticker(query)
-    # 短い英字のみ（例: AAPL, TM）はティッカーとしてそのまま扱う
-    if query.replace(".", "").isalpha() and len(query) <= 6 and " " not in query:
-        return query.upper()
-    # それ以外は会社名として検索
-    return search_and_select(query)
-
-
-def fetch_data(code: str, period: str = "1y"):
-    ticker_symbol = normalize_ticker(code)
-    ticker = yf.Ticker(ticker_symbol)
-    hist = ticker.history(period=period, auto_adjust=False)
-    if hist.empty:
-        raise ValueError(f"銘柄コード '{code}' のデータが取得できませんでした。コードを確認してください。")
-    info = {}
-    try:
-        info = ticker.info or {}
-    except Exception:
-        info = {}
-    return ticker_symbol, hist, info
-
-
-# ---------------------------------------------------------------------------
-# テクニカル指標
-# ---------------------------------------------------------------------------
-
-def compute_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-    close = df["Close"]
-
-    df["SMA5"] = close.rolling(5).mean()
-    df["SMA25"] = close.rolling(25).mean()
-    df["SMA75"] = close.rolling(75).mean()
-
-    ema12 = close.ewm(span=12, adjust=False).mean()
-    ema26 = close.ewm(span=26, adjust=False).mean()
-    df["MACD"] = ema12 - ema26
-    df["MACD_signal"] = df["MACD"].ewm(span=9, adjust=False).mean()
-    df["MACD_hist"] = df["MACD"] - df["MACD_signal"]
-
-    delta = close.diff()
-    gain = delta.clip(lower=0)
-    loss = -delta.clip(upper=0)
-    avg_gain = gain.ewm(alpha=1 / 14, adjust=False).mean()
-    avg_loss = loss.ewm(alpha=1 / 14, adjust=False).mean()
-    rs = avg_gain / avg_loss.replace(0, np.nan)
-    df["RSI14"] = 100 - (100 / (1 + rs))
-    df["RSI14"] = df["RSI14"].fillna(50)
-
-    bb_mid = close.rolling(20).mean()
-    bb_std = close.rolling(20).std()
-    df["BB_mid"] = bb_mid
-    df["BB_upper"] = bb_mid + 2 * bb_std
-    df["BB_lower"] = bb_mid - 2 * bb_std
-
-    df["Volume_MA20"] = df["Volume"].rolling(20).mean()
-
-    return df
-
-
-# ---------------------------------------------------------------------------
-# スコアリング
-# ---------------------------------------------------------------------------
-
-def technical_score(df: pd.DataFrame) -> dict:
-    reasons = []
-    score = 0
-    last = df.iloc[-1]
-    prev = df.iloc[-2] if len(df) > 1 else last
-
-    # トレンド（移動平均の並び）
-    if pd.notna(last["SMA25"]) and pd.notna(last["SMA75"]):
-        if last["Close"] > last["SMA25"] > last["SMA75"]:
-            score += 20
-            reasons.append("株価が短期・長期移動平均線の上にあり上昇トレンド（+20）")
-        elif last["Close"] < last["SMA25"] < last["SMA75"]:
-            score -= 20
-            reasons.append("株価が短期・長期移動平均線の下にあり下降トレンド（-20）")
-
-    # ゴールデンクロス／デッドクロス（SMA25とSMA75）
-    if pd.notna(prev["SMA25"]) and pd.notna(prev["SMA75"]) and pd.notna(last["SMA25"]) and pd.notna(last["SMA75"]):
-        if prev["SMA25"] <= prev["SMA75"] and last["SMA25"] > last["SMA75"]:
-            score += 15
-            reasons.append("直近でゴールデンクロス発生（+15）")
-        elif prev["SMA25"] >= prev["SMA75"] and last["SMA25"] < last["SMA75"]:
-            score -= 15
-            reasons.append("直近でデッドクロス発生（-15）")
-
-    # MACD
-    if pd.notna(last["MACD"]) and pd.notna(last["MACD_signal"]):
-        if last["MACD"] > last["MACD_signal"]:
-            score += 15
-            reasons.append("MACDがシグナルを上回り強気（+15）")
-        else:
-            score -= 15
-            reasons.append("MACDがシグナルを下回り弱気（-15）")
-
-    # RSI
-    rsi = last["RSI14"]
-    if pd.notna(rsi):
-        if rsi < 30:
-            score += 10
-            reasons.append(f"RSIが{rsi:.1f}で売られすぎ、反発の可能性（+10）")
-        elif rsi > 70:
-            score -= 10
-            reasons.append(f"RSIが{rsi:.1f}で買われすぎ、反落に警戒（-10）")
-
-    # ボリンジャーバンド
-    if pd.notna(last["BB_lower"]) and pd.notna(last["BB_upper"]):
-        band_width = last["BB_upper"] - last["BB_lower"]
-        if band_width > 0:
-            if last["Close"] <= last["BB_lower"] + band_width * 0.1:
-                score += 10
-                reasons.append("株価がボリンジャーバンド下限付近で割安（+10）")
-            elif last["Close"] >= last["BB_upper"] - band_width * 0.1:
-                score -= 10
-                reasons.append("株価がボリンジャーバンド上限付近で過熱（-10）")
-
-    # 出来高
-    if pd.notna(last["Volume_MA20"]) and last["Volume_MA20"] > 0:
-        vol_ratio = last["Volume"] / last["Volume_MA20"]
-        if vol_ratio > 1.5 and last["Close"] > prev["Close"]:
-            score += 5
-            reasons.append(f"出来高が20日平均の{vol_ratio:.1f}倍で上昇の勢いあり（+5）")
-
-    score = max(-100, min(100, score))
-    return {"score": score, "reasons": reasons}
-
-
-def get_dividend_yield_pct(info: dict):
-    """配当利回りを%単位で返す。dividendYieldはyfinanceのバージョンにより
-    比率(0.037)と%表記(3.67)のどちらで返るか揺れるため、より安定した
-    trailingAnnualDividendYield（常に比率）を優先的に使用する。"""
-    ratio = info.get("trailingAnnualDividendYield")
-    if ratio is not None:
-        return ratio * 100
-    raw = info.get("dividendYield")
-    if raw is None:
-        return None
-    return raw if raw > 1 else raw * 100
-
-
-def get_roe_pct(info: dict):
-    """自己資本利益率(ROE)を%単位で返す。returnOnEquityは常に比率で
-    返るため一律で100倍する（好業績企業ではROEが100%を超えることもある）。"""
-    roe = info.get("returnOnEquity")
-    if roe is None:
-        return None
-    return roe * 100
-
-
-def fundamental_score(info: dict) -> dict:
-    reasons = []
-    score = 0
-
-    per = info.get("trailingPE")
-    if per is not None:
-        if per < 0:
-            score -= 20
-            reasons.append(f"PERがマイナス（赤字）で割高感（-20）")
-        elif per < 15:
-            score += 20
-            reasons.append(f"PER {per:.1f}倍で割安水準（+20）")
-        elif per <= 25:
-            reasons.append(f"PER {per:.1f}倍で標準的な水準（±0）")
-        else:
-            score -= 20
-            reasons.append(f"PER {per:.1f}倍で割高水準（-20）")
-
-    pbr = info.get("priceToBook")
-    if pbr is not None:
-        if pbr < 1:
-            score += 15
-            reasons.append(f"PBR {pbr:.2f}倍で解散価値割れ、割安（+15）")
-        elif pbr <= 2:
-            reasons.append(f"PBR {pbr:.2f}倍で標準的な水準（±0）")
-        else:
-            score -= 15
-            reasons.append(f"PBR {pbr:.2f}倍で割高水準（-15）")
-
-    dy_pct = get_dividend_yield_pct(info)
-    if dy_pct is not None:
-        if dy_pct >= 3:
-            score += 15
-            reasons.append(f"配当利回り{dy_pct:.2f}%で高配当（+15）")
-        elif dy_pct >= 1:
-            score += 5
-            reasons.append(f"配当利回り{dy_pct:.2f}%（+5）")
-
-    roe_pct = get_roe_pct(info)
-    if roe_pct is not None:
-        if roe_pct >= 10:
-            score += 15
-            reasons.append(f"ROE {roe_pct:.1f}%で高い資本効率（+15）")
-        elif roe_pct >= 5:
-            score += 5
-            reasons.append(f"ROE {roe_pct:.1f}%（+5）")
-        else:
-            score -= 10
-            reasons.append(f"ROE {roe_pct:.1f}%で資本効率が低い（-10）")
-
-    score = max(-100, min(100, score))
-    return {"score": score, "reasons": reasons}
-
-
-def combined_signal(tech: dict, fund: dict, tech_weight: float = 0.55) -> dict:
-    fund_weight = 1 - tech_weight
-    total = tech["score"] * tech_weight + fund["score"] * fund_weight
-    total = round(total)
-
-    if total >= 50:
-        label = "強い買い"
-    elif total >= 20:
-        label = "買い"
-    elif total > -20:
-        label = "中立"
-    elif total > -50:
-        label = "売り"
-    else:
-        label = "強い売り"
-
-    return {"score": total, "label": label, "tech_weight": tech_weight, "fund_weight": fund_weight}
-
-
-# ---------------------------------------------------------------------------
-# 簡易トレンド予測
-# ---------------------------------------------------------------------------
-
-def simple_forecast(df: pd.DataFrame, forecast_days: int = 10, lookback_days: int = 60):
-    recent = df["Close"].tail(lookback_days).dropna()
-    x = np.arange(len(recent))
-    y = recent.values
-    slope, intercept = np.polyfit(x, y, 1)
-
-    future_x = np.arange(len(recent), len(recent) + forecast_days)
-    future_y = slope * future_x + intercept
-
-    last_date = recent.index[-1]
-    future_dates = pd.bdate_range(start=last_date, periods=forecast_days + 1)[1:]
-
-    forecast_series = pd.Series(future_y, index=future_dates)
-
-    last_price = recent.iloc[-1]
-    change_pct = (future_y[-1] - last_price) / last_price * 100
-    trend = "上昇" if slope > 0 else ("下降" if slope < 0 else "横ばい")
-
-    return {
-        "series": forecast_series,
-        "slope": slope,
-        "trend": trend,
-        "change_pct": change_pct,
-        "lookback_days": lookback_days,
-    }
+    chosen_symbol = chosen.get("symbol")
+    display_name = chosen.get("shortname") or chosen.get("longname") or chosen_symbol
+    print(f"→ {chosen_symbol}（{display_name}）を使用します。")
+    return chosen_symbol
 
 
 # ---------------------------------------------------------------------------
@@ -376,7 +111,7 @@ def fig_to_base64(fig) -> str:
     return base64.b64encode(buf.read()).decode("ascii")
 
 
-def make_candle_chart(df: pd.DataFrame, name: str) -> str:
+def make_candle_chart(df, name: str) -> str:
     plot_df = df.tail(180).copy()
     add_plots = [
         mpf.make_addplot(plot_df["RSI14"], panel=2, color="purple", ylabel="RSI"),
@@ -404,7 +139,7 @@ def make_candle_chart(df: pd.DataFrame, name: str) -> str:
     return fig_to_base64(fig)
 
 
-def make_forecast_chart(df: pd.DataFrame, forecast: dict, name: str) -> str:
+def make_forecast_chart(df, forecast: dict, name: str) -> str:
     fig, ax = plt.subplots(figsize=(11, 4.5))
     hist_tail = df["Close"].tail(forecast["lookback_days"])
     ax.plot(hist_tail.index, hist_tail.values, label="実績株価", color="black")
@@ -431,11 +166,9 @@ def score_bar_html(score: int) -> str:
     )
 
 
-def build_html_report(ticker_symbol, name, hist, info, tech, fund, combined, forecast, candle_img, forecast_img) -> str:
+def build_html_report(ticker_symbol, name, hist, info, live_price, prev_close, tech, fund, combined, forecast, candle_img, forecast_img) -> str:
     last = hist.iloc[-1]
-    last_close = last["Close"]
-    prev_close = hist["Close"].iloc[-2] if len(hist) > 1 else last_close
-    change = last_close - prev_close
+    change = live_price - prev_close
     change_pct = change / prev_close * 100 if prev_close else 0
     change_color = "#c0392b" if change > 0 else ("#1e8449" if change < 0 else "#333")
     sym = currency_symbol(info)
@@ -474,7 +207,7 @@ def build_html_report(ticker_symbol, name, hist, info, tech, fund, combined, for
   <div class="card">
     <h1>{name}（{ticker_symbol}）</h1>
     <div class="sub">分析日時: {generated_at}</div>
-    <div class="price">{sym}{last_close:,.0f}
+    <div class="price">{sym}{live_price:,.0f}
       <span class="change" style="color:{change_color};">{'+' if change>=0 else ''}{change:,.0f}（{'+' if change_pct>=0 else ''}{change_pct:.2f}%）</span>
     </div>
     <div class="signal-badge" style="background:{'#1e8449' if combined['score']>=20 else ('#c0392b' if combined['score']<=-20 else '#7f8c8d')};">
@@ -516,7 +249,7 @@ def build_html_report(ticker_symbol, name, hist, info, tech, fund, combined, for
           <th>PBR</th><td>{_fmt(info.get('priceToBook'), '倍')}</td></tr>
       <tr><th>配当利回り</th><td>{_fmt_optional_pct(get_dividend_yield_pct(info))}</td>
           <th>ROE</th><td>{_fmt_optional_pct(get_roe_pct(info))}</td></tr>
-      <tr><th>時価総額</th><td>{_fmt_marketcap(info.get('marketCap'), info)}</td>
+      <tr><th>時価総額</th><td>{format_marketcap(info.get('marketCap'), info)}</td>
           <th>52週高値/安値</th><td>{_fmt(info.get('fiftyTwoWeekHigh'))} / {_fmt(info.get('fiftyTwoWeekLow'))}</td></tr>
       <tr><th>RSI(14)</th><td>{hist['RSI14'].iloc[-1]:.1f}</td>
           <th>出来高</th><td>{last['Volume']:,.0f}</td></tr>
@@ -546,43 +279,14 @@ def _fmt_optional_pct(pct):
     return f"{pct:.2f}%"
 
 
-_CURRENCY_SYMBOLS = {"JPY": "¥", "USD": "$", "EUR": "€", "GBP": "£"}
-
-
-def currency_symbol(info: dict) -> str:
-    code = (info or {}).get("currency") or "JPY"
-    return _CURRENCY_SYMBOLS.get(code, code + " ")
-
-
-def _fmt_marketcap(v, info=None):
-    if v is None:
-        return "N/A"
-    currency = (info or {}).get("currency") or "JPY"
-    if currency == "JPY":
-        if v >= 1e12:
-            return f"{v/1e12:.2f}兆円"
-        if v >= 1e8:
-            return f"{v/1e8:.1f}億円"
-        return f"{v:,.0f}円"
-    sym = currency_symbol(info)
-    if v >= 1e12:
-        return f"{sym}{v/1e12:.2f}T"
-    if v >= 1e9:
-        return f"{sym}{v/1e9:.2f}B"
-    if v >= 1e6:
-        return f"{sym}{v/1e6:.1f}M"
-    return f"{sym}{v:,.0f}"
-
-
 # ---------------------------------------------------------------------------
 # コンソール出力
 # ---------------------------------------------------------------------------
 
-def print_console_report(ticker_symbol, name, hist, info, tech, fund, combined, forecast):
-    last_close = hist["Close"].iloc[-1]
+def print_console_report(ticker_symbol, name, live_price, info, tech, fund, combined, forecast):
     sym = currency_symbol(info)
     print("=" * 60)
-    print(f" {name}（{ticker_symbol}）  現在値: {sym}{last_close:,.0f}")
+    print(f" {name}（{ticker_symbol}）  現在値: {sym}{live_price:,.0f}")
     print("=" * 60)
     print(f" 総合判定: {combined['label']}  (スコア {combined['score']:+d} / -100〜+100)")
     print(f"   - テクニカルスコア: {tech['score']:+d}")
@@ -600,20 +304,26 @@ def print_console_report(ticker_symbol, name, hist, info, tech, fund, combined, 
 # ---------------------------------------------------------------------------
 
 def analyze_one(code: str, forecast_days: int, tech_weight: float, output_dir: Path):
-    ticker_symbol, hist, info = fetch_data(code)
-    hist = compute_technical_indicators(hist)
-    name = info.get("longName") or info.get("shortName") or ticker_symbol
+    result = analyze(code, forecast_days=forecast_days, tech_weight=tech_weight)
+    ticker_symbol = result["ticker_symbol"]
+    name = result["name"]
+    hist = result["hist"]
+    info = result["info"]
+    tech = result["tech"]
+    fund = result["fund"]
+    combined = result["combined"]
+    forecast = result["forecast"]
+    live_price = result["live_price"]
+    prev_close = result["prev_close"]
 
-    tech = technical_score(hist)
-    fund = fundamental_score(info)
-    combined = combined_signal(tech, fund, tech_weight)
-    forecast = simple_forecast(hist, forecast_days=forecast_days)
-
-    print_console_report(ticker_symbol, name, hist, info, tech, fund, combined, forecast)
+    print_console_report(ticker_symbol, name, live_price, info, tech, fund, combined, forecast)
 
     candle_img = make_candle_chart(hist, name)
     forecast_img = make_forecast_chart(hist, forecast, name)
-    html = build_html_report(ticker_symbol, name, hist, info, tech, fund, combined, forecast, candle_img, forecast_img)
+    html = build_html_report(
+        ticker_symbol, name, hist, info, live_price, prev_close,
+        tech, fund, combined, forecast, candle_img, forecast_img,
+    )
 
     output_dir.mkdir(parents=True, exist_ok=True)
     date_str = datetime.now().strftime("%Y%m%d")
@@ -626,7 +336,7 @@ def analyze_one(code: str, forecast_days: int, tech_weight: float, output_dir: P
 
 
 def run_one_query(query: str, forecast_days: float, tech_weight: float, output_dir: Path, auto_open: bool):
-    symbol = resolve_query(query)
+    symbol = resolve_query_interactive(query)
     if not symbol:
         return
     try:
