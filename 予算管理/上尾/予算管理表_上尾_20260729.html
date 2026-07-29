@@ -379,6 +379,17 @@
   .notes-box:focus { box-shadow: inset 0 0 0 1px #2563eb; }
 
   #btn-clear:hover { filter: brightness(0.88); }
+
+  /* ===== 業者連動セル（業者支払管理表と自動連動中は編集不可） ===== */
+  td.linked-cell {
+    background-color: #dbeafe !important;
+    color: #1e40af;
+    cursor: not-allowed;
+  }
+  td.linked-cell::after {
+    content: " 🔗";
+    font-size: 8pt;
+  }
 </style>
 </head>
 <body>
@@ -591,6 +602,18 @@
     <tr class="cat-header"><td colspan="10" contenteditable="true">【 設備工事 】</td></tr>
     <tr>
       <td class="center">7</td>
+      <td contenteditable="true">床仕上げ工事（フロアハード・巾木モルタル）</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">180,000</td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">180,000</td>
+      <td class="num profit-cell"></td>
+      <td class="num rate-cell"></td>
+      <td class="center"><select class="status-select badge-quote" onchange="updateStatusStyle(this)"><option value="badge-none">未発注</option><option value="badge-quote" selected>見積済</option><option value="badge-ordered">発注済</option><option value="badge-done">完了</option><option value="badge-issue">問題あり</option></select></td>
+      <td contenteditable="true">矢野工業</td>
+      <td contenteditable="true"></td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center">8</td>
       <td contenteditable="true">電気工事（配線・エアコン取付）</td>
       <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">209,400</td>
       <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">209,400</td>
@@ -602,7 +625,7 @@
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
     <tr>
-      <td class="center">8</td>
+      <td class="center">9</td>
       <td contenteditable="true">給排水工事</td>
       <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">1,154,287</td>
       <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">1,154,287</td>
@@ -614,7 +637,7 @@
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
     <tr>
-      <td class="center">9</td>
+      <td class="center">10</td>
       <td contenteditable="true">ダクト工事（厨房換気）</td>
       <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">500,000</td>
       <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">500,000</td>
@@ -628,7 +651,7 @@
     <!-- カテゴリ：諸経費 -->
     <tr class="cat-header"><td colspan="10" contenteditable="true">【 諸経費 】</td></tr>
     <tr>
-      <td class="center">10</td>
+      <td class="center">11</td>
       <td contenteditable="true">現場管理費</td>
       <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
       <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
@@ -640,7 +663,7 @@
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
     <tr>
-      <td class="center">11</td>
+      <td class="center">12</td>
       <td contenteditable="true">その他諸経費</td>
       <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
       <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
@@ -767,6 +790,34 @@
       <td contenteditable="true">2026年7月30日付請求書 実際税込155,800円（人件費のみ課税10%対象78,000円、材料・交通費・諸経費70,000円は対象外のため通常の10%計算と異なる）</td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
+    <tr>
+      <td class="center row-select-cell"></td>
+      <td contenteditable="true">矢野工業</td>
+      <td contenteditable="true">フロアハード仕上げ工事</td>
+      <td contenteditable="true" class="num vendor-order-ex" oninput="recalcVendor()">100,000</td>
+      <td class="num vendor-order-in"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-paid" oninput="recalcVendor()"></td>
+      <td class="num vendor-remain"></td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未払</option><option value="badge-quote">一部払</option><option value="badge-ordered">支払済</option><option value="badge-issue">問題あり</option></select></td>
+      <td contenteditable="true">2026年7月15日見積（有効期限2026/07/15を経過済・要再確認）</td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
+    <tr>
+      <td class="center row-select-cell"></td>
+      <td contenteditable="true">矢野工業</td>
+      <td contenteditable="true">巾木モルタル仕上げ工事（厨房）</td>
+      <td contenteditable="true" class="num vendor-order-ex" oninput="recalcVendor()">80,000</td>
+      <td class="num vendor-order-in"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true"></td>
+      <td contenteditable="true" class="num vendor-paid" oninput="recalcVendor()"></td>
+      <td class="num vendor-remain"></td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未払</option><option value="badge-quote">一部払</option><option value="badge-ordered">支払済</option><option value="badge-issue">問題あり</option></select></td>
+      <td contenteditable="true">2026年7月25日見積（有効期限2026/07/25を経過済・要再確認）</td>
+      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
+    </tr>
   </tbody>
   <tfoot>
     <tr class="vendor-total-row">
@@ -859,13 +910,16 @@
 ・ケィディケイ（厨房ダクト工事）：¥500,000
 ・電気工事業者（上尾エアコン工事・業者名要確認）：¥209,400
 ・中野工業（上尾西塚様店舗 ウレタン防水・塗装）：¥148,000
-合計（税抜）¥5,651,687／税込 約¥6,216,856
+・矢野工業（フロアハード仕上げ・巾木モルタル仕上げ）：¥180,000
+合計（税抜）¥5,831,687／税込 約¥6,414,856
 
 【注意事項】
 ・「見積書_上尾エアコン工事_20260709.pdf」は発行元業者名の記載がなく特定できていません（担当：鈴木脩仁とのみ記載、見積No.2026-114-202）。業者名が判明次第「業者名要確認」の箇所を修正してください。
 ・中野工業「上尾西塚様店舗」請求書（2026年7月30日付）はユーザー確認の上、本案件に含めています。人件費のみ課税10%対象（78,000円）、材料・交通費・諸経費（70,000円）は対象外のため、実際の税込金額は¥155,800（通常の税抜×1.1計算＝¥162,800とは一致しません）。
 ・請負金額（税込・ホウセイ建設への請求額）はまだ確定していないため未入力です。確定後にサマリーの「請負金額（税込）」欄へ入力してください。
-・多賀建設の見積は有効期限2026/07/18を過ぎています。金額の再確認をおすすめします。</div>
+・多賀建設の見積は有効期限2026/07/18を過ぎています。金額の再確認をおすすめします。
+・矢野工業のフロアハード仕上げ（見積日2026/07/15）・巾木モルタル仕上げ（見積日2026/07/25）は、いずれも見積有効期限が発行日当日となっており既に経過しています。発注前に金額の再確認をおすすめします。
+・中野工業の請求書（2026年7月26日付「YANMAR TOKYO 各所是正」¥55,000）は上尾案件とは別現場のため、本表には含めていません。</div>
 
 <div style="margin-top:30px; text-align:right; font-size:8.5pt; color:#888;">
   工事予算管理表 — 印刷時はA4横推奨
@@ -880,6 +934,9 @@
   };
 
   function recalcAll() {
+    // 業者支払管理表と連動している行の金額を先に反映
+    syncBudgetFromVendor();
+
     // 工種別集計
     const rows = document.querySelectorAll('#budget-body tr:not(.cat-header):not(.subtotal-row)');
     let sumEst=0, sumOrd=0;
@@ -1208,6 +1265,75 @@
     reindex('vendor-body');
     recalcAll();
   }
+
+  // ===== 工種別予算管理表 ⇔ 業者支払管理表 の連動 =====
+  // 業者支払管理表の金額を正として、一番上の「見積合計（税込）」・工種別予算管理表の
+  // 「合計（税込）」に自動反映する。「担当業者」名が業者支払管理表の業者名と一致する
+  // 工種別の行には、その業者の発注金額（税抜）合計を反映する。
+  // 同じ業者が複数の工種行に割り当てられている場合は、各行に現在入力されている
+  // 金額の比率で業者合計を按分する（すべて未入力なら均等割り）ので、
+  // 行が何本に分かれていても合計は必ず業者支払管理表の合計と一致する。
+  function syncBudgetFromVendor() {
+    const vendorTotals = new Map();
+    document.querySelectorAll('#vendor-body tr:not(.vendor-group-header):not(.vendor-cat-header)').forEach(row => {
+      const name = (row.cells[1]?.textContent || '').trim();
+      if (!name) return;
+      const ex = parse(row.querySelector('.vendor-order-ex'));
+      vendorTotals.set(name, (vendorTotals.get(name) || 0) + ex);
+    });
+
+    const budgetRows = Array.from(document.querySelectorAll('#budget-body tr:not(.cat-header)'));
+
+    // 業者名ごとに、それを担当業者としている工種別行をグループ化
+    const rowsByVendor = new Map();
+    budgetRows.forEach(row => {
+      const name = (row.cells[7]?.textContent || '').trim();
+      const estCell = row.querySelector('.estimate-cell');
+      if (!estCell) return;
+      if (name && vendorTotals.has(name)) {
+        if (!rowsByVendor.has(name)) rowsByVendor.set(name, []);
+        rowsByVendor.get(name).push(row);
+      } else {
+        // 対応する業者がいない行は従来通り手入力
+        estCell.contentEditable = 'true';
+        estCell.classList.remove('linked-cell');
+        estCell.title = '';
+      }
+    });
+
+    rowsByVendor.forEach((rows, name) => {
+      const total = vendorTotals.get(name) || 0;
+      const weights = rows.map(row => parse(row.querySelector('.estimate-cell')));
+      const weightSum = weights.reduce((a, b) => a + b, 0);
+      let remaining = total;
+      rows.forEach((row, i) => {
+        const estCell = row.querySelector('.estimate-cell');
+        let share;
+        if (i === rows.length - 1) {
+          share = remaining; // 端数は最後の行に寄せて合計を業者支払管理表と一致させる
+        } else if (weightSum > 0) {
+          share = Math.round(total * (weights[i] / weightSum));
+        } else {
+          share = Math.round(total / rows.length);
+        }
+        remaining -= share;
+        estCell.textContent = share ? share.toLocaleString('ja-JP') : '';
+        estCell.contentEditable = 'false';
+        estCell.classList.add('linked-cell');
+        estCell.title = '業者支払管理表「' + name + '」の発注金額（税抜）合計と連動しています'
+          + (rows.length > 1 ? '（同業者の複数工種に按分）' : '');
+      });
+    });
+  }
+
+  // 工種別予算管理表の「担当業者」セルを編集したら連動を再判定
+  document.getElementById('budget-body').addEventListener('focusout', function(e) {
+    const row = e.target.closest('tr:not(.cat-header)');
+    if (!row) return;
+    if (e.target === row.cells[7]) {
+      recalcAll();
+    }
+  });
 
   // 業者名セルのフォーカスアウトでグループ化
   document.getElementById('vendor-body').addEventListener('focusout', function(e) {
