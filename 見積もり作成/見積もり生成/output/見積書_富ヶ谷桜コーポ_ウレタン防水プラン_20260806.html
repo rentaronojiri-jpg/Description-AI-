@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>見積書テンプレート（単価編集用）</title>
+<style>
+  :root {
+    --navy: #1a1a4e;
+    --light-blue: #e0e0f0;
+    --section-bg: #e8e8f0;
+    --subtotal-bg: #f0f0e8;
+    --stripe: #f9f9f9;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "MS Gothic", "Yu Gothic", sans-serif;
+    font-size: 11pt;
+    margin: 0;
+    color: #000;
+    background: #ccc;
+  }
+
+  /* ===== 編集モードUI ===== */
+  #edit-toolbar {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 9999;
+    display: flex;
+    gap: 8px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #edit-toolbar button {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10pt;
+    font-family: inherit;
+  }
+  #btn-print { background: var(--navy); color: #fff; }
+  #btn-print:hover { background: #111133; }
+  #btn-save { background: #16a34a; color: #fff; }
+  #btn-save:hover { background: #15803d; }
+
+  /* ===== ページ（用紙）===== */
+  .sheet {
+    background: #fff;
+    width: 950px;
+    margin: 20px auto;
+    padding: 30px 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    page-break-after: always;
+  }
+  .sheet:last-child { page-break-after: auto; }
+
+  h1 {
+    text-align: center;
+    font-size: 20pt;
+    letter-spacing: 10px;
+    margin: 10px 0 20px 0;
+  }
+  h1 span { border-bottom: 2px solid #000; padding-bottom: 4px; }
+  h2.doc-title {
+    text-align: center;
+    font-size: 15pt;
+    letter-spacing: 4px;
+    margin: 6px 0 18px 0;
+    border-bottom: 1px solid #000;
+    padding-bottom: 6px;
+  }
+
+  /* ===== 表紙 ===== */
+  .cover-client {
+    font-size: 13pt;
+    margin: 10px 0 20px 0;
+  }
+  .cover-client input.editable {
+    font-size: 13pt;
+    width: 260px;
+    border: 1px dashed #2563eb;
+    background: #f0f6ff;
+    padding: 2px 6px;
+  }
+  .cover-lead { font-size: 10pt; margin: 4px 0 18px 0; }
+  .cover-project {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .cover-project .left { font-size: 10.5pt; }
+  .cover-total-box {
+    border: 2px solid #000;
+    padding: 10px 18px;
+    margin: 10px 0 18px 0;
+  }
+  .cover-total-box .main-line { font-size: 15pt; font-weight: bold; }
+  .cover-total-box .sub-line { font-size: 9.5pt; color: #333; margin-top: 4px; }
+  table.cover-meta {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10pt;
+    margin-bottom: 16px;
+  }
+  table.cover-meta td {
+    border-bottom: 1px solid #000;
+    padding: 5px 6px;
+  }
+  table.cover-meta td.label {
+    width: 130px;
+    background: #f5f5f5;
+    font-weight: bold;
+  }
+  input.editable {
+    border: 1px dashed #2563eb;
+    background: #f0f6ff;
+    padding: 2px 4px;
+    font-size: 10pt;
+    font-family: inherit;
+    color: #000;
+    border-radius: 2px;
+    width: 100%;
+  }
+  input.editable:focus { outline: 2px solid #2563eb; background: #dbeafe; }
+  .cover-condition {
+    font-size: 9.5pt;
+    line-height: 1.9;
+    border: 1px solid #aaa;
+    padding: 10px 14px;
+    background: #fafafa;
+    margin-bottom: 14px;
+  }
+  .cover-condition h3 { font-size: 10pt; margin: 0 0 6px 0; }
+  .cover-company {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    text-align: right;
+    font-size: 9.5pt;
+    line-height: 1.6;
+  }
+  .cover-company strong { font-size: 11pt; }
+  .sheet.cover { position: relative; }
+
+  /* ===== 内訳明細書テーブル ===== */
+  table.summary {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5pt;
+    margin-bottom: 10px;
+  }
+  table.summary th {
+    background: var(--navy);
+    color: #fff;
+    padding: 8px 5px;
+    border: 1px solid #000;
+    font-weight: normal;
+  }
+  table.summary td {
+    padding: 7px 6px;
+    border: 1px solid #aaa;
+  }
+  table.summary .num { text-align: right; padding-right: 10px; }
+  table.summary .center { text-align: center; }
+  table.summary .subtotal-row td { background: var(--subtotal-bg); font-weight: bold; border-top: 2px solid #555; }
+  table.summary .tax-row td { background: var(--light-blue); font-weight: bold; }
+  table.summary .total-row td { background: var(--navy); color: #fff; font-weight: bold; font-size: 12.5pt; }
+  .summary-note { font-size: 9pt; color: #555; margin-top: 4px; }
+  table.summary:hover .del-btn { display: inline; }
+
+  a.cat-link {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 1px 4px;
+    background: var(--navy);
+    color: #fff !important;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  a.cat-link:hover { background: #2563eb; }
+
+  .back-link { margin: -6px 0 14px 0; font-size: 9pt; }
+  .back-link a { color: #2563eb; text-decoration: none; }
+  .back-link a:hover { text-decoration: underline; }
+
+  /* ===== 明細（詳細ページ）テーブル ===== */
+  h2.cat-title {
+    font-size: 13pt;
+    background: var(--section-bg);
+    border: 1px solid #000;
+    padding: 8px 12px;
+    margin: 0 0 12px 0;
+  }
+  input.editable.cat-title-input {
+    width: 70%;
+    display: inline-block;
+    font-size: 13pt;
+    font-family: inherit;
+    font-weight: normal;
+    background: #dcdce8;
+    border: 1px dashed #2563eb;
+    padding: 2px 6px;
+    vertical-align: baseline;
+  }
+  input.editable.cat-title-input:focus { outline: 2px solid #2563eb; background: #dbeafe; }
+  table.items {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5pt;
+    margin-bottom: 6px;
+  }
+  table.items th {
+    background: var(--navy);
+    color: #fff;
+    padding: 7px 5px;
+    text-align: center;
+    border: 1px solid #000;
+    font-weight: normal;
+  }
+  table.items td {
+    padding: 5px 5px;
+    border: 1px solid #aaa;
+    vertical-align: middle;
+  }
+  table.items .group-row td {
+    background: #f0f0f5;
+    font-size: 9.5pt;
+    color: #444;
+    font-style: italic;
+    padding: 4px 8px;
+  }
+  input.editable.group-label {
+    width: 100%;
+    text-align: left;
+    font-size: 9.5pt;
+    font-style: italic;
+    color: #444;
+    background: #eaeaf3;
+    border: 1px dashed #2563eb;
+    padding: 2px 4px;
+  }
+  input.editable.group-label:focus { outline: 2px solid #2563eb; background: #dbeafe; font-style: normal; }
+  table.items .num { text-align: right; padding-right: 8px; }
+  table.items .center { text-align: center; }
+  table.items tbody tr:nth-child(even):not(.group-row) td { background: var(--stripe); }
+  .cat-subtotal-row td { background: var(--subtotal-bg) !important; font-weight: bold; border-top: 2px solid #555; }
+
+  input.editable.item {
+    width: 100%;
+    text-align: right;
+  }
+  input.editable.item.left { text-align: left; }
+  input.editable.item.center { text-align: center; }
+
+  textarea.editable.item.left {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 1px dashed #2563eb;
+    background: #f0f6ff;
+    padding: 2px 4px;
+    font-size: 10.5pt;
+    font-family: inherit;
+    color: #000;
+    border-radius: 2px;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.4;
+    min-height: 1.6em;
+  }
+  textarea.editable.item.left:focus { outline: 2px solid #2563eb; background: #dbeafe; }
+
+  .del-btn {
+    cursor: pointer;
+    color: #dc2626;
+    font-size: 9pt;
+    background: none;
+    border: none;
+    padding: 0 2px;
+    display: none;
+  }
+  table.items:hover .del-btn { display: inline; }
+  .move-btn {
+    cursor: pointer;
+    color: #2563eb;
+    font-size: 9pt;
+    background: none;
+    border: none;
+    padding: 0 2px;
+    display: none;
+  }
+  table.summary:hover .move-btn { display: inline; }
+  .cat-toolbar { margin: 8px 0 16px 0; }
+  .cat-toolbar button {
+    padding: 5px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 9.5pt;
+    font-family: inherit;
+    background: #2563eb;
+    color: #fff;
+  }
+  .cat-toolbar button:hover { background: #1d4ed8; }
+
+  .validity { margin-top: 14px; font-size: 9.5pt; color: #444; text-align: right; }
+  .page-foot { text-align: center; font-size: 9pt; color: #888; margin-top: 10px; }
+
+  /* ===== 印刷スタイル ===== */
+  @media print {
+    body { background: #fff; }
+    #edit-toolbar, .del-btn, .cat-toolbar, .no-print { display: none !important; }
+    .sheet { box-shadow: none; margin: 0; width: auto; padding: 15px 20px; }
+    input.editable, textarea.editable { border: none !important; background: transparent !important; padding: 0 !important; }
+    a.cat-link { color: #000 !important; background: transparent !important; font-weight: bold; }
+
+    /* ---- 表紙を1ページに収める ---- */
+    .sheet.cover { padding: 8px 20px; page-break-inside: avoid; }
+    .cover-company { top: 8px; right: 20px; font-size: 8.5pt; line-height: 1.35; }
+    .sheet.cover h1 { font-size: 16pt; margin: 2px 0 8px 0; }
+    .cover-client { font-size: 11.5pt; margin: 4px 0 10px 0; }
+    .cover-lead { margin: 2px 0 10px 0; }
+    table.cover-meta { margin-bottom: 8px; }
+    table.cover-meta td { padding: 3px 6px; }
+    .cover-total-box { padding: 6px 14px; margin: 6px 0 10px 0; }
+    .cover-total-box .main-line { font-size: 13pt; }
+    .cover-condition { padding: 5px 10px; margin-bottom: 6px; }
+    .cover-condition h3 { margin: 0 0 3px 0; }
+    .cover-condition textarea { line-height: 1.4 !important; padding: 2px !important; }
+    .cond-terms textarea { min-height: 74px !important; }
+    .cond-note textarea { min-height: 22px !important; }
+    .sheet.cover .page-foot { margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 編集ツールバー -->
+<div id="edit-toolbar">
+  <button id="btn-save">💾 保存（.html）</button>
+  <button id="btn-print">印刷 / PDF保存</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ1：表紙 -->
+<!-- ============================================================ -->
+<div class="sheet cover">
+
+  <div class="cover-company">
+    <strong><input class="editable" style="width:190px; font-weight:bold; text-align:right;" value="株式会社AXIS"></strong><br>
+    〒<input class="editable" style="width:80px; text-align:right;" value="340-0045">
+    <input class="editable" style="width:200px; text-align:right;" value="埼玉県草加市小山2-29-10"><br>
+    TEL：<input class="editable" style="width:130px; text-align:right;" value="090-9825-2087"><br>
+    担当：<input class="editable" style="width:100px; text-align:right;" value="菊池 匠"><br>
+    登録番号：<input class="editable" style="width:150px; text-align:right;" value="T7030001171938">
+  </div>
+
+  <h1><span>御 見 積 書</span></h1>
+
+  <div class="cover-client">
+    <input class="editable" value="○○"> 御中
+  </div>
+  <div class="cover-lead">何卒御用命賜りますようお願い申し上げます。</div>
+
+  <table class="cover-meta">
+    <tr>
+      <td class="label">見積番号</td>
+      <td colspan="3"><input class="editable" value="2026-0806-002"></td>
+    </tr>
+    <tr>
+      <td class="label">案　件　名</td>
+      <td colspan="3"><input class="editable" value="給水管廻り漏水修繕・ウレタン防水工事（防水仕様プラン）"></td>
+    </tr>
+    <tr>
+      <td class="label">工事場所</td>
+      <td colspan="3"><input class="editable" value="東京都渋谷区富ヶ谷2-8-10　富ヶ谷桜コーポ"></td>
+    </tr>
+    <tr>
+      <td class="label">見積日付</td>
+      <td><input class="editable" id="estimate-date" value="2026年8月6日"></td>
+      <td class="label">見積有効期限</td>
+      <td><input class="editable" value="2026年9月6日"></td>
+    </tr>
+    <tr>
+      <td class="label">工期予定</td>
+      <td><input class="editable" value="約2日間"></td>
+      <td class="label">支払条件</td>
+      <td><input class="editable" value="規定に従う"></td>
+    </tr>
+    <tr>
+      <td class="label">営業主担当</td>
+      <td><input class="editable" value="菊池 匠"></td>
+      <td class="label">見積枚数</td>
+      <td><input class="editable" id="page-count-field" value="表紙 1　〜　5"></td>
+    </tr>
+  </table>
+
+  <div class="cover-total-box">
+    <div class="main-line">税込金額：　￥ <span id="cover-total">0</span> －</div>
+    <div class="sub-line">（商品合計　￥ <span id="cover-subtotal">0</span> －　　消費税　￥ <span id="cover-tax">0</span> －）</div>
+  </div>
+
+  <div class="cover-condition cond-terms">
+    <h3>【 御見積条件 】</h3>
+    <textarea class="editable" style="width:100%; min-height:130px; border:1px dashed #2563eb; background:#f0f6ff; font-family:inherit; font-size:9.5pt; line-height:1.9; padding:6px; resize:vertical;">※下記内訳明細書に記載のない項目は別途お見積りとさせていただきます。
+・本見積は現場確認をもとに作成しております。
+・給水管内部の劣化状況によっては、着工後に追加補修が必要となる場合があります。
+・トップコートは周辺既存部と色合わせした特注品を使用します。
+・追加工事が発生した場合はその都度協議のうえ、書面またはメールで取り決めをお願いいたします。</textarea>
+  </div>
+
+  <div class="cover-condition cond-note" style="min-height:60px;">
+    <h3>【 備考 】</h3>
+    <textarea class="editable" style="width:100%; min-height:50px; border:1px dashed #2563eb; background:#f0f6ff; font-family:inherit; font-size:9.5pt; line-height:1.8; padding:6px; resize:vertical;">給水管廻りのハツリ部補修に加え、ウレタン塗膜防水（密着工法）を施工する防水仕様プランです。Kモル補修のみのシンプルプランは別途ご用意しております。</textarea>
+  </div>
+
+  <div class="page-foot">- 1 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ2：見積内訳明細書（大項目サマリー） -->
+<!-- ============================================================ -->
+<div class="sheet" id="page-summary">
+  <h2 class="doc-title">見 積 内 訳 明 細 書</h2>
+
+  <table class="summary">
+    <thead>
+      <tr>
+        <th style="width:6%">No.</th>
+        <th style="width:41%">項　目</th>
+        <th style="width:9%">数量</th>
+        <th style="width:7%">単位</th>
+        <th style="width:15%">金　額</th>
+        <th style="width:12%">備　考</th>
+        <th style="width:10%" class="no-print">並替</th>
+      </tr>
+    </thead>
+    <tbody id="summary-body">
+      <tr id="summary-row-A">
+        <td class="center"><a href="#sheet-A" class="cat-link">A</a></td>
+        <td><input class="editable" value="給水管廻り漏水修繕工事"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-A">¥0</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td class="no-print">
+          <button class="move-btn" onclick="moveCategory('A','up')" title="上へ">▲</button>
+          <button class="move-btn" onclick="moveCategory('A','down')" title="下へ">▼</button>
+          <button class="del-btn" onclick="deleteCategory('A')" title="削除">✕</button>
+        </td>
+      </tr>
+      <tr id="summary-row-B">
+        <td class="center"><a href="#sheet-B" class="cat-link">B</a></td>
+        <td><input class="editable" value="ウレタン防水工事"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-B">¥0</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td class="no-print">
+          <button class="move-btn" onclick="moveCategory('B','up')" title="上へ">▲</button>
+          <button class="move-btn" onclick="moveCategory('B','down')" title="下へ">▼</button>
+          <button class="del-btn" onclick="deleteCategory('B')" title="削除">✕</button>
+        </td>
+      </tr>
+      <tr id="summary-row-C">
+        <td class="center"><a href="#sheet-C" class="cat-link">C</a></td>
+        <td><input class="editable" value="諸経費"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-C">¥0</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td class="no-print">
+          <button class="move-btn" onclick="moveCategory('C','up')" title="上へ">▲</button>
+          <button class="move-btn" onclick="moveCategory('C','down')" title="下へ">▼</button>
+          <button class="del-btn" onclick="deleteCategory('C')" title="削除">✕</button>
+        </td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="subtotal-row">
+        <td colspan="4" style="text-align:right; padding-right:10px;">小　　計</td>
+        <td class="num" id="summary-subtotal">¥0</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="tax-row">
+        <td colspan="4" style="text-align:right; padding-right:10px;">
+          消費税（<input class="editable" id="tax-rate-input" type="number" value="10" min="0" max="100" style="width:40px; display:inline-block; text-align:center;" oninput="recalcAll()">%）
+        </td>
+        <td class="num" id="summary-tax">¥0</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="4" style="text-align:right; padding-right:10px;">御見積金額　合　計</td>
+        <td class="num" id="summary-total">¥0</td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="summary-note">※ 金額は各内訳明細ページの単価・数量を変更すると自動で再計算されます。項目名・数量・単位・備考はこの表で直接編集できます。</div>
+  <div class="cat-toolbar no-print"><button onclick="addCategory()">＋ 項目追加（内訳明細ページも自動作成）</button></div>
+
+  <div class="page-foot">- 2 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ3：内訳明細 A -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="A" id="cat-block-A">
+  <h2 class="cat-title" id="sheet-A">【<a href="#page-summary" class="cat-link" title="内訳明細書へ戻る">A</a>】 <input class="editable cat-title-input" value="給水管廻り漏水修繕工事　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+
+  <table class="items" data-cat="A">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-A">
+      <tr>
+        <td class="center">1</td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">給水管廻りハツリ部補修</textarea></td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">ドカモル</textarea></td>
+        <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+        <td><input class="editable item center" value="箇所"></td>
+        <td><input class="editable item" type="number" value="27600" oninput="recalcAll()"></td>
+        <td class="num amount-cell"></td>
+        <td><input class="editable item center" value=""></td>
+        <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+      </tr>
+      <tr>
+        <td class="center">2</td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">ハツリ作業</textarea></td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">給水管廻り躯体はつり・撤去</textarea></td>
+        <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+        <td><input class="editable item center" value="式"></td>
+        <td><input class="editable item" type="number" value="24000" oninput="recalcAll()"></td>
+        <td class="num amount-cell"></td>
+        <td><input class="editable item center" value=""></td>
+        <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+      </tr>
+      <tr>
+        <td class="center">3</td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">給水管修繕</textarea></td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">損傷箇所の給水管修繕・接続</textarea></td>
+        <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+        <td><input class="editable item center" value="式"></td>
+        <td><input class="editable item" type="number" value="36000" oninput="recalcAll()"></td>
+        <td class="num amount-cell"></td>
+        <td><input class="editable item center" value=""></td>
+        <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【A】 小　計</td>
+        <td class="num" id="subtotal-A">¥0</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('A')">＋ 行追加（A）</button>
+    <button onclick="mergeUp('A')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('A')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('A')" style="background:#dc2626;">✕ 【A】項目を削除</button>
+  </div>
+</div>
+
+  <div class="page-foot">- 3 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ4：内訳明細 B. ウレタン防水工事 -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="B" id="cat-block-B">
+  <h2 class="cat-title" id="sheet-B">【<a href="#page-summary" class="cat-link" title="内訳明細書へ戻る">B</a>】 <input class="editable cat-title-input" value="ウレタン防水工事　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+
+  <table class="items" data-cat="B">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-B">
+      <tr>
+        <td class="center">1</td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">ウレタン防水</textarea></td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">密着工法</textarea></td>
+        <td><input class="editable item" type="number" step="0.1" value="2" oninput="recalcAll()"></td>
+        <td><input class="editable item center" value="人工"></td>
+        <td><input class="editable item" type="number" value="41400" oninput="recalcAll()"></td>
+        <td class="num amount-cell"></td>
+        <td><input class="editable item center" value=""></td>
+        <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+      </tr>
+      <tr>
+        <td class="center">2</td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">色合わせ特注トップコート</textarea></td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">既存部と色合わせした特注品</textarea></td>
+        <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+        <td><input class="editable item center" value="缶"></td>
+        <td><input class="editable item" type="number" value="41400" oninput="recalcAll()"></td>
+        <td class="num amount-cell"></td>
+        <td><input class="editable item center" value=""></td>
+        <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+      </tr>
+      <tr>
+        <td class="center">3</td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">材料費</textarea></td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">防水材・下地材一式</textarea></td>
+        <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+        <td><input class="editable item center" value="式"></td>
+        <td><input class="editable item" type="number" value="42000" oninput="recalcAll()"></td>
+        <td class="num amount-cell"></td>
+        <td><input class="editable item center" value=""></td>
+        <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【B】 小　計</td>
+        <td class="num" id="subtotal-B">¥0</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('B')">＋ 行追加（B）</button>
+    <button onclick="mergeUp('B')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('B')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('B')" style="background:#dc2626;">✕ 【B】項目を削除</button>
+  </div>
+</div>
+
+  <div class="page-foot">- 4 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ5：内訳明細 C. 諸経費 -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="C" id="cat-block-C">
+  <h2 class="cat-title" id="sheet-C">【<a href="#page-summary" class="cat-link" title="内訳明細書へ戻る">C</a>】 <input class="editable cat-title-input" value="諸経費　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+
+  <table class="items" data-cat="C">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-C">
+      <tr>
+        <td class="center">1</td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">諸経費</textarea></td>
+        <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">運搬費・現場管理費・書類作成費等</textarea></td>
+        <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+        <td><input class="editable item center" value="式"></td>
+        <td><input class="editable item" type="number" value="24000" oninput="recalcAll()"></td>
+        <td class="num amount-cell"></td>
+        <td><input class="editable item center" value=""></td>
+        <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【C】 小　計</td>
+        <td class="num" id="subtotal-C">¥0</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('C')">＋ 行追加（C）</button>
+    <button onclick="mergeUp('C')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('C')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('C')" style="background:#dc2626;">✕ 【C】項目を削除</button>
+  </div>
+</div>
+
+  <div id="closing-note" class="validity">以上、よろしくご検討のほどお願い申し上げます。</div>
+  <div class="page-foot">- 5 -</div>
+</div>
+
+<div id="closing-anchor" style="display:none"></div>
+
+<script>
+  function getCategories() {
+    return Array.from(document.querySelectorAll('table.items[data-cat]')).map(t => t.dataset.cat);
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function recalcCategory(cat) {
+    const tbody = document.getElementById('items-body-' + cat);
+    if (!tbody) return 0;
+    const rows = tbody.querySelectorAll('tr:not(.group-row)');
+    let subtotal = 0;
+    rows.forEach(row => {
+      const inputs = row.querySelectorAll('input[type="number"]');
+      if (inputs.length < 2) return;
+      const qty = parseFloat(inputs[0].value) || 0;
+      const price = parseFloat(inputs[1].value) || 0;
+      const amount = Math.round(qty * price);
+      const cell = row.querySelector('.amount-cell');
+      if (cell) cell.textContent = '¥' + amount.toLocaleString();
+      subtotal += amount;
+    });
+
+    // renumber
+    let no = 1;
+    rows.forEach(row => {
+      const firstCell = row.cells[0];
+      if (firstCell) firstCell.textContent = no++;
+    });
+
+    const subEl = document.getElementById('subtotal-' + cat);
+    if (subEl) subEl.textContent = '¥' + subtotal.toLocaleString();
+    const sumEl = document.getElementById('cat-amount-' + cat);
+    if (sumEl) sumEl.textContent = '¥' + subtotal.toLocaleString();
+    return subtotal;
+  }
+
+  function recalcAll() {
+    let grandSubtotal = 0;
+    getCategories().forEach(cat => { grandSubtotal += recalcCategory(cat); });
+
+    const taxRate = parseFloat(document.getElementById('tax-rate-input').value) || 0;
+    const tax = Math.round(grandSubtotal * taxRate / 100);
+    const total = grandSubtotal + tax;
+
+    document.getElementById('summary-subtotal').textContent = '¥' + grandSubtotal.toLocaleString();
+    document.getElementById('summary-tax').textContent = '¥' + tax.toLocaleString();
+    document.getElementById('summary-total').textContent = '¥' + total.toLocaleString();
+
+    document.getElementById('cover-subtotal').textContent = grandSubtotal.toLocaleString();
+    document.getElementById('cover-tax').textContent = tax.toLocaleString();
+    document.getElementById('cover-total').textContent = total.toLocaleString();
+  }
+
+  function delRow(btn) {
+    if (!confirm('この行を削除しますか？')) return;
+    btn.closest('tr').remove();
+    recalcAll();
+  }
+
+  function addRow(cat) {
+    const tbody = document.getElementById('items-body-' + cat);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="center">-</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">品名を入力</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">仕様を入力</textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="0" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥0</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+    tr.querySelectorAll('textarea').forEach(autoGrow);
+    recalcAll();
+    tr.querySelector('textarea').focus();
+  }
+
+  // ===== テキストエリア自動高さ調整（品名・仕様の折り返し対応） =====
+  function autoGrow(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
+  // ===== 項目（大分類）追加 =====
+  function nextCatLetter() {
+    let maxCode = 64; // 'A' の1つ前
+    getCategories().forEach(c => {
+      const code = c.charCodeAt(0);
+      if (code > maxCode) maxCode = code;
+    });
+    return String.fromCharCode(maxCode + 1);
+  }
+
+  function addCategory() {
+    const name = prompt('新しい項目名を入力してください', '新規項目');
+    if (name === null) return;
+    const cat = nextCatLetter();
+    const safeName = escapeHtml(name || '新規項目');
+
+    // 1. 見積内訳明細書（サマリー表）に行を追加
+    const summaryBody = document.getElementById('summary-body');
+    const sRow = document.createElement('tr');
+    sRow.id = 'summary-row-' + cat;
+    sRow.innerHTML = `
+      <td class="center"><a href="#sheet-${cat}" class="cat-link">${cat}</a></td>
+      <td><input class="editable" value="${safeName}"></td>
+      <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+      <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+      <td class="num" id="cat-amount-${cat}">¥0</td>
+      <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+      <td class="no-print">
+        <button class="move-btn" onclick="moveCategory('${cat}','up')" title="上へ">▲</button>
+        <button class="move-btn" onclick="moveCategory('${cat}','down')" title="下へ">▼</button>
+        <button class="del-btn" onclick="deleteCategory('${cat}')" title="削除">✕</button>
+      </td>
+    `;
+    summaryBody.appendChild(sRow);
+
+    // 2. 内訳明細（詳細）ページを末尾に追加
+    const closingAnchor = document.getElementById('closing-anchor');
+    const sheet = document.createElement('div');
+    sheet.className = 'sheet';
+    sheet.innerHTML = `
+      <div class="cat-block" data-cat="${cat}" id="cat-block-${cat}">
+        <h2 class="cat-title" id="sheet-${cat}">【<a href="#page-summary" class="cat-link" title="内訳明細書へ戻る">${cat}</a>】 <input class="editable cat-title-input" value="${safeName}"></h2>
+        <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+        <table class="items" data-cat="${cat}">
+          <thead>
+            <tr>
+              <th style="width:5%">No.</th>
+              <th style="width:28%">名　称</th>
+              <th style="width:20%">仕　様</th>
+              <th style="width:9%">数量</th>
+              <th style="width:6%">単位</th>
+              <th style="width:12%">単　価</th>
+              <th style="width:12%">金　額</th>
+              <th style="width:8%">備　考</th>
+              <th style="width:3%" class="no-print"></th>
+            </tr>
+          </thead>
+          <tbody class="cat-body" id="items-body-${cat}">
+            <tr>
+              <td class="center">1</td>
+              <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">品名を入力</textarea></td>
+              <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">仕様を入力</textarea></td>
+              <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+              <td><input class="editable item center" value="式"></td>
+              <td><input class="editable item" type="number" value="0" oninput="recalcAll()"></td>
+              <td class="num amount-cell"></td>
+              <td><input class="editable item center" value=""></td>
+              <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="cat-subtotal-row">
+              <td colspan="6" style="text-align:right; padding-right:10px;">【${cat}】 小　計</td>
+              <td class="num" id="subtotal-${cat}">¥0</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="cat-toolbar no-print">
+          <button onclick="addRow('${cat}')">＋ 行追加（${cat}）</button>
+          <button onclick="mergeUp('${cat}')" style="background:#6b7280;">⬆ 前のページと結合</button>
+          <button onclick="splitOut('${cat}')" style="background:#6b7280;">✂ ページを分離</button>
+          <button onclick="deleteCategory('${cat}')" style="background:#dc2626;">✕ 【${cat}】項目を削除</button>
+        </div>
+      </div>
+      <div class="page-foot">- ${cat} -</div>
+    `;
+    closingAnchor.parentNode.insertBefore(sheet, closingAnchor);
+    sheet.querySelectorAll('textarea').forEach(autoGrow);
+
+    recalcAll();
+    renumberPages();
+    sheet.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // シート削除時に結びの一文を巻き添えにしない
+  function safeRemoveSheet(sheet) {
+    const note = document.getElementById('closing-note');
+    if (note && sheet.contains(note)) document.body.appendChild(note);
+    sheet.remove();
+  }
+
+  function deleteCategory(cat) {
+    if (!confirm('項目【' + cat + '】を削除しますか？（内訳明細ページも削除されます）')) return;
+    const row = document.getElementById('summary-row-' + cat);
+    if (row) row.remove();
+    const block = document.getElementById('cat-block-' + cat);
+    if (block) {
+      const sheet = block.closest('.sheet');
+      block.remove();
+      if (sheet && !sheet.querySelector('.cat-block')) safeRemoveSheet(sheet);
+    }
+    relabelAll();
+    recalcAll();
+    renumberPages();
+  }
+
+  // ===== 項目の並び替え（A・B・C…は常にページ順に自動採番）=====
+  function relabelAll() {
+    const blocks = Array.from(document.querySelectorAll('.cat-block'));
+    const mapping = blocks.map((block, i) => ({
+      oldCat: block.dataset.cat,
+      newCat: String.fromCharCode(65 + i),
+      block
+    }));
+
+    // 並び替え前に、サマリー行の入力値（項目名・数量・単位・備考）を退避
+    const summaryData = {};
+    mapping.forEach(({ oldCat }) => {
+      const row = document.getElementById('summary-row-' + oldCat);
+      if (!row) return;
+      const inputs = row.querySelectorAll('input.editable');
+      summaryData[oldCat] = {
+        name: inputs[0] ? inputs[0].value : '',
+        qty: inputs[1] ? inputs[1].value : '1',
+        unit: inputs[2] ? inputs[2].value : '式',
+        note: inputs[3] ? inputs[3].value : ''
+      };
+    });
+
+    // 一旦すべて仮IDにして、A⇔Bの入れ替えなどでIDが衝突しないようにする
+    mapping.forEach(({ block }, i) => {
+      block.dataset.cat = 'tmp' + i;
+      block.id = 'cat-block-tmp' + i;
+      const h2 = block.querySelector('h2.cat-title');
+      if (h2) h2.id = 'sheet-tmp' + i;
+      const table = block.querySelector('table.items');
+      if (table) table.dataset.cat = 'tmp' + i;
+      const tbody = block.querySelector('.cat-body');
+      if (tbody) tbody.id = 'items-body-tmp' + i;
+      const subEl = block.querySelector('.cat-subtotal-row .num');
+      if (subEl) subEl.id = 'subtotal-tmp' + i;
+    });
+
+    // 本採番
+    mapping.forEach(({ newCat, block }) => {
+      block.dataset.cat = newCat;
+      block.id = 'cat-block-' + newCat;
+      const h2 = block.querySelector('h2.cat-title');
+      if (h2) {
+        const input = h2.querySelector('input.cat-title-input');
+        if (input) input.setAttribute('value', input.value);
+        const inputHtml = input ? input.outerHTML : '';
+        h2.id = 'sheet-' + newCat;
+        h2.innerHTML = `【<a href="#page-summary" class="cat-link" title="内訳明細書へ戻る">${newCat}</a>】 ${inputHtml}`;
+      }
+      const table = block.querySelector('table.items');
+      if (table) table.dataset.cat = newCat;
+      const tbody = block.querySelector('.cat-body');
+      if (tbody) tbody.id = 'items-body-' + newCat;
+      const subEl = block.querySelector('.cat-subtotal-row .num');
+      if (subEl) {
+        subEl.id = 'subtotal-' + newCat;
+        const labelCell = subEl.closest('tr').querySelector('td');
+        if (labelCell) labelCell.textContent = `【${newCat}】 小　計`;
+      }
+      const toolbar = block.querySelector('.cat-toolbar');
+      if (toolbar) {
+        const addBtn = toolbar.querySelector('button[onclick^="addRow"]');
+        if (addBtn) { addBtn.setAttribute('onclick', `addRow('${newCat}')`); addBtn.textContent = `＋ 行追加（${newCat}）`; }
+        const mergeBtn = toolbar.querySelector('button[onclick^="mergeUp"]');
+        if (mergeBtn) mergeBtn.setAttribute('onclick', `mergeUp('${newCat}')`);
+        const splitBtn = toolbar.querySelector('button[onclick^="splitOut"]');
+        if (splitBtn) splitBtn.setAttribute('onclick', `splitOut('${newCat}')`);
+        const delBtn = toolbar.querySelector('button[onclick^="deleteCategory"]');
+        if (delBtn) { delBtn.setAttribute('onclick', `deleteCategory('${newCat}')`); delBtn.textContent = `✕ 【${newCat}】項目を削除`; }
+      }
+    });
+
+    // サマリー表を新しい並び順で再構築（入力値は退避したものを復元）
+    const summaryBody = document.getElementById('summary-body');
+    summaryBody.innerHTML = '';
+    mapping.forEach(({ oldCat, newCat }) => {
+      const data = summaryData[oldCat] || { name: '', qty: '1', unit: '式', note: '' };
+      const row = document.createElement('tr');
+      row.id = 'summary-row-' + newCat;
+      row.innerHTML = `
+        <td class="center"><a href="#sheet-${newCat}" class="cat-link">${newCat}</a></td>
+        <td><input class="editable" value="${escapeHtml(data.name)}"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="${escapeHtml(data.qty)}"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="${escapeHtml(data.unit)}"></td>
+        <td class="num" id="cat-amount-${newCat}">¥0</td>
+        <td class="center"><input class="editable" style="text-align:center;" value="${escapeHtml(data.note)}"></td>
+        <td class="no-print">
+          <button class="move-btn" onclick="moveCategory('${newCat}','up')" title="上へ">▲</button>
+          <button class="move-btn" onclick="moveCategory('${newCat}','down')" title="下へ">▼</button>
+          <button class="del-btn" onclick="deleteCategory('${newCat}')" title="削除">✕</button>
+        </td>
+      `;
+      summaryBody.appendChild(row);
+    });
+  }
+
+  function moveCategory(cat, dir) {
+    const blocks = Array.from(document.querySelectorAll('.cat-block'));
+    const idx = blocks.findIndex(b => b.dataset.cat === cat);
+    if (idx === -1) return;
+    const targetIdx = dir === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx < 0 || targetIdx >= blocks.length) return;
+
+    const block = blocks[idx];
+    const targetBlock = blocks[targetIdx];
+    if (dir === 'up') {
+      targetBlock.parentNode.insertBefore(block, targetBlock);
+    } else {
+      targetBlock.parentNode.insertBefore(block, targetBlock.nextSibling);
+    }
+
+    // 移動後、空になったページ（表紙・内訳明細書ページを除く）を削除
+    document.querySelectorAll('.sheet').forEach(sheet => {
+      if (sheet.classList.contains('cover') || sheet.id === 'page-summary') return;
+      if (!sheet.querySelector('.cat-block')) safeRemoveSheet(sheet);
+    });
+
+    relabelAll();
+    recalcAll();
+    renumberPages();
+
+    const newCat = String.fromCharCode(65 + targetIdx);
+    const target = document.getElementById('cat-block-' + newCat);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ===== ページの結合・分離 =====
+  function mergeUp(cat) {
+    const cats = getCategories();
+    const idx = cats.indexOf(cat);
+    if (idx <= 0) { alert('これは最初の項目です。上に結合できません。'); return; }
+    const prevCat = cats[idx - 1];
+    const block = document.getElementById('cat-block-' + cat);
+    const prevBlock = document.getElementById('cat-block-' + prevCat);
+    if (!block || !prevBlock) return;
+    const sheet = block.closest('.sheet');
+    const prevSheet = prevBlock.closest('.sheet');
+    if (sheet === prevSheet) { alert('すでに同じページにあります。'); return; }
+    const foot = prevSheet.querySelector(':scope > .page-foot');
+    prevSheet.insertBefore(block, foot);
+    if (!sheet.querySelector('.cat-block')) safeRemoveSheet(sheet);
+    renumberPages();
+    block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // 分離後の新ページを、カテゴリの文字順が崩れない位置に挿入する
+  function insertSheetInOrder(newSheet, cat) {
+    const allSheets = Array.from(document.querySelectorAll('.sheet')).filter(s => s !== newSheet);
+    let insertBeforeSheet = null;
+    for (const s of allSheets) {
+      const firstBlock = s.querySelector('.cat-block');
+      if (firstBlock && firstBlock.dataset.cat > cat) { insertBeforeSheet = s; break; }
+    }
+    if (insertBeforeSheet) {
+      insertBeforeSheet.parentNode.insertBefore(newSheet, insertBeforeSheet);
+    } else {
+      const anchor = document.getElementById('closing-anchor');
+      anchor.parentNode.insertBefore(newSheet, anchor);
+    }
+  }
+
+  function splitOut(cat) {
+    const block = document.getElementById('cat-block-' + cat);
+    if (!block) return;
+    const sheet = block.closest('.sheet');
+    if (sheet.querySelectorAll('.cat-block').length <= 1) { alert('すでに独立したページです。'); return; }
+    const newSheet = document.createElement('div');
+    newSheet.className = 'sheet';
+    newSheet.appendChild(block);
+    const foot = document.createElement('div');
+    foot.className = 'page-foot';
+    newSheet.appendChild(foot);
+    insertSheetInOrder(newSheet, cat);
+    renumberPages();
+    newSheet.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ===== 結びの一文を常に最後のページへ移動 =====
+  function relocateClosingNote() {
+    const note = document.getElementById('closing-note');
+    const sheets = document.querySelectorAll('.sheet');
+    if (!note || sheets.length === 0) return;
+    const lastSheet = sheets[sheets.length - 1];
+    const foot = lastSheet.querySelector(':scope > .page-foot');
+    if (foot) {
+      lastSheet.insertBefore(note, foot);
+    } else {
+      lastSheet.appendChild(note);
+    }
+  }
+
+  // ===== ページ番号の再採番 =====
+  function renumberPages() {
+    relocateClosingNote();
+    const sheets = Array.from(document.querySelectorAll('.sheet'));
+    sheets.forEach((sheet, i) => {
+      const foot = sheet.querySelector(':scope > .page-foot');
+      if (foot) foot.textContent = '- ' + (i + 1) + ' -';
+    });
+    const pageCountField = document.getElementById('page-count-field');
+    if (pageCountField) pageCountField.value = '表紙 1　〜　' + sheets.length;
+  }
+
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  // ===== データ保存（入力内容を反映したHTMLファイルとしてダウンロード） =====
+  function syncValuesToAttributes() {
+    document.querySelectorAll('input.editable').forEach(el => el.setAttribute('value', el.value));
+    document.querySelectorAll('textarea.editable').forEach(el => { el.textContent = el.value; });
+  }
+
+  function suggestFileName() {
+    const metaInputs = document.querySelectorAll('table.cover-meta input.editable');
+    const projectName = (metaInputs[1] && metaInputs[1].value.trim()) || '見積書';
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const safeName = projectName.replace(/[\\/:*?"<>|]/g, '_');
+    return `見積書_${safeName}_${y}${m}${d}.html`;
+  }
+
+  function saveAsHtmlFile() {
+    syncValuesToAttributes();
+    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = suggestFileName();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    const btn = document.getElementById('btn-save');
+    const original = btn.textContent;
+    btn.textContent = '✓ 保存しました';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }
+
+  document.getElementById('btn-save').addEventListener('click', saveAsHtmlFile);
+
+  document.querySelectorAll('textarea.editable.item').forEach(autoGrow);
+  recalcAll();
+  renumberPages();
+</script>
+</body>
+</html>
