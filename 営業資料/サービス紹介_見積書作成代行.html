@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>見積書作成代行サービス ご案内</title>
+<style>
+  :root {
+    --navy: #1a1a4e;
+    --navy-light: #3a3a7e;
+    --tint: #eceef6;
+    --gold: #b8892b;
+    --line: #c9cbd8;
+    --gray: #555;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #e9e9ee;
+    color: #111;
+    line-height: 1.7;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ===== 印刷ボタン（印刷時は非表示） ===== */
+  #print-bar {
+    position: fixed;
+    top: 12px; right: 12px;
+    z-index: 999;
+    background: rgba(255,255,255,.96);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.15);
+  }
+  #print-bar button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 7px 18px;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  #print-bar button:hover { background: var(--navy-light); }
+  #print-bar span { font-size: 11px; color: var(--gray); display: block; margin-top: 5px; }
+
+  /* ===== ページ ===== */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 16px auto;
+    padding: 11mm 15mm 9mm;
+    background: #fff;
+    box-shadow: 0 2px 14px rgba(0,0,0,.18);
+    position: relative;
+  }
+
+  /* ===== 見出し ===== */
+  .hero {
+    background: var(--navy);
+    color: #fff;
+    margin: -11mm -15mm 7mm;
+    padding: 9mm 15mm 7.5mm;
+  }
+  .hero .eyebrow {
+    font-size: 10.5pt;
+    letter-spacing: .18em;
+    color: #b9bcd4;
+    margin-bottom: 6px;
+  }
+  .hero h1 {
+    font-size: 22pt;
+    margin: 0 0 8px;
+    letter-spacing: .02em;
+    line-height: 1.35;
+  }
+  .hero h1 .accent { color: #e8c36a; }
+  .hero p {
+    margin: 0;
+    font-size: 11pt;
+    color: #dcdee9;
+  }
+
+  h2 {
+    font-size: 12.5pt;
+    color: var(--navy);
+    margin: 0 0 5px;
+    padding-left: 11px;
+    border-left: 5px solid var(--gold);
+    line-height: 1.4;
+  }
+  section { margin-bottom: 2.5mm; }
+
+  /* ===== お悩みリスト ===== */
+  .pains {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+  }
+  .pains li {
+    background: var(--tint);
+    padding: 7px 12px 7px 32px;
+    font-size: 10pt;
+    border-radius: 4px;
+    position: relative;
+  }
+  .pains li::before {
+    content: "✔";
+    position: absolute;
+    left: 11px;
+    color: var(--gold);
+    font-weight: bold;
+  }
+
+  /* ===== 3ステップ ===== */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .step {
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--navy);
+    padding: 10px 11px 11px;
+    border-radius: 3px;
+  }
+  .step .no {
+    font-size: 9pt;
+    letter-spacing: .12em;
+    color: var(--gold);
+    font-weight: bold;
+    margin-bottom: 3px;
+  }
+  .step h3 {
+    font-size: 11pt;
+    margin: 0 0 5px;
+    color: var(--navy);
+  }
+  .step p {
+    margin: 0;
+    font-size: 9pt;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* ===== 納品物 ===== */
+  .deliver {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .deliver ul {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 10pt;
+    flex: 1;
+  }
+  .deliver li { margin-bottom: 3px; }
+  .deliver li b { color: var(--navy); }
+
+  /* ===== 選ばれる理由 ===== */
+  .reasons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .reason {
+    background: var(--tint);
+    padding: 10px 11px;
+    border-radius: 4px;
+  }
+  .reason h3 {
+    font-size: 10.5pt;
+    margin: 0 0 5px;
+    color: var(--navy);
+  }
+  .reason p {
+    margin: 0;
+    font-size: 9pt;
+    line-height: 1.55;
+    color: var(--gray);
+  }
+
+  /* ===== 表 ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 2.5px 8px;
+    text-align: left;
+    vertical-align: middle;
+  }
+  thead th {
+    background: var(--navy);
+    color: #fff;
+    font-weight: normal;
+    font-size: 9.5pt;
+  }
+  tbody tr:nth-child(even) { background: #f7f8fb; }
+  td.price {
+    text-align: right;
+    white-space: nowrap;
+    font-weight: bold;
+    color: var(--navy);
+    font-size: 10.5pt;
+  }
+  td.unit {
+    font-size: 8.5pt;
+    font-weight: normal;
+    color: var(--gray);
+  }
+  tr.recommend { background: #fdf7e8 !important; }
+  tr.recommend td { border-color: var(--gold); }
+  .badge {
+    display: inline-block;
+    background: var(--gold);
+    color: #fff;
+    font-size: 8.5pt;
+    padding: 1px 7px;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+  .note {
+    font-size: 8pt;
+    color: var(--gray);
+    margin: 4px 0 0;
+    line-height: 1.55;
+  }
+
+  /* ===== FAQ ===== */
+  .faq {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+  }
+  .faq .q {
+    font-size: 9.5pt;
+    font-weight: bold;
+    color: var(--navy);
+    margin: 0 0 2px;
+  }
+  .faq .q::before { content: "Q. "; color: var(--gold); }
+  .faq .a {
+    margin: 0;
+    font-size: 8.5pt;
+    color: #333;
+    line-height: 1.6;
+    padding-left: 17px;
+    position: relative;
+  }
+  .faq .a::before {
+    content: "A.";
+    position: absolute;
+    left: 0;
+    color: var(--gray);
+    font-weight: bold;
+  }
+
+  /* ===== 注意事項 ===== */
+  .terms {
+    border: 1px solid var(--line);
+    background: #fafafc;
+    padding: 7px 11px;
+    border-radius: 4px;
+  }
+  .terms ul {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 8pt;
+    line-height: 1.5;
+    color: #333;
+  }
+  .terms li { margin-bottom: 2px; }
+  .terms strong { color: #a8351f; }
+
+  /* ===== 申し込み ===== */
+  .cta {
+    background: var(--navy);
+    color: #fff;
+    padding: 9px 15px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+  .cta .lead { font-size: 11pt; line-height: 1.6; }
+  .cta .lead b { color: #e8c36a; font-size: 13pt; }
+  .cta .contact {
+    font-size: 9.5pt;
+    line-height: 1.75;
+    text-align: right;
+    border-left: 1px solid #4a4a80;
+    padding-left: 20px;
+    white-space: nowrap;
+  }
+
+  /* ===== フッター ===== */
+  .foot {
+    position: absolute;
+    left: 15mm; right: 15mm; bottom: 6mm;
+    border-top: 1px solid var(--line);
+    padding-top: 6px;
+    font-size: 8.5pt;
+    color: #888;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .ph { background: #fff6d6; padding: 0 3px; border-bottom: 1px dashed #c0a03a; }
+
+  @media print {
+    body { background: #fff; }
+    #print-bar { display: none; }
+    .page {
+      margin: 0;
+      box-shadow: none;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+  }
+  @page { size: A4 portrait; margin: 0; }
+</style>
+</head>
+<body>
+
+<div id="print-bar">
+  <button onclick="window.print()">印刷 / PDF保存</button>
+  <span>送信先で「背景のグラフィック」をONに</span>
+</div>
+
+<!-- ============ 1ページ目：サービス紹介 ============ -->
+<div class="page">
+
+  <div class="hero">
+    <div class="eyebrow">工務店・リフォーム会社さま向け</div>
+    <h1>現場写真を送るだけ。<br>見積書が<span class="accent">翌営業日</span>に届きます。</h1>
+    <p>見積書作成代行サービス ─ 見積作成にかかる半日を、営業と現場に戻します。</p>
+  </div>
+
+  <section>
+    <h2>こんなお悩みはありませんか</h2>
+    <ul class="pains">
+      <li>見積書1件の作成に半日〜1日かかっている</li>
+      <li>相見積もりで返事が遅れ、失注したことがある</li>
+      <li>夜や休日に見積書を書いている</li>
+      <li>単価を毎回思い出しながら拾っている</li>
+      <li>担当者ごとに見積書の書式がバラバラ</li>
+      <li>数量の拾い漏れで赤字になったことがある</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>ご利用は3ステップ、やることは「写真を送る」だけ</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="no">STEP 01</div>
+        <h3>写真・動画を送る</h3>
+        <p>現場の写真10〜30枚、または1〜3分の動画をメール・LINEでお送りください。図面があれば精度が上がります。</p>
+      </div>
+      <div class="step">
+        <div class="no">STEP 02</div>
+        <h3>工事内容を読み取り作成</h3>
+        <p>AIが工種・数量・仕様を読み取り、実勢単価にもとづく見積の一次案を作成します。ここが従来「半日」かかっていた工程です。</p>
+      </div>
+      <div class="step">
+        <div class="no">STEP 03</div>
+        <h3>人の目で確認して納品</h3>
+        <p>建設実務の経験者が数量・単価・記載漏れを1件ずつ確認し、修正のうえ納品します。AI任せにはしません。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>納品するもの</h2>
+    <div class="deliver">
+      <ul>
+        <li><b>見積書（PDF）</b> ─ そのままお客さまへ提出できる体裁で納品します</li>
+        <li><b>見積書（HTML・単価編集版）</b> ─ ブラウザ上で単価や数量をその場で直せます。金額は自動で再計算されます</li>
+        <li><b>内訳明細</b> ─ 「どの部位に何をいくらで」まで分解して記載します</li>
+        <li><b>拾い出しメモ</b> ─ 写真から判断できなかった箇所・確認が必要な箇所を一覧でお渡しします</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>選ばれている3つの理由</h2>
+    <div class="reasons">
+      <div class="reason">
+        <h3>01. 翌営業日に届く</h3>
+        <p>写真の受領から24時間以内に納品します。相見積もりで一番早く出せることが、そのまま受注率に効きます。</p>
+      </div>
+      <div class="reason">
+        <h3>02. 実勢単価ベース</h3>
+        <p>実際の工事見積を基準に単価を設定しています。御社の単価表をお預かりすれば、そちらを優先して使用します。</p>
+      </div>
+      <div class="reason">
+        <h3>03. 情報を外に出さない</h3>
+        <p>お預かりした写真・お客さま情報・金額は、外部のクラウドAIサービスへアップロードせず、社内の環境で処理します。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>よくあるご質問</h2>
+    <div class="faq">
+      <div>
+        <p class="q">写真は何枚くらい必要ですか？</p>
+        <p class="a">全景と各部位の寄りで10〜30枚が目安です。動画なら1〜3分。判断できない箇所は拾い出しメモでお返しします。</p>
+      </div>
+      <div>
+        <p class="q">単価は誰の基準ですか？</p>
+        <p class="a">標準は当方の実勢単価です。御社の単価表をお預かりすれば、以降はそちらを優先して使用します。</p>
+      </div>
+      <div>
+        <p class="q">修正はしてもらえますか？</p>
+        <p class="a">納品後14日以内は2回まで無料です。3回目以降および大幅な変更は1回3,000円で承ります。</p>
+      </div>
+      <div>
+        <p class="q">お客さまの個人情報を渡すことになりませんか？</p>
+        <p class="a">宛名は空欄のままご依頼いただけます。お預かりした情報は外部のクラウドサービスへ送信しません。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span class="ph">●●●●工業株式会社</span>
+    <span>見積書作成代行サービス ご案内 ─ 1 / 2</span>
+  </div>
+</div>
+
+<!-- ============ 2ページ目：料金表 ============ -->
+<div class="page">
+
+  <section>
+    <h2>料金表 ─ 都度プラン（スポットでのご利用）</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:22%">区分</th>
+          <th>工事規模の目安</th>
+          <th style="width:24%">内容</th>
+          <th style="width:18%">料金（税別）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>小規模</td>
+          <td>工事金額 〜100万円程度　<span style="font-size:8.5pt;color:#555">例：外壁塗装、1室内装、設備交換</span></td>
+          <td>見積書1件</td>
+          <td class="price">8,000円</td>
+        </tr>
+        <tr>
+          <td>中規模</td>
+          <td>工事金額 100〜500万円程度　<span style="font-size:8.5pt;color:#555">例：住宅リノベ、店舗改装</span></td>
+          <td>見積書1件</td>
+          <td class="price">15,000円</td>
+        </tr>
+        <tr>
+          <td>大規模</td>
+          <td>工事金額 500万円〜　<span style="font-size:8.5pt;color:#555">例：新築、大規模改修、複数棟</span></td>
+          <td>見積書1件</td>
+          <td class="price">25,000円〜</td>
+        </tr>
+        <tr>
+          <td><b>初回お試し</b><span class="badge">初回限定</span></td>
+          <td>小規模1件に限り</td>
+          <td>見積書1件</td>
+          <td class="price">無料</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note">※ 工事金額が確定する前は写真から判断した規模で区分します。区分が変わる場合は着手前にご連絡します。</p>
+  </section>
+
+  <section>
+    <h2>料金表 ─ 月額プラン（継続してのご利用）</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:24%">プラン</th>
+          <th style="width:14%">月間件数</th>
+          <th>含まれるもの</th>
+          <th style="width:20%">月額（税別）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ライト</td>
+          <td>5件まで</td>
+          <td>見積書作成（規模区分なし・一律）</td>
+          <td class="price">35,000円<br><span class="unit">1件あたり 7,000円</span></td>
+        </tr>
+        <tr class="recommend">
+          <td>スタンダード<span class="badge">おすすめ</span></td>
+          <td>10件まで</td>
+          <td>見積書作成 ＋ 書類チェック 月3件</td>
+          <td class="price">60,000円<br><span class="unit">1件あたり 6,000円</span></td>
+        </tr>
+        <tr>
+          <td>プロ</td>
+          <td>20件まで</td>
+          <td>見積書作成 ＋ 書類チェック無制限 ＋ 業者一覧・予算管理表の作成</td>
+          <td class="price">100,000円<br><span class="unit">1件あたり 5,000円</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="note">※ 規定件数の超過分は、ライト6,000円／スタンダード5,000円／プロ4,500円（1件・税別）。最低契約期間は3ヶ月、プラン変更は翌月から適用されます。</p>
+  </section>
+
+  <section>
+    <h2>オプション</h2>
+    <table>
+      <tbody>
+        <tr>
+          <td style="width:34%">お急ぎ便（当日納品）</td>
+          <td>平日12時までのご依頼分を当日中に納品</td>
+          <td class="price" style="width:20%">＋50%</td>
+        </tr>
+        <tr>
+          <td>御社書式へのカスタマイズ</td>
+          <td>ロゴ・レイアウト・項目を御社の見積書式に合わせます（初回のみ）</td>
+          <td class="price">20,000円</td>
+        </tr>
+        <tr>
+          <td>御社単価表の登録</td>
+          <td>お手持ちの単価表を登録し、以降すべての見積に反映します（初回のみ）</td>
+          <td class="price">30,000円</td>
+        </tr>
+        <tr>
+          <td>書類チェック</td>
+          <td>契約書・業者見積・請求書の記入漏れ、不利な条件、単価の異常値を確認</td>
+          <td class="price">3,000円<span class="unit">／件</span></td>
+        </tr>
+        <tr>
+          <td>工程表の作成</td>
+          <td>見積内容にもとづく工程表を作成</td>
+          <td class="price">10,000円<span class="unit">／件</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>ご利用にあたって</h2>
+    <div class="terms">
+      <ul>
+        <li>本サービスは見積書の<strong>作成代行</strong>です。<strong>金額・数量の最終的なご判断と、お客さまへの提出の責任は御社に帰属します。</strong>必ず内容をご確認のうえご使用ください。</li>
+        <li>現地調査は行いません。<strong>写真に写らない部分（下地の劣化、隠蔽配管、内部構造など）は見積に含まれません。</strong>該当する可能性がある箇所は、拾い出しメモに記載してお知らせします。</li>
+        <li>本サービスに起因する損害について、当方の賠償責任は当該案件の料金額を上限とします。建設業法上の見積書提出義務および建設業許可を要する行為は、御社にて行っていただきます。</li>
+        <li>お預かりした写真・図面・金額情報は、外部のクラウドサービスへアップロードせず、案件完了から3ヶ月後に削除します。お客さまのお名前・ご住所は伏せたままご依頼いただけます。</li>
+        <li>納品後14日以内は2回まで無料で修正します。3回目以降および内容の大幅な変更は1回3,000円で承ります。</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="cta">
+    <div class="lead">まずは<b>初回1件無料</b>でお試しください。<br>
+      <span style="font-size:10pt;color:#c9cbe0">写真をお送りいただくだけで、翌営業日に見積書が届きます。</span>
+    </div>
+    <div class="contact">
+      <span class="ph" style="color:#111">●●●●工業株式会社</span><br>
+      担当：<span class="ph" style="color:#111">●● ●●</span>　TEL <span class="ph" style="color:#111">000-0000-0000</span><br>
+      Mail <span class="ph" style="color:#111">info@example.co.jp</span>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>表示金額はすべて税別です。消費税は別途10%を申し受けます。</span>
+    <span>見積書作成代行サービス ご案内 ─ 2 / 2</span>
+  </div>
+</div>
+
+</body>
+</html>
