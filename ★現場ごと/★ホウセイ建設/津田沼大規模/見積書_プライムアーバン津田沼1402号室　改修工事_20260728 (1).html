@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="UTF-8">
+<title>見積書_プライムアーバン津田沼1402号室改修工事</title>
+<style>
+  :root {
+    --navy: #1a1a4e;
+    --light-blue: #e0e0f0;
+    --section-bg: #e8e8f0;
+    --subtotal-bg: #f0f0e8;
+    --stripe: #f9f9f9;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "MS Gothic", "Yu Gothic", sans-serif;
+    font-size: 11pt;
+    margin: 0;
+    color: #000;
+    background: #ccc;
+  }
+
+  #edit-toolbar {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 9999;
+    display: flex;
+    gap: 8px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #edit-toolbar button {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10pt;
+    font-family: inherit;
+  }
+  #btn-print { background: var(--navy); color: #fff; }
+  #btn-print:hover { background: #111133; }
+  #btn-save { background: #16a34a; color: #fff; }
+  #btn-save:hover { background: #15803d; }
+
+  .sheet {
+    background: #fff;
+    width: 950px;
+    margin: 20px auto;
+    padding: 30px 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    page-break-after: always;
+  }
+  .sheet:last-child { page-break-after: auto; }
+
+  h1 {
+    text-align: center;
+    font-size: 20pt;
+    letter-spacing: 10px;
+    margin: 10px 0 20px 0;
+  }
+  h1 span { border-bottom: 2px solid #000; padding-bottom: 4px; }
+  h2.doc-title {
+    text-align: center;
+    font-size: 15pt;
+    letter-spacing: 4px;
+    margin: 6px 0 18px 0;
+    border-bottom: 1px solid #000;
+    padding-bottom: 6px;
+  }
+
+  .cover-client {
+    font-size: 13pt;
+    margin: 10px 0 20px 0;
+  }
+  .cover-client input.editable {
+    font-size: 13pt;
+    width: 260px;
+    border: 1px dashed #2563eb;
+    background: #f0f6ff;
+    padding: 2px 6px;
+  }
+  .cover-lead { font-size: 10pt; margin: 4px 0 18px 0; }
+  .cover-project {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .cover-project .left { font-size: 10.5pt; }
+  .cover-total-box {
+    border: 2px solid #000;
+    padding: 10px 18px;
+    margin: 10px 0 18px 0;
+  }
+  .cover-total-box .main-line { font-size: 15pt; font-weight: bold; }
+  .cover-total-box .sub-line { font-size: 9.5pt; color: #333; margin-top: 4px; }
+  table.cover-meta {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10pt;
+    margin-bottom: 16px;
+  }
+  table.cover-meta td {
+    border-bottom: 1px solid #000;
+    padding: 5px 6px;
+  }
+  table.cover-meta td.label {
+    width: 130px;
+    background: #f5f5f5;
+    font-weight: bold;
+  }
+  input.editable {
+    border: 1px dashed #2563eb;
+    background: #f0f6ff;
+    padding: 2px 4px;
+    font-size: 10pt;
+    font-family: inherit;
+    color: #000;
+    border-radius: 2px;
+    width: 100%;
+  }
+  input.editable:focus { outline: 2px solid #2563eb; background: #dbeafe; }
+  .cover-condition {
+    font-size: 9.5pt;
+    line-height: 1.9;
+    border: 1px solid #aaa;
+    padding: 10px 14px;
+    background: #fafafa;
+    margin-bottom: 14px;
+  }
+  .cover-condition h3 { font-size: 10pt; margin: 0 0 6px 0; }
+  .cover-company {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    text-align: right;
+    font-size: 9.5pt;
+    line-height: 1.6;
+  }
+  .cover-company strong { font-size: 11pt; }
+  .sheet.cover { position: relative; }
+
+  table.summary {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5pt;
+    margin-bottom: 10px;
+  }
+  table.summary th {
+    background: var(--navy);
+    color: #fff;
+    padding: 8px 5px;
+    border: 1px solid #000;
+    font-weight: normal;
+  }
+  table.summary td {
+    padding: 7px 6px;
+    border: 1px solid #aaa;
+  }
+  table.summary .num { text-align: right; padding-right: 10px; }
+  table.summary .center { text-align: center; }
+  table.summary .subtotal-row td { background: var(--subtotal-bg); font-weight: bold; border-top: 2px solid #555; }
+  table.summary .tax-row td { background: var(--light-blue); font-weight: bold; }
+  table.summary .total-row td { background: var(--navy); color: #fff; font-weight: bold; font-size: 12.5pt; }
+  .summary-note { font-size: 9pt; color: #555; margin-top: 4px; }
+  table.summary:hover .del-btn { display: inline; }
+
+  a.cat-link {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 1px 4px;
+    background: var(--navy);
+    color: #fff !important;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  a.cat-link:hover { background: #2563eb; }
+
+  .back-link { margin: -6px 0 14px 0; font-size: 9pt; }
+  .back-link a { color: #2563eb; text-decoration: none; }
+  .back-link a:hover { text-decoration: underline; }
+
+  h2.cat-title {
+    font-size: 13pt;
+    background: var(--section-bg);
+    border: 1px solid #000;
+    padding: 8px 12px;
+    margin: 0 0 12px 0;
+  }
+  input.editable.cat-title-input {
+    width: 70%;
+    display: inline-block;
+    font-size: 13pt;
+    font-family: inherit;
+    font-weight: normal;
+    background: #dcdce8;
+    border: 1px dashed #2563eb;
+    padding: 2px 6px;
+    vertical-align: baseline;
+  }
+  input.editable.cat-title-input:focus { outline: 2px solid #2563eb; background: #dbeafe; }
+  table.items {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5pt;
+    margin-bottom: 6px;
+  }
+  table.items th {
+    background: var(--navy);
+    color: #fff;
+    padding: 7px 5px;
+    text-align: center;
+    border: 1px solid #000;
+    font-weight: normal;
+  }
+  table.items td {
+    padding: 5px 5px;
+    border: 1px solid #aaa;
+    vertical-align: middle;
+  }
+  table.items .group-row td {
+    background: #f0f0f5;
+    font-size: 9.5pt;
+    color: #444;
+    font-style: italic;
+    padding: 4px 8px;
+  }
+  input.editable.group-label {
+    width: 100%;
+    text-align: left;
+    font-size: 9.5pt;
+    font-style: italic;
+    color: #444;
+    background: #eaeaf3;
+    border: 1px dashed #2563eb;
+    padding: 2px 4px;
+  }
+  input.editable.group-label:focus { outline: 2px solid #2563eb; background: #dbeafe; font-style: normal; }
+  table.items .num { text-align: right; padding-right: 8px; }
+  table.items .center { text-align: center; }
+  table.items tbody tr:nth-child(even):not(.group-row) td { background: var(--stripe); }
+  .cat-subtotal-row td { background: var(--subtotal-bg) !important; font-weight: bold; border-top: 2px solid #555; }
+
+  input.editable.item {
+    width: 100%;
+    text-align: right;
+  }
+  input.editable.item.left { text-align: left; }
+  input.editable.item.center { text-align: center; }
+
+  textarea.editable.item.left {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 1px dashed #2563eb;
+    background: #f0f6ff;
+    padding: 2px 4px;
+    font-size: 10.5pt;
+    font-family: inherit;
+    color: #000;
+    border-radius: 2px;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.4;
+    min-height: 1.6em;
+  }
+  textarea.editable.item.left:focus { outline: 2px solid #2563eb; background: #dbeafe; }
+
+  .del-btn {
+    cursor: pointer;
+    color: #dc2626;
+    font-size: 9pt;
+    background: none;
+    border: none;
+    padding: 0 2px;
+    display: none;
+  }
+  table.items:hover .del-btn { display: inline; }
+  .cat-toolbar { margin: 8px 0 16px 0; }
+  .cat-toolbar button {
+    padding: 5px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 9.5pt;
+    font-family: inherit;
+    background: #2563eb;
+    color: #fff;
+  }
+  .cat-toolbar button:hover { background: #1d4ed8; }
+
+  .validity { margin-top: 14px; font-size: 9.5pt; color: #444; text-align: right; }
+  .page-foot { text-align: center; font-size: 9pt; color: #888; margin-top: 10px; }
+
+  @media print {
+    body { background: #fff; }
+    #edit-toolbar, .del-btn, .cat-toolbar, .no-print { display: none !important; }
+    .sheet { box-shadow: none; margin: 0; width: auto; padding: 15px 20px; }
+    input.editable, textarea.editable { border: none !important; background: transparent !important; padding: 0 !important; }
+    a.cat-link { color: #000 !important; background: transparent !important; font-weight: bold; }
+
+    .sheet.cover { padding: 8px 20px; page-break-inside: avoid; }
+    .cover-company { top: 8px; right: 20px; font-size: 8.5pt; line-height: 1.35; }
+    .sheet.cover h1 { font-size: 16pt; margin: 2px 0 8px 0; }
+    .cover-client { font-size: 11.5pt; margin: 4px 0 10px 0; }
+    .cover-lead { margin: 2px 0 10px 0; }
+    table.cover-meta { margin-bottom: 8px; }
+    table.cover-meta td { padding: 3px 6px; }
+    .cover-total-box { padding: 6px 14px; margin: 6px 0 10px 0; }
+    .cover-total-box .main-line { font-size: 13pt; }
+    .cover-condition { padding: 5px 10px; margin-bottom: 6px; }
+    .cover-condition h3 { margin: 0 0 3px 0; }
+    .cover-condition textarea { line-height: 1.4 !important; padding: 2px !important; }
+    .cond-terms textarea { min-height: 74px !important; }
+    .cond-note textarea { min-height: 22px !important; }
+    .sheet.cover .page-foot { margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="edit-toolbar">
+  <button id="btn-save">💾 保存（.html）</button>
+  <button id="btn-print">印刷 / PDF保存</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ1：表紙 -->
+<!-- ============================================================ -->
+<div class="sheet cover">
+
+  <div class="cover-company">
+    <strong><input class="editable" style="width:190px; font-weight:bold; text-align:right;" value="株式会社AXIS"></strong><br>
+    〒<input class="editable" style="width:80px; text-align:right;" value="340-0045">
+    <input class="editable" style="width:200px; text-align:right;" value="埼玉県草加市小山2-29-10"><br>
+    TEL：<input class="editable" style="width:130px; text-align:right;" value="090-9825-2087"><br>
+    担当：<input class="editable" style="width:100px; text-align:right;" value="菊池 匠"><br>
+    登録番号：<input class="editable" style="width:150px; text-align:right;" value="T7030001171938">
+  </div>
+
+  <h1><span>御 見 積 書</span></h1>
+
+  <div class="cover-client">
+    <input class="editable" value="ホウセイ建設株式会社"> 御中
+  </div>
+  <div class="cover-lead">何卒御用命賜りますようお願い申し上げます。</div>
+
+  <table class="cover-meta">
+    <tbody><tr>
+      <td class="label">見積番号</td>
+      <td colspan="3"><input class="editable" value="2026-0727-001"></td>
+    </tr>
+    <tr>
+      <td class="label">案　件　名</td>
+      <td colspan="3"><input class="editable" value="プライムアーバン津田沼1402号室　改修工事"></td>
+    </tr>
+    <tr>
+      <td class="label">工事場所</td>
+      <td colspan="3"><input class="editable" value="プライムアーバン津田沼　1402号室（千葉県習志野市津田沼）"></td>
+    </tr>
+    <tr>
+      <td class="label">見積日付</td>
+      <td><input class="editable" id="estimate-date" value="2026年7月27日"></td>
+      <td class="label">見積有効期限</td>
+      <td><input class="editable" value="2026年8月27日"></td>
+    </tr>
+    <tr>
+      <td class="label">工期予定</td>
+      <td><input class="editable" value="約1か月半"></td>
+      <td class="label">支払条件</td>
+      <td><input class="editable" value="着工時30％/中間時30%/完工後40%"></td>
+    </tr>
+    <tr>
+      <td class="label">営業主担当</td>
+      <td><input class="editable" value="菊池 匠"></td>
+      <td class="label">見積枚数</td>
+      <td><input class="editable" id="page-count-field" value="表紙 1　〜　10"></td>
+    </tr>
+  </tbody></table>
+
+  <div class="cover-total-box">
+    <div class="main-line">税込金額：　￥ <span id="cover-total">19,668,971</span> －</div>
+    <div class="sub-line">（商品合計　￥ <span id="cover-subtotal">17,880,883</span> －　　消費税　￥ <span id="cover-tax">1,788,088</span> －）</div>
+  </div>
+
+  <div class="cover-condition cond-terms">
+    <h3>【 御見積条件 】</h3>
+    <textarea class="editable" style="width:100%; min-height:130px; border:1px dashed #2563eb; background:#f0f6ff; font-family:inherit; font-size:9.5pt; line-height:1.9; padding:6px; resize:vertical;">※下記内訳明細書に記載のない項目は別途お見積りとさせていただきます。
+・追加工事が発生した場合はその都度協議のうえ、書面またはメールで取り決めをお願いいたします。</textarea>
+  </div>
+
+  <div class="cover-condition cond-note" style="min-height:60px;">
+    <h3>【 備考 】</h3>
+    <textarea class="editable" style="width:100%; min-height:80px; border:1px dashed #2563eb; background:#f0f6ff; font-family:inherit; font-size:9.5pt; line-height:1.8; padding:6px; resize:vertical;"></textarea>
+  </div>
+
+  <div class="page-foot">- 1 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ2：見積内訳明細書（大項目サマリー） -->
+<!-- ============================================================ -->
+<div class="sheet" id="page-summary">
+  <h2 class="doc-title">見 積 内 訳 明 細 書</h2>
+  <div style="font-size:10pt; margin-bottom:10px;">
+    工事件名：プライムアーバン津田沼1402号室　改修工事　／　工事場所：プライムアーバン津田沼1402号室
+  </div>
+
+  <table class="summary">
+    <thead>
+      <tr>
+        <th style="width:6%">No.</th>
+        <th style="width:44%">項　目</th>
+        <th style="width:10%">数量</th>
+        <th style="width:8%">単位</th>
+        <th style="width:16%">金　額</th>
+        <th style="width:13%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody id="summary-body">
+      <tr id="summary-row-A">
+        <td class="center"><a href="#sheet-A" class="cat-link">A</a></td>
+        <td><input class="editable" value="解体工事"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-A">¥2,676,025</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td><button class="del-btn" onclick="deleteCategory('A')" title="削除">✕</button></td>
+      </tr>
+      <tr id="summary-row-B">
+        <td class="center"><a href="#sheet-B" class="cat-link">B</a></td>
+        <td><input class="editable" value="内装工事"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-B">¥4,315,208</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td><button class="del-btn" onclick="deleteCategory('B')" title="削除">✕</button></td>
+      </tr>
+      <tr id="summary-row-C">
+        <td class="center"><a href="#sheet-C" class="cat-link">C</a></td>
+        <td><input class="editable" value="設備改修工事（給排水）"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-C">¥5,443,000</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td><button class="del-btn" onclick="deleteCategory('C')" title="削除">✕</button></td>
+      </tr>
+      <tr id="summary-row-D">
+        <td class="center"><a href="#sheet-D" class="cat-link">D</a></td>
+        <td><input class="editable" value="電気工事"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-D">¥1,272,535</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td><button class="del-btn" onclick="deleteCategory('D')" title="削除">✕</button></td>
+      </tr>
+      <tr id="summary-row-E">
+        <td class="center"><a href="#sheet-E" class="cat-link">E</a></td>
+        <td><input class="editable" value="換気工事"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-E">¥293,480</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td><button class="del-btn" onclick="deleteCategory('E')" title="削除">✕</button></td>
+      </tr>
+      <tr id="summary-row-F">
+        <td class="center"><a href="#sheet-F" class="cat-link">F</a></td>
+        <td><input class="editable" value="空調（エアコン）工事"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-F">¥601,975</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td><button class="del-btn" onclick="deleteCategory('F')" title="削除">✕</button></td>
+      </tr>
+      <tr id="summary-row-G">
+        <td class="center"><a href="#sheet-G" class="cat-link">G</a></td>
+        <td><input class="editable" value="スプリンクラー移設工事"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-G">¥968,660</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td><button class="del-btn" onclick="deleteCategory('G')" title="削除">✕</button></td>
+      </tr>
+      <tr id="summary-row-H">
+        <td class="center"><a href="#sheet-H" class="cat-link">H</a></td>
+        <td><input class="editable" value="元請諸経費・現場管理費"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+        <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+        <td class="num" id="cat-amount-H">¥2,310,000</td>
+        <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+        <td><button class="del-btn" onclick="deleteCategory('H')" title="削除">✕</button></td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr class="subtotal-row">
+        <td colspan="4" style="text-align:right; padding-right:10px;">小　　計</td>
+        <td class="num" id="summary-subtotal">¥17,880,883</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="tax-row">
+        <td colspan="4" style="text-align:right; padding-right:10px;">
+          消費税（<input class="editable" id="tax-rate-input" type="number" value="10" min="0" max="100" style="width:40px; display:inline-block; text-align:center;" oninput="recalcAll()">%）
+        </td>
+        <td class="num" id="summary-tax">¥1,788,088</td>
+        <td></td>
+        <td></td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="4" style="text-align:right; padding-right:10px;">御見積金額　合　計</td>
+        <td class="num" id="summary-total">¥19,668,971</td>
+        <td></td>
+        <td></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="summary-note">※ 金額は各内訳明細ページの単価・数量を変更すると自動で再計算されます。項目名・数量・単位・備考はこの表で直接編集できます。</div>
+  <div class="cat-toolbar no-print"><button onclick="addCategory()">＋ 項目追加（内訳明細ページも自動作成）</button></div>
+
+  <div class="page-foot">- 2 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ3：内訳明細 A. 解体工事 -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="A" id="cat-block-A">
+  <h2 class="cat-title" id="sheet-A">【A】 <input class="editable cat-title-input" value="解体工事　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+
+  <table class="items" data-cat="A">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-A">
+      <tr><td class="center">1</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">床壁天井解体</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 43px;">赤エリア（スケルトン解体）</textarea></td><td><input class="editable item" type="number" step="0.1" value="232" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="3300" oninput="recalcAll()"></td><td class="num amount-cell">¥765,600</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">2</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">照明器具解体</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">電線処理とも</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="110000" oninput="recalcAll()"></td><td class="num amount-cell">¥110,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">3</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">衛生器具給排水解体</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="110000" oninput="recalcAll()"></td><td class="num amount-cell">¥110,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">4</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">床解体</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 43px;">青エリア（新設MB配管切りまわし用）</textarea></td><td><input class="editable item" type="number" step="0.1" value="9.5" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="9350" oninput="recalcAll()"></td><td class="num amount-cell">¥88,825</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">5</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">1403号室床養生</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">エコフルガード</textarea></td><td><input class="editable item" type="number" step="0.1" value="41" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="2200" oninput="recalcAll()"></td><td class="num amount-cell">¥90,200</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">6</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">出隅コーナーガード</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="38500" oninput="recalcAll()"></td><td class="num amount-cell">¥38,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">7</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">ガラス養生</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="33000" oninput="recalcAll()"></td><td class="num amount-cell">¥33,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">8</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">エレベーター養生</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">養生残地の場合</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="38500" oninput="recalcAll()"></td><td class="num amount-cell">¥38,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">9</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">新規フローリング養生</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">エコフルガード</textarea></td><td><input class="editable item" type="number" step="0.1" value="41" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="2200" oninput="recalcAll()"></td><td class="num amount-cell">¥90,200</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">10</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">その他周辺養生</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="38500" oninput="recalcAll()"></td><td class="num amount-cell">¥38,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">11</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">動線養生</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="38500" oninput="recalcAll()"></td><td class="num amount-cell">¥38,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">12</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">廃材場内小運搬積み込み費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="264000" oninput="recalcAll()"></td><td class="num amount-cell">¥264,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">13</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">産廃運搬費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 43px;">場内に仮置きができないため、運搬回数増</textarea></td><td><input class="editable item" type="number" step="0.1" value="12" oninput="recalcAll()"></td><td><input class="editable item center" value="台"></td><td><input class="editable item" type="number" value="25300" oninput="recalcAll()"></td><td class="num amount-cell">¥303,600</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">14</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">産廃処理費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="20" oninput="recalcAll()"></td><td><input class="editable item center" value="㎥"></td><td><input class="editable item" type="number" value="24200" oninput="recalcAll()"></td><td class="num amount-cell">¥484,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">15</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">材料運搬費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="110000" oninput="recalcAll()"></td><td class="num amount-cell">¥110,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">16</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">材料搬入費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="72600" oninput="recalcAll()"></td><td class="num amount-cell">¥72,600</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【A】 小　計</td>
+        <td class="num" id="subtotal-A">¥2,676,025</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('A')">＋ 行追加（A）</button>
+    <button onclick="mergeUp('A')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('A')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('A')" style="background:#dc2626;">✕ 【A】項目を削除</button>
+  </div>
+</div>
+
+  <div class="page-foot">- 3 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ4：内訳明細 B. 内装工事 -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="B" id="cat-block-B">
+  <h2 class="cat-title" id="sheet-B">【B】 <input class="editable cat-title-input" value="内装工事　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+
+  <table class="items" data-cat="B">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-B">
+      <tr><td class="center">1</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">外周LGS組み立て</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="101" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="3135" oninput="recalcAll()"></td><td class="num amount-cell">¥316,635</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">2</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">間仕切りLGS組み立て</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="32" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="3300" oninput="recalcAll()"></td><td class="num amount-cell">¥105,600</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">3</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">天井LGS組み立て</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="40.79" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="3300" oninput="recalcAll()"></td><td class="num amount-cell">¥134,607</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">4</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">界壁LGS組み立て</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">グラスウール</textarea></td><td><input class="editable item" type="number" step="0.1" value="13.5" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="4290" oninput="recalcAll()"></td><td class="num amount-cell">¥57,915</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">5</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">PB張り（LGS部）</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="215" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="2310" oninput="recalcAll()"></td><td class="num amount-cell">¥496,650</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">6</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">界壁PB張り</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="27" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="2310" oninput="recalcAll()"></td><td class="num amount-cell">¥62,370</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">7</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">下がり天井</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="60500" oninput="recalcAll()"></td><td class="num amount-cell">¥60,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">8</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">床上げ</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="40.79" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="9350" oninput="recalcAll()"></td><td class="num amount-cell">¥381,387</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">9</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">床コンパネ貼</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="40.79" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="5720" oninput="recalcAll()"></td><td class="num amount-cell">¥233,319</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">10</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">フローリング貼</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 43px;">品番未確定（他階Bタイプ同等仕様を確認要）</textarea></td><td><input class="editable item" type="number" step="0.1" value="40.79" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="11550" oninput="recalcAll()"></td><td class="num amount-cell">¥471,125</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">11</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">建具取り付け</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">材工</textarea></td><td><input class="editable item" type="number" step="0.1" value="5" oninput="recalcAll()"></td><td><input class="editable item center" value="箇所"></td><td><input class="editable item" type="number" value="91300" oninput="recalcAll()"></td><td class="num amount-cell">¥456,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">12</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">クロス貼</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 43px;">品番未確定（他階Bタイプ同等仕様を確認要）</textarea></td><td><input class="editable item" type="number" step="0.1" value="168" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="1800" oninput="recalcAll()"></td><td class="num amount-cell">¥302,400</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">13</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">下地処理</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="168" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="275" oninput="recalcAll()"></td><td class="num amount-cell">¥46,200</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">14</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">水回り床貼</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">CF等</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="66000" oninput="recalcAll()"></td><td class="num amount-cell">¥66,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">15</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">床既存戻し</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 43px;">青エリア（パウダールーム）</textarea></td><td><input class="editable item" type="number" step="0.1" value="9.5" oninput="recalcAll()"></td><td><input class="editable item center" value="㎡"></td><td><input class="editable item" type="number" value="22000" oninput="recalcAll()"></td><td class="num amount-cell">¥209,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      
+      <tr><td class="center">16</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">巾木材料費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 63px;">木製巾木（居室）／樹脂巾木（トイレ・洗面・パウダー）</textarea></td><td><input class="editable item" type="number" step="0.1" value="70" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="1200" oninput="recalcAll()"></td><td class="num amount-cell">¥84,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">17</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">カーテンレール</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">材工</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="66000" oninput="recalcAll()"></td><td class="num amount-cell">¥66,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    <tr>
+      <td class="center">18</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">コア抜き</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">レントゲン含む</textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="275000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥275,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">19</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">玄関収納</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">材工</textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="150000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥150,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">20</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">吊戸棚</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">材工</textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="90000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥90,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">21</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">ハンガーパイプ</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">材工</textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="2" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="10000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥20,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">22</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">枕棚</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">材工</textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="2" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="30000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥60,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">23</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">洗面所横戸棚</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">材工</textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="60000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥60,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">24</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">シリンダー交換</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="2" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="55000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥110,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr></tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【B】 小　計</td>
+        <td class="num" id="subtotal-B">¥4,315,208</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('B')">＋ 行追加（B）</button>
+    <button onclick="mergeUp('B')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('B')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('B')" style="background:#dc2626;">✕ 【B】項目を削除</button>
+  </div>
+</div>
+
+  <div class="page-foot">- 4 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ5：内訳明細 C. 設備改修工事 -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="C" id="cat-block-C">
+  <h2 class="cat-title" id="sheet-C">【C】 <input class="editable cat-title-input" value="設備改修工事（給排水）　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+
+  <table class="items" data-cat="C">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-C">
+      <tr><td class="center">1</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">宅内給排水設備工事</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="770000" oninput="recalcAll()"></td><td class="num amount-cell">¥770,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">2</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">機器繋ぎ工事</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="132000" oninput="recalcAll()"></td><td class="num amount-cell">¥132,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">3</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">排水縦管延長工事</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="352000" oninput="recalcAll()"></td><td class="num amount-cell">¥352,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      
+      
+      
+      <tr><td class="center">4</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">UB1317ユニットバス本体・据付費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 43px;">メーカー品（TOTOサザナ等）</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="1650000" oninput="recalcAll()"></td><td class="num amount-cell">¥1,650,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      
+    <tr>
+      <td class="center">5</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">トイレ便器本体・据付費</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="132000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥132,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">6</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">洗面化粧台本体・据付費</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="350000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥350,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">7</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">キッチン本体・据付費</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="1100000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥1,100,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">8</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">洗濯パン</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="8000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥8,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">9</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">給湯器</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="350000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥350,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">10</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">メーターボックス新設</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="500000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥500,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">11</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">交通費</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="66000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥66,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">12</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">福利厚生費</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="33000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥33,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr></tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【C】 小　計</td>
+        <td class="num" id="subtotal-C">¥5,443,000</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('C')">＋ 行追加（C）</button>
+    <button onclick="mergeUp('C')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('C')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('C')" style="background:#dc2626;">✕ 【C】項目を削除</button>
+  </div>
+</div>
+
+  <div class="page-foot">- 5 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ6：内訳明細 D. 電気工事 -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="D" id="cat-block-D">
+  <h2 class="cat-title" id="sheet-D">【D】 <input class="editable cat-title-input" value="電気工事　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+
+  <table class="items" data-cat="D">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-D">
+      <tr><td class="center">1</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">東電申請費用</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="88000" oninput="recalcAll()"></td><td class="num amount-cell">¥88,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">2</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">CVT14-3C</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="15" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="2420" oninput="recalcAll()"></td><td class="num amount-cell">¥36,300</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">3</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">IV5.5</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="15" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="385" oninput="recalcAll()"></td><td class="num amount-cell">¥5,775</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">4</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">接続端子T122</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="3" oninput="recalcAll()"></td><td><input class="editable item center" value="個"></td><td><input class="editable item" type="number" value="1320" oninput="recalcAll()"></td><td class="num amount-cell">¥3,960</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">5</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">分岐接続用絶縁カバー</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="組"></td><td><input class="editable item" type="number" value="16500" oninput="recalcAll()"></td><td class="num amount-cell">¥16,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">6</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">接続費用</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="33000" oninput="recalcAll()"></td><td class="num amount-cell">¥33,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">7</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">分電盤</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="面"></td><td><input class="editable item" type="number" value="55000" oninput="recalcAll()"></td><td class="num amount-cell">¥55,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">8</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">CV5.5-3C</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="25" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="1540" oninput="recalcAll()"></td><td class="num amount-cell">¥38,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">9</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">VVF2.0-3C</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="250" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="605" oninput="recalcAll()"></td><td class="num amount-cell">¥151,250</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">10</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">VVF2.0-2C</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="100" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="385" oninput="recalcAll()"></td><td class="num amount-cell">¥38,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">11</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">VVF1.6-3C</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="200" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="440" oninput="recalcAll()"></td><td class="num amount-cell">¥88,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">12</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">VVF1.6-2C</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="250" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="275" oninput="recalcAll()"></td><td class="num amount-cell">¥68,750</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">13</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">コンセント</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="66000" oninput="recalcAll()"></td><td class="num amount-cell">¥66,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">14</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">スイッチ</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="66000" oninput="recalcAll()"></td><td class="num amount-cell">¥66,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">15</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">ダウンライト</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="20" oninput="recalcAll()"></td><td><input class="editable item center" value="個"></td><td><input class="editable item" type="number" value="3520" oninput="recalcAll()"></td><td class="num amount-cell">¥70,400</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">16</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">弱電設備</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">TV・LAN・TEL</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="275000" oninput="recalcAll()"></td><td class="num amount-cell">¥275,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      
+      
+      
+      <tr><td class="center">17</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">インターホン</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="88000" oninput="recalcAll()"></td><td class="num amount-cell">¥88,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    <tr>
+      <td class="center">18</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">電工費</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="41800" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥41,800</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr><tr>
+      <td class="center">19</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">雑材消耗品</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="41800" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥41,800</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr></tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【D】 小　計</td>
+        <td class="num" id="subtotal-D">¥1,272,535</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('D')">＋ 行追加（D）</button>
+    <button onclick="mergeUp('D')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('D')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('D')" style="background:#dc2626;">✕ 【D】項目を削除</button>
+  </div>
+</div>
+
+  <div class="page-foot">- 6 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ7：内訳明細 E. 換気工事 -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="E" id="cat-block-E">
+  <h2 class="cat-title" id="sheet-E">【E】 <input class="editable cat-title-input" value="換気工事　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+
+  <table class="items" data-cat="E">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-E">
+      <tr><td class="center">1</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">150φスパイラルダクト</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="3" oninput="recalcAll()"></td><td><input class="editable item center" value="本"></td><td><input class="editable item" type="number" value="2750" oninput="recalcAll()"></td><td class="num amount-cell">¥8,250</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">2</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">150φエルボ</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="3" oninput="recalcAll()"></td><td><input class="editable item center" value="個"></td><td><input class="editable item" type="number" value="4950" oninput="recalcAll()"></td><td class="num amount-cell">¥14,850</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">3</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">150φベンドキャップ</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="個"></td><td><input class="editable item" type="number" value="8800" oninput="recalcAll()"></td><td class="num amount-cell">¥8,800</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">4</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">セラカバー</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="49500" oninput="recalcAll()"></td><td class="num amount-cell">¥49,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">5</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">100φアルミジャバラ</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="6" oninput="recalcAll()"></td><td><input class="editable item center" value="本"></td><td><input class="editable item" type="number" value="1980" oninput="recalcAll()"></td><td class="num amount-cell">¥11,880</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">6</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">換気扇</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="4" oninput="recalcAll()"></td><td><input class="editable item center" value="台"></td><td><input class="editable item" type="number" value="8800" oninput="recalcAll()"></td><td class="num amount-cell">¥35,200</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">7</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">施工費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="165000" oninput="recalcAll()"></td><td class="num amount-cell">¥165,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【E】 小　計</td>
+        <td class="num" id="subtotal-E">¥293,480</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('E')">＋ 行追加（E）</button>
+    <button onclick="mergeUp('E')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('E')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('E')" style="background:#dc2626;">✕ 【E】項目を削除</button>
+  </div>
+</div>
+
+  <div class="page-foot">- 7 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ8：内訳明細 F. 空調（エアコン）工事 -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="F" id="cat-block-F">
+  <h2 class="cat-title" id="sheet-F">【F】 <input class="editable cat-title-input" value="空調（エアコン）工事　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+
+  <table class="items" data-cat="F">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-F">
+      <tr><td class="center">1</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">エアコン本体</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">5.6kw</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="台"></td><td><input class="editable item" type="number" value="275000" oninput="recalcAll()"></td><td class="num amount-cell">¥275,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">2</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">冷媒管</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">2分3分</textarea></td><td><input class="editable item" type="number" step="0.1" value="15" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="2200" oninput="recalcAll()"></td><td class="num amount-cell">¥33,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">3</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">VVF2.0-3C</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="15" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="495" oninput="recalcAll()"></td><td class="num amount-cell">¥7,425</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">4</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">断熱ドレン</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="10" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="605" oninput="recalcAll()"></td><td class="num amount-cell">¥6,050</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">5</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">外カバー</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="27500" oninput="recalcAll()"></td><td class="num amount-cell">¥27,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">6</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">施工費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="88000" oninput="recalcAll()"></td><td class="num amount-cell">¥88,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    <tr>
+      <td class="center">7</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">コア抜き</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">レントゲン費用含む</textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="165000" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥165,000</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    </tr></tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【F】 小　計</td>
+        <td class="num" id="subtotal-F">¥601,975</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('F')">＋ 行追加（F）</button>
+    <button onclick="mergeUp('F')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('F')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('F')" style="background:#dc2626;">✕ 【F】項目を削除</button>
+  </div>
+</div>
+
+  <div class="page-foot">- 8 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ9：内訳明細 G. スプリンクラー移設工事 -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="G" id="cat-block-G">
+  <h2 class="cat-title" id="sheet-G">【G】 <input class="editable cat-title-input" value="スプリンクラー移設工事　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+  <div class="summary-note" style="margin-bottom:8px;">※ 元見積書（日本ドライケミカル株式会社、見積番号KKSC26070128-00、2026/07/25付）は宛先が「株式会社アクト 坂田様」、物件名が「津田沼・ガレージマウスマンション」となっており、本件（プライムアーバン津田沼1402号室）とは宛先・物件名が一致していません。同一案件かどうか未確認のため、発注前に必ずご確認ください。消費税は元見積書で「別途精算」とされているため、本見積書では他カテゴリと同様に税抜金額として合算し、消費税10%を一括計上しています。</div>
+
+  <table class="items" data-cat="G">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-G">
+      <tr><td class="center">1</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">スプリンクラーヘッド</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">住宅用50L</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="110000" oninput="recalcAll()"></td><td class="num amount-cell">¥110,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">2</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">樹脂管(M)エルメックス16A</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="20" oninput="recalcAll()"></td><td><input class="editable item center" value="m"></td><td><input class="editable item" type="number" value="1133" oninput="recalcAll()"></td><td class="num amount-cell">¥22,660</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">3</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">継手</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="27500" oninput="recalcAll()"></td><td class="num amount-cell">¥27,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">4</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">支持金物・雑材</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="27500" oninput="recalcAll()"></td><td class="num amount-cell">¥27,500</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">5</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">配管工事・機器据え付け費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="715000" oninput="recalcAll()"></td><td class="num amount-cell">¥715,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      
+      
+      <tr><td class="center">6</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">交通運搬費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;"></textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="66000" oninput="recalcAll()"></td><td class="num amount-cell">¥66,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      
+      
+    </tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【G】 小　計</td>
+        <td class="num" id="subtotal-G">¥968,660</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('G')">＋ 行追加（G）</button>
+    <button onclick="mergeUp('G')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('G')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('G')" style="background:#dc2626;">✕ 【G】項目を削除</button>
+  </div>
+</div>
+
+  <div class="page-foot">- 9 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ10：内訳明細 H. 元請諸経費・現場管理費 -->
+<!-- ============================================================ -->
+<div class="sheet">
+<div class="cat-block" data-cat="H" id="cat-block-H">
+  <h2 class="cat-title" id="sheet-H">【H】 <input class="editable cat-title-input" value="元請諸経費・現場管理費　内訳明細"></h2>
+  <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+
+  <table class="items" data-cat="H">
+    <thead>
+      <tr>
+        <th style="width:5%">No.</th>
+        <th style="width:28%">名　称</th>
+        <th style="width:20%">仕　様</th>
+        <th style="width:9%">数量</th>
+        <th style="width:6%">単位</th>
+        <th style="width:12%">単　価</th>
+        <th style="width:12%">金　額</th>
+        <th style="width:8%">備　考</th>
+        <th style="width:3%" class="no-print"></th>
+      </tr>
+    </thead>
+    <tbody class="cat-body" id="items-body-H">
+      <tr><td class="center">1</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">現場管理費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">現場管理・工程調整</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="770000" oninput="recalcAll()"></td><td class="num amount-cell">¥770,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">2</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">諸経費</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">協力会社諸経費含む</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="1265000" oninput="recalcAll()"></td><td class="num amount-cell">¥1,265,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+      <tr><td class="center">3</td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">道路使用届出費用</textarea></td><td><textarea class="editable item left" rows="1" oninput="autoGrow(this)" style="height: 24px;">誘導員費用含む</textarea></td><td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td><td><input class="editable item center" value="式"></td><td><input class="editable item" type="number" value="275000" oninput="recalcAll()"></td><td class="num amount-cell">¥275,000</td><td><input class="editable item center" value=""></td><td><button class="del-btn" onclick="delRow(this)">✕</button></td></tr>
+    </tbody>
+    <tfoot>
+      <tr class="cat-subtotal-row">
+        <td colspan="6" style="text-align:right; padding-right:10px;">【H】 小　計</td>
+        <td class="num" id="subtotal-H">¥2,310,000</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+  <div class="cat-toolbar no-print">
+    <button onclick="addRow('H')">＋ 行追加（H）</button>
+    <button onclick="mergeUp('H')" style="background:#6b7280;">⬆ 前のページと結合</button>
+    <button onclick="splitOut('H')" style="background:#6b7280;">✂ ページを分離</button>
+    <button onclick="deleteCategory('H')" style="background:#dc2626;">✕ 【H】項目を削除</button>
+  </div>
+</div>
+
+  
+  <div id="closing-note" class="validity">以上、よろしくご検討のほどお願い申し上げます。</div><div class="page-foot">- 10 -</div>
+</div>
+
+<div id="closing-anchor" style="display:none"></div>
+
+<script>
+  function getCategories() {
+    return Array.from(document.querySelectorAll('table.items[data-cat]')).map(t => t.dataset.cat);
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function recalcCategory(cat) {
+    const tbody = document.getElementById('items-body-' + cat);
+    if (!tbody) return 0;
+    const rows = tbody.querySelectorAll('tr:not(.group-row)');
+    let subtotal = 0;
+    rows.forEach(row => {
+      const inputs = row.querySelectorAll('input[type="number"]');
+      if (inputs.length < 2) return;
+      const qty = parseFloat(inputs[0].value) || 0;
+      const price = parseFloat(inputs[1].value) || 0;
+      const amount = Math.round(qty * price);
+      const cell = row.querySelector('.amount-cell');
+      if (cell) cell.textContent = '¥' + amount.toLocaleString();
+      subtotal += amount;
+    });
+
+    let no = 1;
+    rows.forEach(row => {
+      const firstCell = row.cells[0];
+      if (firstCell) firstCell.textContent = no++;
+    });
+
+    const subEl = document.getElementById('subtotal-' + cat);
+    if (subEl) subEl.textContent = '¥' + subtotal.toLocaleString();
+    const sumEl = document.getElementById('cat-amount-' + cat);
+    if (sumEl) sumEl.textContent = '¥' + subtotal.toLocaleString();
+    return subtotal;
+  }
+
+  function recalcAll() {
+    let grandSubtotal = 0;
+    getCategories().forEach(cat => { grandSubtotal += recalcCategory(cat); });
+
+    const taxRate = parseFloat(document.getElementById('tax-rate-input').value) || 0;
+    const tax = Math.round(grandSubtotal * taxRate / 100);
+    const total = grandSubtotal + tax;
+
+    document.getElementById('summary-subtotal').textContent = '¥' + grandSubtotal.toLocaleString();
+    document.getElementById('summary-tax').textContent = '¥' + tax.toLocaleString();
+    document.getElementById('summary-total').textContent = '¥' + total.toLocaleString();
+
+    document.getElementById('cover-subtotal').textContent = grandSubtotal.toLocaleString();
+    document.getElementById('cover-tax').textContent = tax.toLocaleString();
+    document.getElementById('cover-total').textContent = total.toLocaleString();
+  }
+
+  function delRow(btn) {
+    if (!confirm('この行を削除しますか？')) return;
+    btn.closest('tr').remove();
+    recalcAll();
+  }
+
+  function addRow(cat) {
+    const tbody = document.getElementById('items-body-' + cat);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="center">-</td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">品名を入力</textarea></td>
+      <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">仕様を入力</textarea></td>
+      <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+      <td><input class="editable item center" value="式"></td>
+      <td><input class="editable item" type="number" value="0" oninput="recalcAll()"></td>
+      <td class="num amount-cell">¥0</td>
+      <td><input class="editable item center" value=""></td>
+      <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+    tr.querySelectorAll('textarea').forEach(autoGrow);
+    recalcAll();
+    tr.querySelector('textarea').focus();
+  }
+
+  function autoGrow(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
+  function nextCatLetter() {
+    let maxCode = 64;
+    getCategories().forEach(c => {
+      const code = c.charCodeAt(0);
+      if (code > maxCode) maxCode = code;
+    });
+    return String.fromCharCode(maxCode + 1);
+  }
+
+  function addCategory() {
+    const name = prompt('新しい項目名を入力してください', '新規項目');
+    if (name === null) return;
+    const cat = nextCatLetter();
+    const safeName = escapeHtml(name || '新規項目');
+
+    const summaryBody = document.getElementById('summary-body');
+    const sRow = document.createElement('tr');
+    sRow.id = 'summary-row-' + cat;
+    sRow.innerHTML = `
+      <td class="center"><a href="#sheet-${cat}" class="cat-link">${cat}</a></td>
+      <td><input class="editable" value="${safeName}"></td>
+      <td class="center"><input class="editable" style="text-align:center;" value="1"></td>
+      <td class="center"><input class="editable" style="text-align:center;" value="式"></td>
+      <td class="num" id="cat-amount-${cat}">¥0</td>
+      <td class="center"><input class="editable" style="text-align:center;" value=""></td>
+      <td><button class="del-btn" onclick="deleteCategory('${cat}')" title="削除">✕</button></td>
+    `;
+    summaryBody.appendChild(sRow);
+
+    const closingAnchor = document.getElementById('closing-anchor');
+    const sheet = document.createElement('div');
+    sheet.className = 'sheet';
+    sheet.innerHTML = `
+      <div class="cat-block" data-cat="${cat}" id="cat-block-${cat}">
+        <h2 class="cat-title" id="sheet-${cat}">【${cat}】 <input class="editable cat-title-input" value="${safeName}"></h2>
+        <div class="back-link no-print"><a href="#page-summary">▲ 内訳明細書へ戻る</a></div>
+        <table class="items" data-cat="${cat}">
+          <thead>
+            <tr>
+              <th style="width:5%">No.</th>
+              <th style="width:28%">名　称</th>
+              <th style="width:20%">仕　様</th>
+              <th style="width:9%">数量</th>
+              <th style="width:6%">単位</th>
+              <th style="width:12%">単　価</th>
+              <th style="width:12%">金　額</th>
+              <th style="width:8%">備　考</th>
+              <th style="width:3%" class="no-print"></th>
+            </tr>
+          </thead>
+          <tbody class="cat-body" id="items-body-${cat}">
+            <tr>
+              <td class="center">1</td>
+              <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">品名を入力</textarea></td>
+              <td><textarea class="editable item left" rows="1" oninput="autoGrow(this)">仕様を入力</textarea></td>
+              <td><input class="editable item" type="number" step="0.1" value="1" oninput="recalcAll()"></td>
+              <td><input class="editable item center" value="式"></td>
+              <td><input class="editable item" type="number" value="0" oninput="recalcAll()"></td>
+              <td class="num amount-cell"></td>
+              <td><input class="editable item center" value=""></td>
+              <td><button class="del-btn" onclick="delRow(this)">✕</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="cat-subtotal-row">
+              <td colspan="6" style="text-align:right; padding-right:10px;">【${cat}】 小　計</td>
+              <td class="num" id="subtotal-${cat}">¥0</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="cat-toolbar no-print">
+          <button onclick="addRow('${cat}')">＋ 行追加（${cat}）</button>
+          <button onclick="mergeUp('${cat}')" style="background:#6b7280;">⬆ 前のページと結合</button>
+          <button onclick="splitOut('${cat}')" style="background:#6b7280;">✂ ページを分離</button>
+          <button onclick="deleteCategory('${cat}')" style="background:#dc2626;">✕ 【${cat}】項目を削除</button>
+        </div>
+      </div>
+      <div class="page-foot">- ${cat} -</div>
+    `;
+    closingAnchor.parentNode.insertBefore(sheet, closingAnchor);
+    sheet.querySelectorAll('textarea').forEach(autoGrow);
+
+    recalcAll();
+    renumberPages();
+    sheet.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function safeRemoveSheet(sheet) {
+    const note = document.getElementById('closing-note');
+    if (note && sheet.contains(note)) document.body.appendChild(note);
+    sheet.remove();
+  }
+
+  function deleteCategory(cat) {
+    if (!confirm('項目【' + cat + '】を削除しますか？（内訳明細ページも削除されます）')) return;
+    const row = document.getElementById('summary-row-' + cat);
+    if (row) row.remove();
+    const block = document.getElementById('cat-block-' + cat);
+    if (block) {
+      const sheet = block.closest('.sheet');
+      block.remove();
+      if (sheet && !sheet.querySelector('.cat-block')) safeRemoveSheet(sheet);
+    }
+    recalcAll();
+    renumberPages();
+  }
+
+  function mergeUp(cat) {
+    const cats = getCategories();
+    const idx = cats.indexOf(cat);
+    if (idx <= 0) { alert('これは最初の項目です。上に結合できません。'); return; }
+    const prevCat = cats[idx - 1];
+    const block = document.getElementById('cat-block-' + cat);
+    const prevBlock = document.getElementById('cat-block-' + prevCat);
+    if (!block || !prevBlock) return;
+    const sheet = block.closest('.sheet');
+    const prevSheet = prevBlock.closest('.sheet');
+    if (sheet === prevSheet) { alert('すでに同じページにあります。'); return; }
+    const foot = prevSheet.querySelector(':scope > .page-foot');
+    prevSheet.insertBefore(block, foot);
+    if (!sheet.querySelector('.cat-block')) safeRemoveSheet(sheet);
+    renumberPages();
+    block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function insertSheetInOrder(newSheet, cat) {
+    const allSheets = Array.from(document.querySelectorAll('.sheet')).filter(s => s !== newSheet);
+    let insertBeforeSheet = null;
+    for (const s of allSheets) {
+      const firstBlock = s.querySelector('.cat-block');
+      if (firstBlock && firstBlock.dataset.cat > cat) { insertBeforeSheet = s; break; }
+    }
+    if (insertBeforeSheet) {
+      insertBeforeSheet.parentNode.insertBefore(newSheet, insertBeforeSheet);
+    } else {
+      const anchor = document.getElementById('closing-anchor');
+      anchor.parentNode.insertBefore(newSheet, anchor);
+    }
+  }
+
+  function splitOut(cat) {
+    const block = document.getElementById('cat-block-' + cat);
+    if (!block) return;
+    const sheet = block.closest('.sheet');
+    if (sheet.querySelectorAll('.cat-block').length <= 1) { alert('すでに独立したページです。'); return; }
+    const newSheet = document.createElement('div');
+    newSheet.className = 'sheet';
+    newSheet.appendChild(block);
+    const foot = document.createElement('div');
+    foot.className = 'page-foot';
+    newSheet.appendChild(foot);
+    insertSheetInOrder(newSheet, cat);
+    renumberPages();
+    newSheet.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function relocateClosingNote() {
+    const note = document.getElementById('closing-note');
+    const sheets = document.querySelectorAll('.sheet');
+    if (!note || sheets.length === 0) return;
+    const lastSheet = sheets[sheets.length - 1];
+    const foot = lastSheet.querySelector(':scope > .page-foot');
+    if (foot) {
+      lastSheet.insertBefore(note, foot);
+    } else {
+      lastSheet.appendChild(note);
+    }
+  }
+
+  function renumberPages() {
+    relocateClosingNote();
+    const sheets = Array.from(document.querySelectorAll('.sheet'));
+    sheets.forEach((sheet, i) => {
+      const foot = sheet.querySelector(':scope > .page-foot');
+      if (foot) foot.textContent = '- ' + (i + 1) + ' -';
+    });
+    const pageCountField = document.getElementById('page-count-field');
+    if (pageCountField) pageCountField.value = '表紙 1　〜　' + sheets.length;
+  }
+
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  function syncValuesToAttributes() {
+    document.querySelectorAll('input.editable').forEach(el => el.setAttribute('value', el.value));
+    document.querySelectorAll('textarea.editable').forEach(el => { el.textContent = el.value; });
+  }
+
+  function suggestFileName() {
+    const metaInputs = document.querySelectorAll('table.cover-meta input.editable');
+    const projectName = (metaInputs[1] && metaInputs[1].value.trim()) || '見積書';
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    const safeName = projectName.replace(/[\\/:*?"<>|]/g, '_');
+    return `見積書_${safeName}_${y}${m}${d}.html`;
+  }
+
+  function saveAsHtmlFile() {
+    syncValuesToAttributes();
+    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = suggestFileName();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    const btn = document.getElementById('btn-save');
+    const original = btn.textContent;
+    btn.textContent = '✓ 保存しました';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }
+
+  document.getElementById('btn-save').addEventListener('click', saveAsHtmlFile);
+
+  document.querySelectorAll('textarea.editable.item').forEach(autoGrow);
+  recalcAll();
+  renumberPages();
+</script>
+
+
+</body></html>

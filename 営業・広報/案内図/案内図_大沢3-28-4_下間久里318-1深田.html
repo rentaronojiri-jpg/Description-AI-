@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<title>案内図｜越谷市大沢 → 越谷市下間久里 深田</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+@page{size:A3 landscape;margin:0}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{margin:0;background:#e9edf1;font-family:"Yu Gothic UI","Meiryo",sans-serif;color:#1b2a3a}
+.sheet{width:420mm;height:297mm;margin:0 auto;background:#fff;position:relative;overflow:hidden;}
+header{background:linear-gradient(120deg,#0f2a47,#1d5a8a);color:#fff;padding:0 16mm;display:flex;align-items:center;justify-content:space-between;border-bottom:2.5mm solid #f2a900}
+header h1{margin:0;font-size:15mm;letter-spacing:.6mm;font-weight:800}
+header .sub{font-size:5mm;opacity:.85;margin-top:1.5mm}
+.badge{text-align:right;font-size:5mm;line-height:1.5}
+.badge b{font-size:11mm;color:#ffd35c}
+.body{height:100%}
+#map{height:100%;width:100%}
+aside{padding:9mm 9mm;background:#f6f9fc;border-left:1px solid #cfd8e2;display:flex;flex-direction:column;gap:6mm}
+.card{background:#fff;border-radius:3mm;padding:5mm 6mm;box-shadow:0 .6mm 2mm rgba(0,0,0,.12)}
+.card .tag{display:inline-block;color:#fff;font-weight:700;font-size:4.2mm;padding:.8mm 4mm;border-radius:10mm;margin-bottom:2mm}
+.s .tag{background:#1d7a46}.g .tag{background:#d6323b}
+.card .ad{font-size:5.6mm;font-weight:800;line-height:1.35}
+.card .nm{font-size:4.4mm;color:#51657a;margin-top:1mm}
+h2{margin:0 0 2mm;font-size:5.4mm;border-left:2mm solid #f2a900;padding-left:3mm}
+ol{margin:0;padding:0;list-style:none;counter-reset:n}
+li{counter-increment:n;position:relative;padding:2.4mm 0 2.4mm 11mm;font-size:4.5mm;border-bottom:1px dashed #cfd8e2;line-height:1.4}
+li:before{content:counter(n);position:absolute;left:0;top:2.4mm;width:7.5mm;height:7.5mm;border-radius:50%;background:#1d5a8a;color:#fff;text-align:center;line-height:7.5mm;font-weight:700;font-size:4.2mm}
+li small{color:#6a7b8d;font-size:3.8mm}
+.note{font-size:3.8mm;color:#6a7b8d;margin-top:auto}
+footer{background:#0f2a47;color:#cfe0f0;font-size:3.8mm;padding:0 16mm;display:flex;align-items:center;justify-content:space-between}
+.pin{display:flex;align-items:center;justify-content:center;width:11mm;height:11mm;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:.8mm solid #fff;box-shadow:0 1mm 2mm rgba(0,0,0,.4)}
+.pin span{transform:rotate(45deg);color:#fff;font-weight:800;font-size:5mm}
+.lbl{background:#fff;border:.5mm solid #333;border-radius:2mm;padding:3mm 6mm;font-weight:800;font-size:13mm;line-height:1.3;white-space:nowrap;box-shadow:0 .5mm 1.5mm rgba(0,0,0,.3)}
+@media print{body{background:#fff}.sheet{margin:0}}
+</style></head><body>
+<div class="sheet">
+<div class="body"><div id="map"></div>
+</div>
+</div>
+<script>
+const route=[[35.903642, 139.785721], [35.903806, 139.786109], [35.903836, 139.786716], [35.903847, 139.786846], [35.904166, 139.787016], [35.904331, 139.787104], [35.904575, 139.787223], [35.904846, 139.787349], [35.90504, 139.787488], [35.905181, 139.787598], [35.905344, 139.787759], [35.905522, 139.78788], [35.90575, 139.787994], [35.905896, 139.788045], [35.906197, 139.788117], [35.906366, 139.788173], [35.907, 139.787567], [35.907979, 139.786633], [35.908327, 139.786289], [35.908394, 139.786225], [35.909337, 139.787627], [35.909373, 139.787684], [35.910549, 139.789518], [35.91095, 139.790131], [35.911508, 139.790976], [35.912127, 139.791925], [35.912869, 139.79303], [35.913423, 139.793904], [35.913573, 139.79414], [35.913666, 139.794302], [35.913744, 139.794465], [35.913823, 139.794644], [35.913889, 139.794827], [35.913949, 139.795019], [35.913996, 139.795209], [35.914043, 139.79543], [35.914152, 139.795966], [35.91517, 139.795665], [35.915269, 139.795637], [35.915653, 139.795528], [35.916501, 139.795287], [35.91653, 139.795279], [35.916624, 139.795253], [35.916639, 139.795249], [35.917086, 139.795116], [35.917624, 139.794976], [35.918257, 139.79479], [35.918444, 139.794736], [35.919632, 139.794386], [35.920151, 139.79424], [35.920614, 139.794105], [35.921645, 139.793805], [35.921803, 139.79376], [35.922639, 139.793522], [35.922927, 139.793436], [35.923393, 139.793269], [35.923527, 139.79321], [35.923698, 139.793136], [35.923755, 139.793102], [35.923875, 139.79303], [35.924061, 139.792918], [35.924353, 139.792707], [35.924724, 139.792357], [35.92498, 139.792098], [35.925219, 139.791856], [35.925605, 139.791461], [35.925561, 139.791352], [35.925545, 139.791272], [35.925627, 139.791158], [35.925748, 139.790982], [35.925892, 139.790776], [35.926032, 139.790573], [35.926184, 139.790354], [35.926329, 139.790146], [35.926367, 139.790091], [35.926502, 139.789897], [35.926087, 139.789474], [35.925899, 139.789282], [35.925717, 139.789095], [35.925503, 139.788879], [35.9253, 139.788674], [35.925367, 139.788582]];
+const map=L.map('map',{zoomControl:false,attributionControl:false,zoomSnap:.25});
+L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
+L.polyline(route,{color:'#fff',weight:14,opacity:.95,lineCap:'round',lineJoin:'round'}).addTo(map);
+const line=L.polyline(route,{color:'#e8453c',weight:8,opacity:.95,lineCap:'round',lineJoin:'round'}).addTo(map);
+function pin(ll,c,t,label,dir){
+ L.marker(ll,{icon:L.divIcon({className:'',iconSize:[0,0],html:'<div class="pin" style="background:'+c+';position:absolute;left:-5.5mm;top:-11mm"><span>'+t+'</span></div>'})}).addTo(map);
+ L.marker(ll,{icon:L.divIcon({className:'',iconSize:[0,0],html:'<div class="lbl" style="position:absolute;'+dir+'">'+label+'</div>'})}).addTo(map);
+}
+pin(route[0],'#1d7a46','S','出発地<br>大沢3-28-4','right:12mm;top:-16mm');
+pin(route[route.length-1],'#d6323b','G','目的地：深田<br>下間久里318-1','right:12mm;top:-20mm');
+map.fitBounds(line.getBounds(),{paddingTopLeft:[150,150],paddingBottomRight:[500,170]});
+L.control.scale({imperial:false,position:'bottomleft'}).addTo(map);
+</script></body></html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>議事録 2026年7月18日</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Noto Sans JP", "Yu Gothic", "游ゴシック", "Meiryo", "メイリオ", sans-serif;
+      font-size: 11pt;
+      color: #222;
+      background: #fff;
+      padding: 20mm 18mm;
+      max-width: 210mm;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 16pt;
+      text-align: center;
+      border-bottom: 2px solid #333;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+      letter-spacing: 0.1em;
+    }
+
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 10pt;
+    }
+    .meta-table td {
+      padding: 4px 10px;
+      border: 1px solid #bbb;
+    }
+    .meta-table td:first-child {
+      background: #f0f0f0;
+      font-weight: bold;
+      width: 28%;
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 12pt;
+      background: #2c5f8a;
+      color: #fff;
+      padding: 5px 10px;
+      margin: 20px 0 10px;
+      border-radius: 2px;
+    }
+
+    h3 {
+      font-size: 11pt;
+      border-left: 4px solid #2c5f8a;
+      padding-left: 8px;
+      margin: 14px 0 8px;
+      color: #2c5f8a;
+    }
+
+    p {
+      margin: 6px 0;
+      line-height: 1.7;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 12px;
+      font-size: 10pt;
+    }
+    table th {
+      background: #dde8f0;
+      padding: 6px 10px;
+      border: 1px solid #bbb;
+      text-align: left;
+      font-weight: bold;
+    }
+    table td {
+      padding: 6px 10px;
+      border: 1px solid #bbb;
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    table tr:nth-child(even) td {
+      background: #f8f8f8;
+    }
+
+    ul, ol {
+      margin: 6px 0 6px 20px;
+      line-height: 1.8;
+    }
+
+    .highlight {
+      background: #fff3cd;
+      border-left: 3px solid #e6a817;
+      padding: 4px 8px;
+      margin: 6px 0;
+      font-weight: bold;
+    }
+
+    .action-list {
+      list-style: none;
+      margin-left: 0;
+    }
+    .action-list li {
+      padding: 4px 0 4px 22px;
+      border-bottom: 1px dotted #ccc;
+      position: relative;
+    }
+    .action-list li::before {
+      content: "□";
+      position: absolute;
+      left: 4px;
+      color: #2c5f8a;
+    }
+
+    .note {
+      margin-top: 24px;
+      padding: 8px 10px;
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      font-size: 9pt;
+      color: #666;
+      border-radius: 2px;
+    }
+
+    @media print {
+      body { padding: 0; }
+      @page { size: A4; margin: 15mm 18mm; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>議　事　録</h1>
+
+  <table class="meta-table">
+    <tr><td>日　付</td><td>2026年7月18日（電話打ち合わせ）</td></tr>
+    <tr><td>作　成</td><td>野尻 連太朗（株式会社AXIS）</td></tr>
+    <tr><td>出席者</td><td>高橋様（ホウセイ）、野尻（弊社）</td></tr>
+    <tr><td>備　考</td><td>録音データより自動文字起こしを元に作成。テンポス案件（西川口・大宮）と進行中現場の工程確認、2件の話題を含む。</td></tr>
+  </table>
+
+  <!-- 1. 西川口テンポス案件 -->
+  <h2>1. 西川口テンポス案件（立ち食いそば屋）打ち合わせ</h2>
+
+  <h3>① 給排水・ガス配管の現況</h3>
+  <p>平面図左側（外壁面）に給湯器を設置予定。トイレ区画のみ床が150〜200mm上がっており、その他は「ゾロ（フラット）」。お客様（不動産屋経由の情報）によると、上がっている床の下に排水・給水のメイン配管が来ている可能性が高いとのこと。ただし現状は仕上げ材で塞がれており、実際にφ20管等がどこで止まっているかは解体してみないと不明。</p>
+  <p class="highlight">→ トイレを一度撤去し床をめくって配管位置を現地確認する前提で計画を進める。</p>
+
+  <h3>② 厨房プラン（コスト重視案を採用）</h3>
+  <p>お客様希望は「ブロック積み＋グリストラップ埋め込み（揚げ床形式）」だが、予算的に厳しいため、高橋様側で提出済みの見積もり（厨房土間なしプラン＝安価案）で進める方針。</p>
+  <ul>
+    <li>ブロック積みは行わず、厨房内は全て置き床仕上げとする。</li>
+    <li>シンク下に可動式グリストラップ（キャスター付き、通称「グリトラくん」）を設置し、油物等はシンクで洗浄する運用とする。</li>
+    <li>床の洗い流しはできない前提としてお客様に説明済み。</li>
+  </ul>
+
+  <h3>③ 置き床の勾配</h3>
+  <p>トイレ側の配管が最も低い位置にあると仮定し、厨房側に向かって置き床が段状に上がっていく設計。客席側はやや低くなるイメージ。段差が生じる旨は既にお客様へ説明済み。</p>
+
+  <h3>④ カウンター・厨房まわり</h3>
+  <ul>
+    <li>客席カウンター（5席程度）はファイン材または修正材で製作し、上部に丼台を設置。</li>
+    <li>下がり壁を設けてフード（幅3600mm程度を想定）を計画。</li>
+    <li>入口側の外壁面（開口は自由に施工可、外壁扱い）に換気扇を設置し、油圧線・排気を集約する計画。</li>
+    <li>バン（幹線）はトイレ内に電線がまとまっている形跡があり、トイレ内に来る想定。</li>
+  </ul>
+
+  <h3>⑤ 内装仕上げ方針（コスト削減）</h3>
+  <ul>
+    <li>厨房壁：当初はケイカル板の上からキッチンパネル貼りを検討していたが予算超過のため見送り、ケイカル板の上から塗装仕上げに変更。</li>
+    <li>厨房天井：ケイカル板は貼らず、クロスまたは塗装で仕上げ。</li>
+    <li>客席側クロス・床材：お客様に特段のこだわりなし。クロス屋・タイル屋の余剰在庫を活用し、少しでもコストを抑える方向。</li>
+  </ul>
+
+  <h3>⑥ 図面精度</h3>
+  <p>支給図面の縮尺は40分の1（A3想定）。高橋様の事務員が簡易作成したもので多少のズレはあり得るが、記載寸法自体はおおむね正確とのこと。柱か壁かの区別は要確認だが、あくまで概算見積もりでよいとのこと。</p>
+
+  <h3>⑦ 見積もりスケジュール（スピード重視）</h3>
+  <p class="highlight">テンポス案件は「見積もりのスピード勝負」。対応が遅れると他社に案件を取られるため、会社ルールとして依頼から5日以内に一次見積もりを提出し、以降は打ち合わせを重ねながら金額を調整していく方針。</p>
+  <ul>
+    <li>大宮案件：菊池さんへ依頼済み、当初金曜までに欲しいと依頼（情報が少なく難航中）。</li>
+    <li>西川口案件（本件）：高橋様が入れた内訳に対する概算見積もりを<strong>7月23日（木）まで</strong>に野尻さんから受領希望。高橋様は7月24日（金）にお客様へ提出予定。</li>
+  </ul>
+
+  <h3>⑧ 消防・保健所対応</h3>
+  <p>建物にもともと防災設備がないため、新規設置は不要（新設するとUR側の費用負担になるため）。消防からは消火器2個（厨房・客席に各1）と誘導灯2箇所で可との回答済み。消防・保健所への提出物はお客様側で対応済みのため、弊社側での申請対応は不要。</p>
+
+  <!-- 2. 進行中現場 -->
+  <h2>2. 進行中現場：電気工事・仕上げ工程の調整</h2>
+
+  <p>電気屋（父子で対応、現場を直接把握していない可能性あり）が7月22日（水・連休明け）に現場入り予定。工程はお客様・テンポス・野尻・電気屋の4者グループラインで共有されているが、電気屋側が工程を十分に見ていない様子。</p>
+
+  <h3>現場側の工程予定</h3>
+  <ul>
+    <li>ボード工事：7月23日（木）目標で完了予定。</li>
+    <li>クロス工事：7月18日（土）から下地関連を進め、木・金（23・24日）頃に着手予定。</li>
+    <li>フロアタイル貼り：クロスとほぼ同時期に施工予定。</li>
+    <li>7月25日（土）時点でほぼ表層関係が仕上がる見込み。</li>
+    <li>残作業：天井塗装、モルタル（外部関連、詳細不明）が翌週に残る可能性あり。</li>
+  </ul>
+
+  <p class="highlight">→ 電気屋が7月22日入場予定に対し、ボード（スイッチ・コンセント廻り）が間に合うかがギリギリの見込み。電気屋としては「ボード開口→クロス→仕上げ」の順が基本のため、クロス施工前の開口漏れがあると補修が発生するリスクあり。</p>
+
+  <!-- 3. 確認事項・懸案事項 -->
+  <h2>3. 確認事項・懸案事項</h2>
+
+  <h3>① トイレ床下の配管位置（西川口）</h3>
+  <p>解体して初めて実際の配管位置・仕様（φ20管など）が判明するため、現時点では未確定。</p>
+
+  <h3>② 電気屋の現場入場タイミング</h3>
+  <p>7月22日入場時点でスイッチ・コンセント周りのボード施工が完了しているかが不透明。工程共有ラインを見ていない可能性があり、認識ズレのリスクあり。</p>
+
+  <h3>③ モルタル収まりに関する質問（通話終了のため未回答）</h3>
+  <p>通話終盤、野尻さんより支給図面のモルタル収まりについて質問しようとしたところで通話が終了。（不明・次回要確認）</p>
+
+  <!-- 4. 決定事項 -->
+  <h2>4. 決定事項</h2>
+  <table>
+    <tr><th style="width:5%">#</th><th>内容</th><th style="width:25%">担当</th></tr>
+    <tr><td>1</td><td>西川口案件は厨房土間なし（安価）プランで進行。ブロック積み・グリストラップ埋め込みは行わず、置き床＋可動式グリストラップとする</td><td>高橋様・野尻</td></tr>
+    <tr><td>2</td><td>厨房壁はケイカル板の上から塗装仕上げ、天井はケイカル板を貼らずクロスor塗装とする</td><td>高橋様</td></tr>
+    <tr><td>3</td><td>消防・保健所への申請対応は弊社側で不要（お客様側対応済み）</td><td>お客様側</td></tr>
+    <tr><td>4</td><td>西川口案件の概算見積もりは7月23日（木）までに野尻さんが高橋様へ提出</td><td>野尻</td></tr>
+  </table>
+
+  <!-- 5. 次回アクション -->
+  <h2>5. 次回アクション</h2>
+  <ul class="action-list">
+    <li>西川口テンポス案件：高橋様の内訳をもとに概算見積もりを作成し、7月23日（木）までに提出</li>
+    <li>トイレ床下の配管位置は解体後に現地確認（高橋様側）</li>
+    <li>電気屋との7月22日入場に向け、ボード工事（スイッチ・コンセント廻り）の進捗を再確認・共有</li>
+    <li>モルタル収まりに関する質問事項を高橋様へ改めて確認</li>
+    <li>次回：電気屋さんが7月22日に現場入り予定</li>
+  </ul>
+
+  <div class="note">
+    ※ 本議事録は録音データの自動文字起こしを元に作成しています。音声認識の誤変換が含まれる可能性があるため、内容に相違がある場合は録音原文をご確認ください。人名・固有名詞は聞き取れた範囲のみ記載しており、一部（モルタル収まりの詳細等）は通話が途中で終了しているため未確認です。
+  </div>
+
+</body>
+</html>

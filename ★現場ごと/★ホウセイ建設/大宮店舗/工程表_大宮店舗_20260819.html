@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>工程表 - 柴田第2店舗1F　BAR店舗新装工事（大宮・編集可）</title>
+  <style>
+    @page {
+      size: A3 landscape;
+      margin: 8mm;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Meiryo', 'MS Gothic', 'Yu Gothic', sans-serif;
+      font-size: 10.5px;
+      color: #111;
+      background: #f4f4f2;
+      padding: 6mm;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: #f4f4f2;
+      padding: 8px 0 12px;
+    }
+    .toolbar button {
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1px solid #1a3a6b;
+      background: #fff;
+      color: #1a3a6b;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .toolbar button:hover { background: #1a3a6b; color: #fff; }
+    .toolbar button.primary { background: #1a3a6b; color: #fff; }
+    .toolbar button.primary:hover { background: #10254a; }
+    .save-indicator { font-size: 11px; color: #2ea52e; align-self: center; min-width: 160px; }
+    .save-indicator.dirty { color: #c0392b; }
+
+    .doc-title {
+      text-align: center;
+      font-size: 19px;
+      font-weight: bold;
+      letter-spacing: 9px;
+      margin-bottom: 6px;
+      border-bottom: 2px solid #1a3a6b;
+      padding-bottom: 4px;
+    }
+
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+      font-size: 10.5px;
+    }
+    .info-table td { border: 1px solid #aaa; padding: 3px 8px; }
+    .info-table .label {
+      background: #dde4f0;
+      font-weight: bold;
+      width: 78px;
+      white-space: nowrap;
+    }
+
+    [contenteditable="true"] {
+      outline: none;
+      border-radius: 2px;
+      transition: background 0.15s;
+    }
+    [contenteditable="true"]:hover { background: #fbf6df; }
+    [contenteditable="true"]:focus { background: #fff6cc; box-shadow: 0 0 0 1px #e0c34a inset; }
+
+    /* ======= ガントチャート ======= */
+    .gantt {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5px;
+      table-layout: fixed;
+    }
+    .gantt th, .gantt td {
+      border: 1px solid #888;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .col-no   { width: 26px; }
+    .col-name { width: 265px; }
+    .col-d    { width: 54px; }
+    .col-note { width: 175px; }
+    .col-ctrl { width: 70px; }
+
+    /* 月ヘッダー */
+    .hd-month { background: #2e5d9e; color: #fff; font-weight: bold; font-size: 12.5px; padding: 5px 2px; }
+
+    /* 日付ヘッダー */
+    .date-cell { background: #d0dcf4; color: #111; padding: 3px 1px; font-size: 9.5px; line-height: 1.3; }
+    .date-start { background: #fff0cc; color: #b00; padding: 3px 1px; font-size: 9.5px; font-weight: bold; border-left: 3px solid #ff6600 !important; line-height: 1.3; }
+    .date-sun  { background: #f4d4d4; color: #b00; padding: 3px 1px; font-size: 9.5px; font-weight: bold; line-height: 1.3; }
+    .date-fin  { background: #ede0ff; color: #5a3a8b; padding: 3px 1px; font-size: 9.5px; font-weight: bold; line-height: 1.3; }
+
+    .hd-label { background: #e8eaf6; font-weight: bold; padding: 3px 5px; }
+
+    /* 工事行 */
+    .task-row td { padding: 2px 3px; height: 28px; }
+    .task-row:nth-child(odd)  { background: #fafafa; }
+    .task-row:nth-child(even) { background: #f0f4fb; }
+    .task-name-cell { text-align: left; padding: 3px 7px !important; line-height: 1.3; }
+    .task-sub { font-size: 8px; color: #555; }
+
+    .sun-col { background: #fbeaea; }
+    .day-cell { cursor: pointer; }
+    .day-cell:hover { background: #fff6cc; }
+
+    /* バー */
+    .bar {
+      display: block;
+      height: 16px;
+      border-radius: 3px;
+      margin: 2px auto;
+      width: 88%;
+      pointer-events: none;
+    }
+
+    /* 各工事色 */
+    .c-prep    { background: #455a64; }
+    .c-carp    { background: #e64a19; }
+    .c-hvac    { background: #00838f; }
+    .c-elec    { background: #f57f17; }
+    .c-equip   { background: #2e7d32; }
+    .c-plaster { background: #8d6e63; }
+    .c-paint   { background: #6d4c41; }
+    .c-floor   { background: #1565c0; }
+    .c-cross   { background: #00897b; }
+    .c-door    { background: #c62828; }
+    .c-clean   { background: #78909c; }
+
+    .star { font-size: 19px; color: #c0ca33; line-height: 1; }
+
+    /* 分類帯 */
+    .section-row td {
+      background: #e8eaf6;
+      font-weight: bold;
+      font-size: 9.5px;
+      padding: 2px 7px;
+      color: #1a3a6b;
+      letter-spacing: 1px;
+    }
+
+    /* 竣工セル */
+    .final-cell {
+      background: #f5f0ff !important;
+      border: 2px solid #5a3a8b !important;
+    }
+
+    /* 行操作 */
+    td.ctrl-cell { padding: 2px !important; }
+    .row-color {
+      width: 100%;
+      font-size: 7px;
+      margin-bottom: 2px;
+      border: 1px solid #bbb;
+      border-radius: 2px;
+    }
+    .row-btns {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2px;
+    }
+    .mini-btn {
+      font-size: 9px;
+      line-height: 1;
+      padding: 2px 4px;
+      border: 1px solid #1a3a6b;
+      color: #1a3a6b;
+      background: #fff;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .mini-btn:hover { background: #1a3a6b; color: #fff; }
+    .del-row-btn {
+      font-size: 9px;
+      line-height: 1;
+      padding: 2px 4px;
+      border: 1px solid #c0392b;
+      color: #c0392b;
+      background: #fff;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .del-row-btn:hover { background: #c0392b; color: #fff; }
+
+    .add-row-area { margin-top: 6px; }
+    .add-row-area button {
+      font-size: 11px;
+      padding: 4px 10px;
+      border: 1px dashed #1a3a6b;
+      color: #1a3a6b;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .add-row-area button:hover { background: #eef2fa; }
+
+    /* 凡例 */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 14px;
+      margin-top: 6px;
+      padding: 5px 10px;
+      border: 1px solid #bbb;
+      background: #fafafa;
+    }
+    .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9.5px; }
+    .legend-box  { width: 21px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+
+    /* フッター */
+    .footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 6px; }
+    .note-text { font-size: 8.5px; color: #555; line-height: 1.7; max-width: 70%; }
+    .sign-area { display: flex; gap: 9px; }
+    .sign-box { border: 1px solid #888; width: 88px; padding: 3px 4px; text-align: center; font-size: 9px; }
+    .sign-box .sign-label { border-bottom: 1px solid #aaa; padding-bottom: 2px; margin-bottom: 2px; font-weight: bold; }
+    .sign-box .sign-space { height: 26px; }
+
+    .no-print { }
+    @media print {
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #fff; padding: 0; }
+      .no-print { display: none !important; }
+      [contenteditable="true"]:hover, [contenteditable="true"]:focus { background: none; box-shadow: none; }
+      .task-row, .section-row { page-break-inside: avoid; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toolbar no-print">
+  <button class="primary" onclick="overwriteSave()">💾 上書き保存</button>
+  <button onclick="saveAs()">📁 名前を付けて保存</button>
+  <button onclick="window.print()">🖨️ 印刷 / PDF保存</button>
+  <button onclick="resetAll()">↺ 編集前の状態に戻す</button>
+  <span class="save-indicator" id="saveIndicator">未保存の変更はありません</span>
+</div>
+
+<div id="sheet">
+
+<div class="doc-title">工　程　表</div>
+
+<table class="info-table">
+  <tr>
+    <td class="label">工事名称</td>
+    <td colspan="3" contenteditable="true">柴田第2店舗1F　BAR店舗新装工事</td>
+    <td class="label">発注者</td>
+    <td contenteditable="true">ホウセイ建設　様</td>
+    <td class="label">作成日</td>
+    <td contenteditable="true">2026年8月19日</td>
+  </tr>
+  <tr>
+    <td class="label">施工場所</td>
+    <td colspan="3" contenteditable="true">埼玉県さいたま市大宮区仲町一丁目29番1号　柴田ビル1F</td>
+    <td class="label">担　当</td>
+    <td contenteditable="true">菊池　匠（090-9825-2087）</td>
+    <td class="label">施工業者</td>
+    <td contenteditable="true">株式会社AXIS</td>
+  </tr>
+  <tr>
+    <td class="label">工事期間</td>
+    <td colspan="3" contenteditable="true"><strong>2026年9月1日（火）〜 2026年9月15日（火）　約2週間</strong></td>
+    <td class="label">現況</td>
+    <td contenteditable="true">外周壁・天井　ボード貼り完了</td>
+    <td class="label">竣工予定</td>
+    <td contenteditable="true"><strong>2026年9月15日（火）引渡し</strong></td>
+  </tr>
+</table>
+
+<table class="gantt">
+  <colgroup>
+    <col class="col-no">
+    <col class="col-name">
+    <col class="col-d"><!-- 9/1 -->
+    <col class="col-d"><!-- 9/2 -->
+    <col class="col-d"><!-- 9/3 -->
+    <col class="col-d"><!-- 9/4 -->
+    <col class="col-d"><!-- 9/5 -->
+    <col class="col-d"><!-- 9/6 日 -->
+    <col class="col-d"><!-- 9/7 -->
+    <col class="col-d"><!-- 9/8 -->
+    <col class="col-d"><!-- 9/9 -->
+    <col class="col-d"><!-- 9/10 -->
+    <col class="col-d"><!-- 9/11 -->
+    <col class="col-d"><!-- 9/12 -->
+    <col class="col-d"><!-- 9/13 日 -->
+    <col class="col-d"><!-- 9/14 -->
+    <col class="col-d"><!-- 9/15 引渡し -->
+    <col class="col-note">
+    <col class="col-ctrl">
+  </colgroup>
+
+  <thead id="ganttHead">
+    <tr>
+      <th class="hd-label col-no" rowspan="2">No.</th>
+      <th class="hd-label col-name" rowspan="2" style="text-align:center;">工　事　種　別</th>
+      <th class="hd-month" colspan="15">2026年　9月</th>
+      <th class="hd-label col-note" rowspan="2" style="text-align:center;">備　考</th>
+      <th class="hd-label col-ctrl no-print" rowspan="2" style="text-align:center;">操作</th>
+    </tr>
+    <tr>
+      <th class="date-start" contenteditable="true">1<br>（火）<br>着工</th>
+      <th class="date-cell" contenteditable="true">2<br>（水）</th>
+      <th class="date-cell" contenteditable="true">3<br>（木）</th>
+      <th class="date-cell" contenteditable="true">4<br>（金）</th>
+      <th class="date-cell" contenteditable="true">5<br>（土）</th>
+      <th class="date-sun" contenteditable="true">6<br>（日）<br>休</th>
+      <th class="date-cell" contenteditable="true">7<br>（月）</th>
+      <th class="date-cell" contenteditable="true">8<br>（火）</th>
+      <th class="date-cell" contenteditable="true">9<br>（水）</th>
+      <th class="date-cell" contenteditable="true">10<br>（木）</th>
+      <th class="date-cell" contenteditable="true">11<br>（金）</th>
+      <th class="date-cell" contenteditable="true">12<br>（土）</th>
+      <th class="date-sun" contenteditable="true">13<br>（日）<br>休</th>
+      <th class="date-cell" contenteditable="true">14<br>（月）</th>
+      <th class="date-fin" contenteditable="true">15<br>（火）<br>引渡し</th>
+    </tr>
+  </thead>
+
+  <tbody id="ganttBody">
+
+    <!-- ▼ 着工準備 -->
+    <tr class="section-row"><td colspan="19" contenteditable="true">▼ 着工準備　（外周壁・天井ボード貼り済のため、造作・仕上げ工事より着手）</td></tr>
+
+    <tr class="task-row" data-color="c-prep">
+      <td>1</td>
+      <td class="task-name-cell" contenteditable="true">仮設・共通工事<br><span class="task-sub">前工程（LGS・PB）完了確認・養生・墨出し</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-prep"></span></td><!-- 9/1 -->
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">9/1 着工</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep" selected>仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <!-- ▼ 木工事 -->
+    <tr class="section-row"><td colspan="19" contenteditable="true">▼ 木工事・造作工事</td></tr>
+
+    <tr class="task-row" data-color="c-carp">
+      <td>2</td>
+      <td class="task-name-cell" contenteditable="true">木工事①<br><span class="task-sub">置き床工事・捨て貼り合板・立ち上がり造作</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-carp"></span></td><!-- 9/1 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-carp"></span></td><!-- 9/2 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-carp"></span></td><!-- 9/3 -->
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">床下地19㎡</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp" selected>木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="task-row" data-color="c-carp">
+      <td>3</td>
+      <td class="task-name-cell" contenteditable="true">木工事②<br><span class="task-sub">カウンター造作・洗面カウンター造作・開口枠造作・目隠し／収納格子造作</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-carp"></span></td><!-- 9/2 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-carp"></span></td><!-- 9/3 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-carp"></span></td><!-- 9/4 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-carp"></span></td><!-- 9/5 -->
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">カウンター下持ち出し造作含む</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp" selected>木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="task-row" data-color="c-carp">
+      <td>4</td>
+      <td class="task-name-cell" contenteditable="true">木工事③<br><span class="task-sub">建具枠取付・装飾棚板・足置きパイプ取付</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-carp"></span></td><!-- 9/4 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-carp"></span></td><!-- 9/5 -->
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-carp"></span></td><!-- 9/7 -->
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">ボトル装飾棚板3枚</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp" selected>木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <!-- ▼ 設備・電気・空調 -->
+    <tr class="section-row"><td colspan="19" contenteditable="true">▼ 設備・電気・空調工事</td></tr>
+
+    <tr class="task-row" data-color="c-hvac">
+      <td>5</td>
+      <td class="task-name-cell" contenteditable="true">空調・ダクト工事<br><span class="task-sub">壁掛けエアコン設置（東芝2台）・厨房ステンレスフード・排気ダクト・換気扇</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-hvac"></span></td><!-- 9/2 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-hvac"></span></td><!-- 9/3 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-hvac"></span></td><!-- 9/4 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-hvac"></span></td><!-- 9/5 -->
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">試運転調整含む</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac" selected>空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="task-row" data-color="c-elec">
+      <td>6</td>
+      <td class="task-name-cell" contenteditable="true">電気工事（一次）<br><span class="task-sub">分電盤接続・器具下地・開口工事</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-elec"></span></td><!-- 9/3 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-elec"></span></td><!-- 9/4 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-elec"></span></td><!-- 9/5 -->
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">電灯新規分電盤</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec" selected>電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="task-row" data-color="c-equip">
+      <td>7</td>
+      <td class="task-name-cell" contenteditable="true">給排水設備工事<br><span class="task-sub">配管接続確認・ガス湯沸かし器取付準備</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-equip"></span></td><!-- 9/3 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-equip"></span></td><!-- 9/4 -->
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">給水・給湯・トイレ／厨房排水</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip" selected>給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <!-- ▼ 内装仕上げ -->
+    <tr class="section-row"><td colspan="19" contenteditable="true">▼ 内装仕上げ工事</td></tr>
+
+    <tr class="task-row" data-color="c-plaster">
+      <td>8</td>
+      <td class="task-name-cell" contenteditable="true">左官工事<br><span class="task-sub">壁左官仕上げ範囲</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-plaster"></span></td><!-- 9/5 -->
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-plaster"></span></td><!-- 9/7 -->
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">施工範囲・仕上げ方法要確認</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster" selected>左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="task-row" data-color="c-paint">
+      <td>9</td>
+      <td class="task-name-cell" contenteditable="true">塗装工事<br><span class="task-sub">木部・厨房部分塗装</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-paint"></span></td><!-- 9/7 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-paint"></span></td><!-- 9/8 -->
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">色・艶要確認</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint" selected>塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="task-row" data-color="c-floor">
+      <td>10</td>
+      <td class="task-name-cell" contenteditable="true">床工事<br><span class="task-sub">ホール・トイレ床（塩ビタイル）／カウンター内長尺シート・立ち上がり</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-floor"></span></td><!-- 9/8 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-floor"></span></td><!-- 9/9 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-floor"></span></td><!-- 9/10 -->
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">28㎡・シール処理含む</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor" selected>床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="task-row" data-color="c-cross">
+      <td>11</td>
+      <td class="task-name-cell" contenteditable="true">クロス工事<br><span class="task-sub">天井クロス（48㎡）・壁クロス（84.5㎡）</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-cross"></span></td><!-- 9/9 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-cross"></span></td><!-- 9/10 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-cross"></span></td><!-- 9/11 -->
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">不燃クロス・下地処理含む</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross" selected>クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <!-- ▼ 器具・住設機器取付 -->
+    <tr class="section-row"><td colspan="19" contenteditable="true">▼ 器具・住設機器取付</td></tr>
+
+    <tr class="task-row" data-color="c-elec">
+      <td>12</td>
+      <td class="task-name-cell" contenteditable="true">電気工事（二次）<br><span class="task-sub">DL（調光対応29台）・間接テープライト・調光器取付／試運転</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-elec"></span></td><!-- 9/10 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-elec"></span></td><!-- 9/11 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-elec"></span></td><!-- 9/12 -->
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">DL29台・調光器3台</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec" selected>電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="task-row" data-color="c-equip">
+      <td>13</td>
+      <td class="task-name-cell" contenteditable="true">給排水・住設機器工事<br><span class="task-sub">トイレ（サティス）・手洗い洗面ボール・シンク水栓・FFガス給湯器取付</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-equip"></span></td><!-- 9/10 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-equip"></span></td><!-- 9/11 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-equip"></span></td><!-- 9/12 -->
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">ガス工事は別途対応</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip" selected>給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="task-row" data-color="c-door">
+      <td>14</td>
+      <td class="task-name-cell" contenteditable="true">建具・金物仕上げ<br><span class="task-sub">トイレ引き戸・収納引き戸・スイングドア取付／ノンスリップ・アルポリパネル仕上げ</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-door"></span></td><!-- 9/11 -->
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-door"></span></td><!-- 9/12 -->
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">火元不燃パネル・水回りパネル含む</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door" selected>建具・金物</option>
+          <option value="c-clean">清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <!-- ▼ 竣工 -->
+    <tr class="section-row" id="finalSection"><td colspan="19" contenteditable="true">▼ 竣工・引渡し</td></tr>
+
+    <tr class="task-row" data-color="c-clean">
+      <td>15</td>
+      <td class="task-name-cell" contenteditable="true">清掃・竣工検査<br><span class="task-sub">産廃搬出・全体クリーニング・施主立会い確認</span></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="day-cell sun-col" onclick="toggleBar(this)"></td>
+      <td class="day-cell" onclick="toggleBar(this)"><span class="bar c-clean"></span></td><!-- 9/14 -->
+      <td class="day-cell" onclick="toggleBar(this)"></td>
+      <td class="task-name-cell" contenteditable="true">最終確認</td>
+      <td class="ctrl-cell no-print">
+        <select class="row-color" onchange="changeRowColor(this)">
+          <option value="c-prep">仮設・共通</option>
+          <option value="c-carp">木工事・造作</option>
+          <option value="c-hvac">空調・ダクト</option>
+          <option value="c-elec">電気工事</option>
+          <option value="c-equip">給排水設備</option>
+          <option value="c-plaster">左官工事</option>
+          <option value="c-paint">塗装工事</option>
+          <option value="c-floor">床工事</option>
+          <option value="c-cross">クロス工事</option>
+          <option value="c-door">建具・金物</option>
+          <option value="c-clean" selected>清掃・検査</option>
+        </select>
+        <div class="row-btns">
+          <button class="mini-btn" onclick="moveRow(this,'up')" title="上へ移動">▲</button>
+          <button class="mini-btn" onclick="moveRow(this,'down')" title="下へ移動">▼</button>
+          <button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>
+          <button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>
+        </div>
+      </td>
+    </tr>
+
+    <tr class="task-row">
+      <td>—</td>
+      <td class="task-name-cell"><strong contenteditable="true">竣工・引渡し</strong></td>
+      <td></td><td></td><td></td><td></td><td></td><td class="sun-col"></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="sun-col"></td><td></td>
+      <td class="final-cell"><span class="star">★</span></td><!-- 9/15 -->
+      <td class="task-name-cell" contenteditable="true"><strong style="color:#5a3a8b;">9/15（火）竣工・引渡し</strong></td>
+      <td class="ctrl-cell no-print"></td>
+    </tr>
+
+  </tbody>
+</table>
+
+<div class="add-row-area no-print">
+  <button onclick="addTaskRow()">＋ 工程を追加（末尾に空の行を挿入）</button>
+</div>
+
+<!-- 凡例 -->
+<div class="legend">
+  <strong style="font-size:9px; margin-right:4px;">凡例：</strong>
+  <div class="legend-item"><div class="legend-box c-prep"></div>仮設・共通</div>
+  <div class="legend-item"><div class="legend-box c-carp"></div>木工事・造作</div>
+  <div class="legend-item"><div class="legend-box c-hvac"></div>空調・ダクト</div>
+  <div class="legend-item"><div class="legend-box c-elec"></div>電気工事</div>
+  <div class="legend-item"><div class="legend-box c-equip"></div>給排水設備</div>
+  <div class="legend-item"><div class="legend-box c-plaster"></div>左官工事</div>
+  <div class="legend-item"><div class="legend-box c-paint"></div>塗装工事</div>
+  <div class="legend-item"><div class="legend-box c-floor"></div>床工事</div>
+  <div class="legend-item"><div class="legend-box c-cross"></div>クロス工事</div>
+  <div class="legend-item"><div class="legend-box c-door"></div>建具・金物</div>
+  <div class="legend-item"><div class="legend-box c-clean"></div>清掃・検査</div>
+  <div class="legend-item"><span class="star" style="font-size:13px; line-height:1;">★</span>竣工・引渡し</div>
+  <div class="legend-item" style="margin-left:14px; padding-left:6px; color:#b00;">
+    <strong>赤背景：日曜（休工）</strong>
+  </div>
+  <div class="legend-item no-print" style="margin-left:14px; color:#1a3a6b;">
+    <strong>※日付マスをクリックでバーの表示／非表示を切替できます</strong>
+  </div>
+</div>
+
+<!-- フッター -->
+<div class="footer">
+  <div class="note-text" contenteditable="true">
+    ※本工程表は現時点での予定工程です。着工後、現場状況・資材納期等により変更が生じる場合があります。<br>
+    ※着工時点で外周壁・天井のボード貼り工事は完了しているため、木工事（造作）・設備仕上げより着手します。<br>
+    ※左官工事の施工範囲・仕上げ方法、木部塗装の色・艶、カウンター天板の仕上材は別途打合せの上、決定次第反映いたします。<br>
+    ※ガス工事は別途、施主様またはガス事業者にて直接手配となります（本工程には含みません）。
+  </div>
+  <div class="sign-area">
+    <div class="sign-box">
+      <div class="sign-label">発注者確認</div>
+      <div class="sign-space"></div>
+      <div contenteditable="true">ホウセイ建設様</div>
+    </div>
+    <div class="sign-box">
+      <div class="sign-label">施　工　者</div>
+      <div class="sign-space"></div>
+      <div contenteditable="true">㈱AXIS</div>
+    </div>
+    <div class="sign-box">
+      <div class="sign-label">担当・印</div>
+      <div class="sign-space"></div>
+      <div contenteditable="true">菊池　匠</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#sheet -->
+
+<script>
+  const STORAGE_KEY = 'oomiya_schedule_20260819';
+  const CONTENT_VERSION = '2026-08-19-r1';
+  let fileHandle = null;
+  let currentFileName = '工程表_大宮店舗_20260819.html';
+  let dirty = false;
+
+  const COLOR_LABELS = {
+    'c-prep': '仮設・共通', 'c-carp': '木工事・造作', 'c-hvac': '空調・ダクト',
+    'c-elec': '電気工事', 'c-equip': '給排水設備', 'c-plaster': '左官工事',
+    'c-paint': '塗装工事', 'c-floor': '床工事', 'c-cross': 'クロス工事',
+    'c-door': '建具・金物', 'c-clean': '清掃・検査'
+  };
+
+  function toggleBar(td) {
+    const row = td.closest('tr');
+    const color = row.dataset.color || 'c-carp';
+    const bar = td.querySelector('.bar');
+    if (bar) {
+      td.innerHTML = '';
+    } else {
+      td.innerHTML = '<span class="bar ' + color + '"></span>';
+    }
+    markDirty();
+    scheduleSave();
+  }
+
+  function changeRowColor(select) {
+    const row = select.closest('tr');
+    row.dataset.color = select.value;
+    row.querySelectorAll('td.day-cell .bar').forEach(function(bar) {
+      bar.className = 'bar ' + select.value;
+    });
+    markDirty();
+    scheduleSave();
+  }
+
+  function colorOptionsHtml(selected) {
+    return Object.keys(COLOR_LABELS).map(function(key) {
+      return '<option value="' + key + '"' + (key === selected ? ' selected' : '') + '>' + COLOR_LABELS[key] + '</option>';
+    }).join('');
+  }
+
+  function newTaskRowHtml(color) {
+    color = color || 'c-carp';
+    let dayCells = '';
+    for (let i = 0; i < 15; i++) {
+      const sun = (i === 5 || i === 12) ? ' sun-col' : '';
+      dayCells += '<td class="day-cell' + sun + '" onclick="toggleBar(this)"></td>';
+    }
+    return '<td>-</td>' +
+      '<td class="task-name-cell" contenteditable="true">工事名を入力<br><span class="task-sub">仕様・範囲を入力</span></td>' +
+      dayCells +
+      '<td class="task-name-cell" contenteditable="true">備考</td>' +
+      '<td class="ctrl-cell no-print">' +
+      '<select class="row-color" onchange="changeRowColor(this)">' + colorOptionsHtml(color) + '</select>' +
+      '<div class="row-btns">' +
+      '<button class="mini-btn" onclick="moveRow(this,\'up\')" title="上へ移動">▲</button>' +
+      '<button class="mini-btn" onclick="moveRow(this,\'down\')" title="下へ移動">▼</button>' +
+      '<button class="mini-btn" onclick="insertRowAfter(this)" title="この下に工程を追加">＋</button>' +
+      '<button class="del-row-btn" onclick="delRow(this)" title="削除">✕</button>' +
+      '</div></td>';
+  }
+
+  function delRow(btn) {
+    const row = btn.closest('tr');
+    row.parentNode.removeChild(row);
+    markDirty();
+    scheduleSave();
+  }
+
+  function moveRow(btn, dir) {
+    const row = btn.closest('tr');
+    if (dir === 'up') {
+      const prev = row.previousElementSibling;
+      if (prev) row.parentNode.insertBefore(row, prev);
+    } else {
+      const next = row.nextElementSibling;
+      if (next) row.parentNode.insertBefore(next, row);
+    }
+    markDirty();
+    scheduleSave();
+  }
+
+  function insertRowAfter(btn) {
+    const row = btn.closest('tr');
+    const tr = document.createElement('tr');
+    tr.className = 'task-row';
+    tr.dataset.color = 'c-carp';
+    tr.innerHTML = newTaskRowHtml('c-carp');
+    row.parentNode.insertBefore(tr, row.nextSibling);
+    markDirty();
+    scheduleSave();
+  }
+
+  function addTaskRow() {
+    const tbody = document.getElementById('ganttBody');
+    const finalSection = document.getElementById('finalSection');
+    const tr = document.createElement('tr');
+    tr.className = 'task-row';
+    tr.dataset.color = 'c-carp';
+    tr.innerHTML = newTaskRowHtml('c-carp');
+    tbody.insertBefore(tr, finalSection);
+    markDirty();
+    scheduleSave();
+  }
+
+  function markDirty() {
+    dirty = true;
+    const ind = document.getElementById('saveIndicator');
+    ind.textContent = '未保存の変更があります（自動下書き保存のみ）';
+    ind.classList.add('dirty');
+  }
+
+  let saveTimer = null;
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveDraft, 400);
+  }
+
+  function saveDraft() {
+    const data = {
+      version: CONTENT_VERSION,
+      meta: document.querySelector('.info-table').innerHTML,
+      head: document.getElementById('ganttHead').innerHTML,
+      body: document.getElementById('ganttBody').innerHTML,
+      footer: document.querySelector('.footer').innerHTML
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function loadDraft() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      if (data.version !== CONTENT_VERSION) {
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      if (data.meta) document.querySelector('.info-table').innerHTML = data.meta;
+      if (data.head) document.getElementById('ganttHead').innerHTML = data.head;
+      if (data.body) document.getElementById('ganttBody').innerHTML = data.body;
+      if (data.footer) document.querySelector('.footer').innerHTML = data.footer;
+    } catch (e) { console.warn('下書きの復元に失敗しました', e); }
+  }
+
+  function resetAll() {
+    if (confirm('自動保存された下書きを破棄して、ファイルを開いた直後の内容に戻します。よろしいですか？\n（ファイルへの上書き保存は取り消せません）')) {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+  }
+
+  function serializedHtml() {
+    const clone = document.documentElement.cloneNode(true);
+    const ind = clone.querySelector('#saveIndicator');
+    if (ind) { ind.textContent = ''; ind.classList.remove('dirty'); }
+    return '<!DOCTYPE html>\n' + clone.outerHTML;
+  }
+
+  function flashIndicator(msg, isError) {
+    const ind = document.getElementById('saveIndicator');
+    ind.textContent = msg;
+    ind.classList.toggle('dirty', !!isError);
+  }
+
+  function fallbackDownload(name) {
+    const blob = new Blob([serializedHtml()], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    dirty = false;
+    flashIndicator('ダウンロードフォルダへ保存しました（' + name + '）。このブラウザはファイル直接上書きに未対応のため、都度ダウンロードされます。');
+  }
+
+  async function overwriteSave() {
+    if (!('showSaveFilePicker' in window)) {
+      fallbackDownload(currentFileName);
+      return;
+    }
+    try {
+      if (!fileHandle) {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName: currentFileName,
+          types: [{ description: 'HTML', accept: { 'text/html': ['.html'] } }]
+        });
+        currentFileName = fileHandle.name;
+      }
+      const writable = await fileHandle.createWritable();
+      await writable.write(serializedHtml());
+      await writable.close();
+      dirty = false;
+      flashIndicator('上書き保存しました（' + new Date().toLocaleTimeString('ja-JP') + '）');
+    } catch (e) {
+      if (e.name !== 'AbortError') flashIndicator('保存に失敗しました: ' + e.message, true);
+    }
+  }
+
+  async function saveAs() {
+    if (!('showSaveFilePicker' in window)) {
+      const name = prompt('保存するファイル名を入力してください', currentFileName);
+      if (name) fallbackDownload(name);
+      return;
+    }
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: currentFileName,
+        types: [{ description: 'HTML', accept: { 'text/html': ['.html'] } }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(serializedHtml());
+      await writable.close();
+      fileHandle = handle;
+      currentFileName = handle.name;
+      dirty = false;
+      flashIndicator('名前を付けて保存しました（' + handle.name + '）');
+    } catch (e) {
+      if (e.name !== 'AbortError') flashIndicator('保存に失敗しました: ' + e.message, true);
+    }
+  }
+
+  window.addEventListener('beforeunload', function(e) {
+    if (dirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  document.getElementById('sheet').addEventListener('input', function() {
+    markDirty();
+    scheduleSave();
+  });
+  loadDraft();
+</script>
+
+</body>
+</html>

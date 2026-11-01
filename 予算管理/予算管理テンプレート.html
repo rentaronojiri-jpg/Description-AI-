@@ -47,12 +47,42 @@
     font-family: inherit;
     white-space: nowrap;
   }
-  #btn-add-row     { background:#2563eb; color:#fff; }
-  #btn-add-vendor  { background:#16a34a; color:#fff; }
-  #btn-add-billing { background:#d97706; color:#fff; }
+  #btn-add-row        { background:#2563eb; color:#fff; }
+  #btn-add-vendor     { background:#16a34a; color:#fff; }
+  #btn-add-vendor-cat { background:#0f766e; color:#fff; }
+  #btn-add-billing    { background:#d97706; color:#fff; }
   #btn-recalc      { background:#7c3aed; color:#fff; }
   #btn-print       { background:var(--navy); color:#fff; }
   #toolbar button:hover { filter: brightness(0.88); }
+
+  /* ===== 右クリックメニュー ===== */
+  #ctx-menu {
+    display: none;
+    position: fixed;
+    z-index: 99999;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+    min-width: 190px;
+    padding: 4px 0;
+    font-size: 9.5pt;
+    font-family: "MS Gothic","Yu Gothic",sans-serif;
+  }
+  .ctx-item {
+    padding: 7px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #111;
+  }
+  .ctx-item:hover { background: #dbeafe; }
+  .ctx-sep { border-top: 1px solid #e5e7eb; margin: 3px 0; }
+  .ctx-label {
+    padding: 4px 16px 2px;
+    font-size: 8pt;
+    color: #888;
+    cursor: default;
+  }
 
   @media print {
     #toolbar { display:none; }
@@ -122,8 +152,14 @@
   .card.variance  { border-color: #555; background: #f5f5f5; }
   .card.profit    { border-color: #be185d; background: #fdf2f8; }
   .card.profit-rate { border-color: #be185d; background: #fdf2f8; }
+  .card.remain    { border-color: #dc2626; background: #fef2f2; }
+  .card.unpaid-in { border-color: #0369a1; background: #f0f9ff; }
+  .card.pending   { border-color: #555; background: #f5f5f5; }
+  .card .card-sub { font-size: 8pt; color: #777; margin-top: 2px; }
   .positive { color: #15803d; }
   .negative { color: #dc2626; }
+  .warning  { color: #b45309; }
+  .muted    { color: #999; }
 
   /* ===== セクション見出し ===== */
   h2 {
@@ -199,6 +235,28 @@
   .badge-done    { background:#ede9fe; color:#5b21b6; }
   .badge-issue   { background:#fee2e2; color:#991b1b; }
 
+  select.status-select {
+    border: none;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 8pt;
+    font-family: inherit;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  select.status-select:focus { outline: 1px solid #94a3b8; }
+  select.status-select.badge-none    { background:#e5e7eb; color:#374151; }
+  select.status-select.badge-quote   { background:#dbeafe; color:#1e40af; }
+  select.status-select.badge-ordered { background:#d1fae5; color:#065f46; }
+  select.status-select.badge-done    { background:#ede9fe; color:#5b21b6; }
+  select.status-select.badge-issue   { background:#fee2e2; color:#991b1b; }
+  @media print {
+    select.status-select { border: none; appearance: none; -webkit-appearance: none; }
+  }
+
   td[contenteditable="true"] {
     outline: none;
     background-color: #fffde7 !important;
@@ -207,6 +265,22 @@
     background-color: #fff9c4 !important;
     box-shadow: inset 0 0 0 1px #f59e0b;
   }
+  .cat-header td[contenteditable="true"] {
+    background-color: #e8e8f0 !important;
+  }
+  .cat-header td[contenteditable="true"]:focus {
+    background-color: #dcdcec !important;
+    box-shadow: inset 0 0 0 1px #9999bb;
+  }
+
+  /* ===== 行選択 ===== */
+  td.row-select-cell {
+    cursor: pointer;
+    user-select: none;
+  }
+  td.row-select-cell:hover { background-color: #dbeafe !important; }
+  tr.row-selected > td     { background-color: #bfdbfe !important; }
+  tr.row-selected > td.row-select-cell { background-color: #93c5fd !important; }
 
   /* ===== 業者支払管理テーブル ===== */
   table.vendor-table {
@@ -233,6 +307,44 @@
   table.vendor-table td.center { text-align: center; }
   table.vendor-table tr:nth-child(even) td { background: var(--stripe); }
   .vendor-total-row td { background: var(--light-green) !important; font-weight: bold; border-top: 3px double #000; }
+  .vendor-group-header > td {
+    background: var(--green) !important;
+    color: #fff;
+    font-weight: bold;
+    font-size: 9pt;
+    padding: 5px 10px;
+    border-top: 2px solid #0f3d20;
+  }
+  .vendor-group-header > td.num { text-align: right; }
+  .vendor-group-header > td[contenteditable="true"] {
+    background: var(--green) !important;
+    color: #fff;
+    cursor: text;
+  }
+  .vendor-group-header > td[contenteditable="true"]:focus {
+    background: #166534 !important;
+    color: #fff;
+    box-shadow: inset 0 0 0 1px #bbf7d0;
+    outline: none;
+  }
+
+  .vendor-cat-header td {
+    background: var(--green) !important;
+    color: #fff;
+    font-weight: bold;
+    font-size: 9pt;
+    padding: 5px 10px;
+    border-top: 3px solid #0f3d20;
+  }
+  .vendor-cat-header td[contenteditable="true"] {
+    background: var(--green) !important;
+    color: #fff;
+  }
+  .vendor-cat-header td[contenteditable="true"]:focus {
+    background: #166534 !important;
+    color: #fff;
+    box-shadow: inset 0 0 0 1px #bbf7d0;
+  }
 
   /* ===== 入金管理テーブル ===== */
   table.billing-table {
@@ -271,17 +383,60 @@
     outline: none;
   }
   .notes-box:focus { box-shadow: inset 0 0 0 1px #2563eb; }
+
+  #btn-clear:hover { filter: brightness(0.88); }
+
+  /* ===== 業者連動セル（業者支払管理表と自動連動中は編集不可） ===== */
+  td.linked-cell {
+    background-color: #dbeafe !important;
+    color: #1e40af;
+    cursor: not-allowed;
+  }
+  td.unlinked-cell {
+    background-color: #f3f4f6 !important;
+    cursor: not-allowed;
+  }
+  tr.unassigned-row td { background: #fef3c7; color: #92400e; }
+  td.unassigned-name:empty::before { content: "【未割当】工種名を入力すると工種行になります"; font-style: italic; opacity: .7; }
+  #reconcile { font-size: 9pt; margin: -8px 0 12px 0; padding: 5px 10px; border-radius: 4px; }
+  #reconcile.ok { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; }
+  #reconcile.ng { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; font-weight: bold; }
+  td.linked-cell::after {
+    content: " 🔗";
+    font-size: 8pt;
+  }
 </style>
 </head>
 <body>
 
 <!-- ===== ツールバー ===== -->
 <div id="toolbar" class="no-print">
-  <button id="btn-add-row"     onclick="addBudgetRow()">＋ 工種追加</button>
-  <button id="btn-add-vendor"  onclick="addVendorRow()">＋ 業者追加</button>
-  <button id="btn-add-billing" onclick="addBillingRow()">＋ 請求追加</button>
+  <button id="btn-add-row"     onclick="addBudgetRow()" title="工種別テーブルの末尾に行を追加。行の上で右クリックすると任意の位置に挿入できます">＋ 工種追加</button>
+  <button id="btn-add-vendor"     onclick="addVendorRow()">＋ 業者追加</button>
+  <button id="btn-add-vendor-cat" onclick="addVendorCatHeader()">＋ 業者カテゴリ</button>
+  <button id="btn-add-billing"    onclick="addBillingRow()">＋ 請求追加</button>
   <button id="btn-recalc"      onclick="recalcAll()">再計算</button>
   <button id="btn-print"       onclick="window.print()">印刷 / PDF</button>
+  <button id="btn-export" onclick="exportJSON()" style="background:#d97706; color:#fff;">JSON保存</button>
+  <button id="btn-import" onclick="importJSON()" style="background:#0f766e; color:#fff;">JSON読込</button>
+  <input type="file" id="json-file-input" accept=".json" style="display:none">
+  <span style="border-left:1px solid #ccc; margin:0 4px; align-self:stretch;"></span>
+  <span id="save-status" style="font-size:8.5pt; white-space:nowrap; padding:0 4px; align-self:center;"></span>
+  <button id="btn-clear" onclick="clearLocalStorage()" style="background:#6b7280; color:#fff;">新規作成</button>
+</div>
+
+<!-- ===== 右クリックメニュー（全テーブル共通） ===== -->
+<div id="ctx-menu" class="no-print">
+  <div class="ctx-label">行を挿入</div>
+  <div class="ctx-item" onclick="insertRowCtx('above')">↑ 上に行を追加</div>
+  <div class="ctx-item" onclick="insertRowCtx('below')">↓ 下に行を追加</div>
+  <div class="ctx-sep ctx-budget-only"></div>
+  <div class="ctx-label ctx-budget-only">カテゴリ見出しを挿入</div>
+  <div class="ctx-item ctx-budget-only" onclick="insertCatHeaderCtx('above')">↑ 上にカテゴリ見出しを追加</div>
+  <div class="ctx-item ctx-budget-only" onclick="insertCatHeaderCtx('below')">↓ 下にカテゴリ見出しを追加</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" id="ctx-bulk-delete" style="color:#dc2626; display:none;" onclick="deleteSelectedRows(); document.getElementById('ctx-menu').style.display='none';">× 選択した行をすべて削除</div>
+  <div class="ctx-item" style="color:#dc2626;" onclick="removeRowCtx()">× この行を削除</div>
 </div>
 
 <!-- ===== タイトル ===== -->
@@ -293,19 +448,19 @@
     <table>
       <tr>
         <td>工事名</td>
-        <td contenteditable="true" id="proj-name">ドレステーブル YANMER TOKYO 7F 移転プロジェクト</td>
+        <td contenteditable="true" id="proj-name">各現場工事（ドレステーブル / 八重洲ヤンマービル）</td>
         <td style="width:70px;background:var(--light-blue);text-align:center;font-weight:bold;">整理番号</td>
         <td contenteditable="true" style="width:90px;"></td>
       </tr>
       <tr>
         <td>現場住所</td>
-        <td colspan="3" contenteditable="true"></td>
+        <td colspan="3" contenteditable="true">ドレステーブル（埼玉県草加市小山2-29-10 他）・八重洲ヤンマービル（東京）</td>
       </tr>
       <tr>
         <td>発注者</td>
-        <td contenteditable="true">株式会社AXIS</td>
-        <td style="background:var(--light-blue);text-align:center;font-weight:bold;">担当者</td>
         <td contenteditable="true"></td>
+        <td style="background:var(--light-blue);text-align:center;font-weight:bold;">担当者</td>
+        <td contenteditable="true">菊池 匠</td>
       </tr>
       <tr>
         <td>工期</td>
@@ -322,8 +477,8 @@
     </table>
   </div>
   <div class="company-block">
-    <div class="company-name" contenteditable="true">株式会社　◯◯</div>
-    <div contenteditable="true">〒000-0000<br>東京都　◯◯区　◯◯<br>TEL: 00-0000-0000<br>担当: </div>
+    <div class="company-name" contenteditable="true">株式会社　AXIS</div>
+    <div contenteditable="true">〒340-00◯◯<br>埼玉県草加市小山二丁目29番10号<br>TEL: 00-0000-0000<br>担当: 菊池 匠</div>
   </div>
 </div>
 
@@ -334,26 +489,37 @@
     <div class="card-value" id="sum-contract">¥0</div>
   </div>
   <div class="card budget">
-    <div class="card-label">実行予算合計</div>
+    <div class="card-label">見積合計（税込）</div>
     <div class="card-value" id="sum-budget">¥0</div>
   </div>
   <div class="card actual">
-    <div class="card-label">実績金額合計</div>
+    <div class="card-label">発注合計（税込）</div>
     <div class="card-value" id="sum-actual">¥0</div>
   </div>
-  <div class="card variance">
-    <div class="card-label">予算差異（予算－実績）</div>
-    <div class="card-value" id="sum-variance">¥0</div>
-  </div>
+
   <div class="card profit">
-    <div class="card-label">粗利（請負－実行予算）</div>
+    <div class="card-label">粗利（請負金額－発注合計）</div>
     <div class="card-value" id="sum-profit">¥0</div>
   </div>
   <div class="card profit-rate">
     <div class="card-label">粗利率</div>
     <div class="card-value" id="sum-profit-rate">0.0%</div>
   </div>
+  <div class="card remain">
+    <div class="card-label">業者への支払残（税込）</div>
+    <div class="card-value" id="sum-pay-remain">¥0</div>
+  </div>
+  <div class="card unpaid-in">
+    <div class="card-label">未入金額（税込）</div>
+    <div class="card-value" id="sum-in-remain">¥0</div>
+  </div>
+  <div class="card pending">
+    <div class="card-label">未発注の工種</div>
+    <div class="card-value" id="sum-pending">0件</div>
+  </div>
 </div>
+
+<div id="reconcile" class="no-print"></div>
 
 <!-- ===== 請負金額入力 ===== -->
 <div style="margin-bottom:14px; display:flex; align-items:center; gap:12px;">
@@ -371,12 +537,11 @@
   <thead>
     <tr>
       <th style="width:30px;">No.</th>
-      <th style="width:120px;">工種・項目</th>
-      <th style="width:90px;">見積金額（税抜）</th>
-      <th style="width:90px;">実行予算（税抜）</th>
-      <th style="width:90px;">発注金額（税抜）</th>
-      <th style="width:90px;">実績金額（税抜）</th>
-      <th style="width:75px;">差異<br>（予算－実績）</th>
+      <th style="width:140px;">工種・項目</th>
+      <th style="width:100px;">業者発注金額（税抜）</th>
+      <th style="width:100px;">発注金額（税抜）</th>
+      <th style="width:90px;">粗利<br>（発注金額－業者見積）</th>
+      <th style="width:70px;">発注率<br>（発注/見積）</th>
       <th style="width:75px;">発注状況</th>
       <th style="width:100px;">担当業者</th>
       <th style="width:80px;">支払条件</th>
@@ -384,172 +549,55 @@
     </tr>
   </thead>
   <tbody id="budget-body">
-    <!-- カテゴリ：解体工事 -->
-    <tr class="cat-header"><td colspan="11">【 解体工事 】</td></tr>
+    <!-- カテゴリ：建築工事 -->
+    <tr class="cat-header"><td colspan="10" contenteditable="true">【 建築工事 】</td></tr>
     <tr>
       <td class="center">1</td>
-      <td contenteditable="true">内部解体・諸経費</td>
-      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">575,000</td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">575,000</td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-quote">見積済</span></td>
+      <td contenteditable="true">内装工事（ライニング・間仕切・ボード）</td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">2,150,100</td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
+      <td class="num profit-cell"></td>
+      <td class="num rate-cell"></td>
+      <td class="center"><select class="status-select badge-quote" onchange="updateStatusStyle(this)"><option value="badge-none">未発注</option><option value="badge-quote" selected>見積済</option><option value="badge-ordered">発注済</option><option value="badge-done">完了</option><option value="badge-issue">問題あり</option></select></td>
       <td contenteditable="true">堀之内内装</td>
       <td contenteditable="true"></td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
     <tr>
       <td class="center">2</td>
-      <td contenteditable="true">産廃処理</td>
-      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-none">未発注</span></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
-    </tr>
-    <!-- カテゴリ：仮設工事 -->
-    <tr class="cat-header"><td colspan="11">【 仮設工事 】</td></tr>
-    <tr>
-      <td class="center">3</td>
-      <td contenteditable="true">足場・養生</td>
-      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-none">未発注</span></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
-    </tr>
-    <!-- カテゴリ：建築工事 -->
-    <tr class="cat-header"><td colspan="11">【 建築工事 】</td></tr>
-    <tr>
-      <td class="center">4</td>
-      <td contenteditable="true">大工工事</td>
-      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-none">未発注</span></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
-    </tr>
-    <tr>
-      <td class="center">5</td>
-      <td contenteditable="true">内装工事（ライニング・間仕切・ボード）</td>
-      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">2,150,100</td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">2,150,100</td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-quote">見積済</span></td>
-      <td contenteditable="true">堀之内内装</td>
-      <td contenteditable="true"></td>
-      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
-    </tr>
-    <tr>
-      <td class="center">6</td>
       <td contenteditable="true">塗装工事</td>
-      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">654,000</td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">654,000</td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-quote">見積済</span></td>
+      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">838,500</td>
+      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
+      <td class="num profit-cell"></td>
+      <td class="num rate-cell"></td>
+      <td class="center"><select class="status-select badge-quote" onchange="updateStatusStyle(this)"><option value="badge-none">未発注</option><option value="badge-quote" selected>見積済</option><option value="badge-ordered">発注済</option><option value="badge-done">完了</option><option value="badge-issue">問題あり</option></select></td>
       <td contenteditable="true">中野工業</td>
       <td contenteditable="true"></td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
-    <!-- カテゴリ：設備工事 -->
-    <tr class="cat-header"><td colspan="11">【 設備工事 】</td></tr>
-    <tr>
-      <td class="center">7</td>
-      <td contenteditable="true">電気工事</td>
-      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-none">未発注</span></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
-    </tr>
-    <tr>
-      <td class="center">8</td>
-      <td contenteditable="true">給排水工事</td>
-      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()">374,930</td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()">374,930</td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-quote">見積済</span></td>
-      <td contenteditable="true">多賀建設</td>
-      <td contenteditable="true"></td>
-      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
-    </tr>
-    <!-- カテゴリ：諸経費 -->
-    <tr class="cat-header"><td colspan="11">【 諸経費 】</td></tr>
-    <tr>
-      <td class="center">9</td>
-      <td contenteditable="true">現場管理費</td>
-      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-none">未発注</span></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
-    </tr>
-    <tr>
-      <td class="center">10</td>
-      <td contenteditable="true">その他諸経費</td>
-      <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-none">未発注</span></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
-    </tr>
   </tbody>
+  <!-- 工種に紐づかない業者を自動表示（保存対象外・syncBudgetFromVendorが毎回再生成） -->
+  <tbody id="unassigned-body"></tbody>
   <tfoot>
     <tr class="total-row">
       <td colspan="2" style="text-align:center;">合　計（税抜）</td>
       <td class="num" id="total-estimate">¥0</td>
-      <td class="num" id="total-budget">¥0</td>
       <td class="num" id="total-order">¥0</td>
-      <td class="num" id="total-actual">¥0</td>
-      <td class="num" id="total-var">¥0</td>
+      <td class="num" id="total-profit">¥0</td>
+      <td class="num" id="total-rate"></td>
       <td colspan="4"></td>
     </tr>
     <tr class="total-row" style="background:#dde8f5 !important;">
       <td colspan="2" style="text-align:center;">消費税（10%）</td>
       <td class="num" id="tax-estimate">¥0</td>
-      <td class="num" id="tax-budget">¥0</td>
       <td class="num" id="tax-order">¥0</td>
-      <td class="num" id="tax-actual">¥0</td>
-      <td colspan="5"></td>
+      <td colspan="6"></td>
     </tr>
     <tr class="total-row" style="background:#c8d8f0 !important; font-size:11pt;">
       <td colspan="2" style="text-align:center;">合　計（税込）</td>
       <td class="num" id="taxin-estimate">¥0</td>
-      <td class="num" id="taxin-budget">¥0</td>
       <td class="num" id="taxin-order">¥0</td>
-      <td class="num" id="taxin-actual">¥0</td>
-      <td colspan="5"></td>
+      <td colspan="6"></td>
     </tr>
   </tfoot>
 </table>
@@ -576,101 +624,87 @@
   </thead>
   <tbody id="vendor-body">
     <tr>
-      <td class="center">1</td>
+      <td class="center row-select-cell"></td>
       <td contenteditable="true">堀之内内装</td>
-      <td contenteditable="true">解体工事</td>
-      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">575,000</td>
+      <td contenteditable="true">ライニング・壁見切り・自動ドア（ドレステーブル）</td>
+      <td contenteditable="true" class="num vendor-order-ex" oninput="recalcVendor()">130,000</td>
       <td class="num vendor-order-in"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true"></td>
-      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td contenteditable="true" class="num vendor-paid" oninput="recalcVendor()"></td>
       <td class="num vendor-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未払</span></td>
-      <td contenteditable="true">令和8年5月7日見積／現場名：ドレステーブル</td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未払</option><option value="badge-quote">一部払</option><option value="badge-ordered">支払済</option><option value="badge-issue">問題あり</option></select></td>
+      <td contenteditable="true">令和8年6月1日見積</td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
     <tr>
-      <td class="center">2</td>
+      <td class="center row-select-cell"></td>
       <td contenteditable="true">堀之内内装</td>
-      <td contenteditable="true">ライニング・壁見切り・自動ドア</td>
-      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">130,000</td>
+      <td contenteditable="true">追加ボード張り（PB貼り・追加工事）</td>
+      <td contenteditable="true" class="num vendor-order-ex" oninput="recalcVendor()">282,000</td>
       <td class="num vendor-order-in"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true"></td>
-      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td contenteditable="true" class="num vendor-paid" oninput="recalcVendor()"></td>
       <td class="num vendor-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未払</span></td>
-      <td contenteditable="true">令和8年6月1日見積／現場名：ドレステーブル</td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未払</option><option value="badge-quote">一部払</option><option value="badge-ordered">支払済</option><option value="badge-issue">問題あり</option></select></td>
+      <td contenteditable="true">令和8年6月12日見積</td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
     <tr>
-      <td class="center">3</td>
+      <td class="center row-select-cell"></td>
       <td contenteditable="true">堀之内内装</td>
-      <td contenteditable="true">間仕切り工事</td>
-      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">1,738,100</td>
+      <td contenteditable="true">間仕切り工事（65型・100型・千鳥・PB2枚貼り）</td>
+      <td contenteditable="true" class="num vendor-order-ex" oninput="recalcVendor()">1,738,100</td>
       <td class="num vendor-order-in"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true"></td>
-      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td contenteditable="true" class="num vendor-paid" oninput="recalcVendor()"></td>
       <td class="num vendor-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未払</span></td>
-      <td contenteditable="true">令和8年6月12日見積／現場名：ドレステーブル</td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未払</option><option value="badge-quote">一部払</option><option value="badge-ordered">支払済</option><option value="badge-issue">問題あり</option></select></td>
+      <td contenteditable="true">令和8年6月12日見積</td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
     <tr>
-      <td class="center">4</td>
-      <td contenteditable="true">堀之内内装</td>
-      <td contenteditable="true">追加ボード張り</td>
-      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">282,000</td>
-      <td class="num vendor-order-in"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true"></td>
-      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
-      <td class="num vendor-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未払</span></td>
-      <td contenteditable="true">令和8年6月12日見積／現場名：ドレステーブル</td>
-      <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
-    </tr>
-    <tr>
-      <td class="center">5</td>
+      <td class="center row-select-cell"></td>
       <td contenteditable="true">中野工業</td>
-      <td contenteditable="true">塗装工事</td>
-      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">456,000</td>
+      <td contenteditable="true">YANMAR TOKYO 塗装工事（既存壁面塗装・下地処理）</td>
+      <td contenteditable="true" class="num vendor-order-ex" oninput="recalcVendor()">607,500</td>
       <td class="num vendor-order-in"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true"></td>
-      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td contenteditable="true" class="num vendor-paid" oninput="recalcVendor()"></td>
       <td class="num vendor-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未払</span></td>
-      <td contenteditable="true">2026年5月20日見積／YANMAR TOKYO</td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未払</option><option value="badge-quote">一部払</option><option value="badge-ordered">支払済</option><option value="badge-issue">問題あり</option></select></td>
+      <td contenteditable="true">2026年6月16日見積 税込¥668,250</td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
     <tr>
-      <td class="center">6</td>
+      <td class="center row-select-cell"></td>
       <td contenteditable="true">中野工業</td>
-      <td contenteditable="true">追加塗装工事</td>
-      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">198,000</td>
+      <td contenteditable="true">YANMAR TOKYO 塗装追加工事（人件費・材料・交通費）</td>
+      <td contenteditable="true" class="num vendor-order-ex" oninput="recalcVendor()">231,000</td>
       <td class="num vendor-order-in"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true"></td>
-      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td contenteditable="true" class="num vendor-paid" oninput="recalcVendor()"></td>
       <td class="num vendor-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未払</span></td>
-      <td contenteditable="true">2026年6月9日見積／実際税込213,000円（材料・交通費は非課税のため差異あり）</td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未払</option><option value="badge-quote">一部払</option><option value="badge-ordered">支払済</option><option value="badge-issue">問題あり</option></select></td>
+      <td contenteditable="true">2026年6月9日見積 実際の税込¥249,000（一部非課税）</td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
     <tr>
-      <td class="center">7</td>
+      <td class="center row-select-cell"></td>
       <td contenteditable="true">多賀建設</td>
-      <td contenteditable="true">給排水工事</td>
-      <td contenteditable="true" class="num vendor-order-ex"   oninput="recalcVendor()">374,930</td>
+      <td contenteditable="true">八重洲ヤンマービル 給排水工事</td>
+      <td contenteditable="true" class="num vendor-order-ex" oninput="recalcVendor()"></td>
       <td class="num vendor-order-in"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true"></td>
-      <td contenteditable="true" class="num vendor-paid"       oninput="recalcVendor()"></td>
+      <td contenteditable="true" class="num vendor-paid" oninput="recalcVendor()"></td>
       <td class="num vendor-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未払</span></td>
-      <td contenteditable="true">2026年6月11日見積／八重洲ヤンマービル（税込412,423円）</td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未払</option><option value="badge-quote">一部払</option><option value="badge-ordered">支払済</option><option value="badge-issue">問題あり</option></select></td>
+      <td contenteditable="true">2026年6月12日見積 ※PDF要確認</td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
   </tbody>
@@ -714,7 +748,7 @@
       <td contenteditable="true"></td>
       <td contenteditable="true" class="num billing-received" oninput="recalcBilling()"></td>
       <td class="num billing-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未入金</span></td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未入金</option><option value="badge-quote">一部入金</option><option value="badge-ordered">入金済</option></select></td>
       <td contenteditable="true"></td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
@@ -726,7 +760,7 @@
       <td contenteditable="true"></td>
       <td contenteditable="true" class="num billing-received" oninput="recalcBilling()"></td>
       <td class="num billing-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未入金</span></td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未入金</option><option value="badge-quote">一部入金</option><option value="badge-ordered">入金済</option></select></td>
       <td contenteditable="true"></td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
@@ -738,7 +772,7 @@
       <td contenteditable="true"></td>
       <td contenteditable="true" class="num billing-received" oninput="recalcBilling()"></td>
       <td class="num billing-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未入金</span></td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未入金</option><option value="badge-quote">一部入金</option><option value="badge-ordered">入金済</option></select></td>
       <td contenteditable="true"></td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>
     </tr>
@@ -757,7 +791,13 @@
 
 <!-- ===== 備考 ===== -->
 <h2>備考 / 特記事項</h2>
-<div class="notes-box" contenteditable="true" style="min-height:80px;"></div>
+<div class="notes-box" contenteditable="true" style="min-height:80px;">【現場別】
+・ドレステーブル現場（埼玉県草加市）：堀之内内装 — ライニング・間仕切り・ボード工事 合計 ¥2,150,100（税抜）
+・八重洲ヤンマービル現場（東京）：中野工業（塗装）合計 ¥838,500（税抜）／ 多賀建設（給排水）金額未入力
+
+【注意事項】
+・中野工業の追加塗装見積（¥231,000税抜）は、人件費180,000円のみ課税対象（外税10%）、材料¥35,000・交通費¥16,000は非課税。実際の税込合計は¥249,000。
+・多賀建設（八重洲ヤンマービル 給排水工事）のPDFが読み込めなかったため金額は空欄。PDFを確認の上、発注金額を入力してください。</div>
 
 <div style="margin-top:30px; text-align:right; font-size:8.5pt; color:#888;">
   工事予算管理表 — 印刷時はA4横推奨
@@ -771,67 +811,94 @@
     return parseFloat(t) || 0;
   };
 
+  const PROFIT_RATE_WARN = 10; // 粗利率がこの値(%)未満ならサマリーを黄色で警告
+
   function recalcAll() {
+    // 業者支払管理表と連動している行の金額を先に反映
+    syncBudgetFromVendor();
+
     // 工種別集計
     const rows = document.querySelectorAll('#budget-body tr:not(.cat-header):not(.subtotal-row)');
-    let sumEst=0, sumBud=0, sumOrd=0, sumAct=0;
+    let sumEst=0, sumOrd=0;
     rows.forEach(row => {
       const est = parse(row.querySelector('.estimate-cell'));
-      const bud = parse(row.querySelector('.budget-cell'));
       const ord = parse(row.querySelector('.order-cell'));
-      const act = parse(row.querySelector('.actual-cell'));
-      const varCell = row.querySelector('.var-cell');
-      if (varCell) {
-        const v = bud - act;
-        varCell.textContent = bud || act ? fmt(v) : '';
-        varCell.style.color = v >= 0 ? '' : '#dc2626';
+      const profitCell = row.querySelector('.profit-cell');
+      const rateCell   = row.querySelector('.rate-cell');
+      if (profitCell) {
+        const p = ord - est;
+        profitCell.textContent = (est || ord) ? fmt(p) : '';
+        profitCell.style.color = p < 0 ? '#dc2626' : '';
       }
-      sumEst += est; sumBud += bud; sumOrd += ord; sumAct += act;
+      if (rateCell) {
+        rateCell.textContent = (est > 0 && ord) ? (ord / est * 100).toFixed(1) + '%' : '';
+      }
+      sumEst += est; sumOrd += ord;
     });
+    // 工種に未割当の業者分も業者発注金額の合計に含める（業者支払管理と必ず一致させる）
+    document.querySelectorAll('#unassigned-body .estimate-cell').forEach(c => { sumEst += parse(c); });
 
     document.getElementById('total-estimate').textContent = fmt(sumEst);
-    document.getElementById('total-budget').textContent   = fmt(sumBud);
     document.getElementById('total-order').textContent    = fmt(sumOrd);
-    document.getElementById('total-actual').textContent   = fmt(sumAct);
-    const totalVar = sumBud - sumAct;
-    const tvEl = document.getElementById('total-var');
-    tvEl.textContent  = fmt(totalVar);
-    tvEl.style.color  = totalVar >= 0 ? '' : '#dc2626';
+    const totalProfit = sumOrd - sumEst;
+    const tpEl = document.getElementById('total-profit');
+    tpEl.textContent = fmt(totalProfit);
+    tpEl.style.color = totalProfit < 0 ? '#dc2626' : '';
+    document.getElementById('total-rate').textContent = sumEst > 0 ? (sumOrd / sumEst * 100).toFixed(1) + '%' : '';
 
-    document.getElementById('tax-estimate').textContent  = fmt(sumEst * 0.1);
-    document.getElementById('tax-budget').textContent    = fmt(sumBud * 0.1);
-    document.getElementById('tax-order').textContent     = fmt(sumOrd * 0.1);
-    document.getElementById('tax-actual').textContent    = fmt(sumAct * 0.1);
+    document.getElementById('tax-estimate').textContent = fmt(sumEst * 0.1);
+    document.getElementById('tax-order').textContent    = fmt(sumOrd * 0.1);
 
     document.getElementById('taxin-estimate').textContent = fmt(sumEst * 1.1);
-    document.getElementById('taxin-budget').textContent   = fmt(sumBud * 1.1);
     document.getElementById('taxin-order').textContent    = fmt(sumOrd * 1.1);
-    document.getElementById('taxin-actual').textContent   = fmt(sumAct * 1.1);
 
     // サマリーカード
-    const contract = parseFloat(document.getElementById('input-contract').value) || 0;
-    const profit   = contract - sumBud * 1.1;
-    const profRate = contract > 0 ? (profit / contract * 100) : 0;
-    const variance = sumBud - sumAct;
+    const contract  = parseFloat(document.getElementById('input-contract').value) || 0;
+    const grossProfit = contract - sumOrd * 1.1; // 粗利（請負金額－発注合計、税込）
+    const profRate  = contract > 0 ? (grossProfit / contract * 100) : 0;
 
-    document.getElementById('sum-contract').textContent   = fmt(contract);
-    document.getElementById('sum-budget').textContent     = fmt(sumBud * 1.1);
-    document.getElementById('sum-actual').textContent     = fmt(sumAct * 1.1);
+    document.getElementById('sum-contract').textContent = fmt(contract);
+    document.getElementById('sum-budget').textContent   = fmt(sumEst * 1.1);
+    document.getElementById('sum-actual').textContent   = fmt(sumOrd * 1.1);
 
-    const varEl = document.getElementById('sum-variance');
-    varEl.textContent  = fmt(variance * 1.1);
-    varEl.className    = 'card-value ' + (variance >= 0 ? 'positive' : 'negative');
-
+    // 請負金額が未入力のときは粗利を計算できないので「未入力」と表示する
     const profEl = document.getElementById('sum-profit');
-    profEl.textContent = fmt(profit);
-    profEl.className   = 'card-value ' + (profit >= 0 ? 'positive' : 'negative');
-
     const rateEl = document.getElementById('sum-profit-rate');
-    rateEl.textContent = profRate.toFixed(1) + '%';
-    rateEl.className   = 'card-value ' + (profRate >= 0 ? 'positive' : 'negative');
+    if (contract > 0) {
+      profEl.textContent = fmt(grossProfit);
+      profEl.className   = 'card-value ' + (grossProfit >= 0 ? 'positive' : 'negative');
+      rateEl.textContent = profRate.toFixed(1) + '%';
+      rateEl.className   = 'card-value ' +
+        (profRate < 0 ? 'negative' : profRate < PROFIT_RATE_WARN ? 'warning' : 'positive');
+    } else {
+      profEl.textContent = '未入力';
+      profEl.className   = 'card-value muted';
+      rateEl.textContent = '未入力';
+      rateEl.className   = 'card-value muted';
+    }
+
+    // 未発注の工種数（工種名か金額が入っていて、状況が「未発注」の行）
+    let pending = 0;
+    rows.forEach(row => {
+      const sel = row.querySelector('.status-select');
+      const named = (row.cells[1]?.textContent || '').trim();
+      if (sel && sel.value === 'badge-none' && (named || parse(row.querySelector('.estimate-cell')))) pending++;
+    });
+    document.getElementById('sum-pending').textContent = pending + '件';
 
     recalcVendor();
     recalcBilling();
+
+    // 検算: 工種別の業者発注金額合計 = 業者支払管理の発注金額（税抜）合計
+    const diff = Math.round(sumEst - parse(document.getElementById('vtotal-order-ex')));
+    const rec = document.getElementById('reconcile');
+    rec.className = 'no-print ' + (diff === 0 ? 'ok' : 'ng');
+    rec.textContent = diff === 0
+      ? '✓ 工種別の業者発注金額と、業者支払管理の発注金額（税抜）は一致しています（' + fmt(sumEst) + '）'
+      : '⚠ 工種別の業者発注金額と業者支払管理の発注金額（税抜）が ' + fmt(Math.abs(diff)) + ' ずれています';
+
+    document.getElementById('sum-pay-remain').textContent = document.getElementById('vtotal-remain').textContent;
+    document.getElementById('sum-in-remain').textContent  = document.getElementById('btotal-remain').textContent;
   }
 
   function recalcVendor() {
@@ -885,85 +952,856 @@
     br.style.color = totalRem > 0 ? '#dc2626' : '';
   }
 
+  // ===== 行選択 =====
+  const selectedRows = new Set();
+  let lastSelectedRow = null;
+
+  function clearSelection() {
+    selectedRows.forEach(r => r.classList.remove('row-selected'));
+    selectedRows.clear();
+    lastSelectedRow = null;
+  }
+
+  function deleteSelectedRows() {
+    if (selectedRows.size === 0) return;
+    saveSnapshot();
+    const affectedTbodies = new Set();
+    selectedRows.forEach(row => {
+      const tbody = row.closest('tbody');
+      if (tbody) affectedTbodies.add(tbody);
+      row.remove();
+    });
+    selectedRows.clear();
+    lastSelectedRow = null;
+    let vendorAffected = false;
+    affectedTbodies.forEach(tbody => {
+      if (tbody.id === 'vendor-body') vendorAffected = true;
+      else reindex(tbody.id);
+    });
+    if (vendorAffected) regroupVendors();
+    else recalcAll();
+  }
+
+  document.addEventListener('click', function(e) {
+    const cell = e.target.closest('.row-select-cell');
+    if (!cell) {
+      if (!e.target.closest('#ctx-menu') && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+        clearSelection();
+      }
+      return;
+    }
+    const row = cell.closest('tr');
+    if (!row) return;
+
+    if (e.shiftKey && lastSelectedRow) {
+      const tbody = row.closest('tbody');
+      const allRows = Array.from(tbody.querySelectorAll('tr:not(.cat-header)'));
+      const i1 = allRows.indexOf(lastSelectedRow);
+      const i2 = allRows.indexOf(row);
+      const from = Math.min(i1, i2), to = Math.max(i1, i2);
+      if (!e.ctrlKey && !e.metaKey) {
+        selectedRows.forEach(r => r.classList.remove('row-selected'));
+        selectedRows.clear();
+      }
+      for (let i = from; i <= to; i++) {
+        selectedRows.add(allRows[i]);
+        allRows[i].classList.add('row-selected');
+      }
+    } else if (e.ctrlKey || e.metaKey) {
+      if (selectedRows.has(row)) {
+        selectedRows.delete(row);
+        row.classList.remove('row-selected');
+      } else {
+        selectedRows.add(row);
+        row.classList.add('row-selected');
+        lastSelectedRow = row;
+      }
+    } else {
+      clearSelection();
+      selectedRows.add(row);
+      row.classList.add('row-selected');
+      lastSelectedRow = row;
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    // カテゴリ・グループヘッダーセルでEnterを押したら確定（改行しない）
+    if (e.key === 'Enter' && e.target.isContentEditable) {
+      const headerCell = e.target.closest('.vendor-group-header td, .vendor-cat-header td, .cat-header td');
+      if (headerCell) { e.preventDefault(); headerCell.blur(); return; }
+    }
+    // 業者テーブルの最終行・最終セルでTabを押したら新行追加
+    if (e.key === 'Tab' && !e.shiftKey && e.target.isContentEditable) {
+      const vendorRow = e.target.closest('#vendor-body tr:not(.vendor-group-header):not(.vendor-cat-header)');
+      if (vendorRow) {
+        const allDataRows = Array.from(document.querySelectorAll(
+          '#vendor-body tr:not(.vendor-group-header):not(.vendor-cat-header)'
+        ));
+        const editables = Array.from(vendorRow.querySelectorAll('[contenteditable="true"]'));
+        if (e.target === editables[editables.length - 1] && vendorRow === allDataRows[allDataRows.length - 1]) {
+          e.preventDefault();
+          addVendorRow();
+          return;
+        }
+      }
+    }
+    if (e.key === 'Escape') { clearSelection(); return; }
+    if ((e.key === 'Delete') && selectedRows.size > 0
+        && !e.target.isContentEditable && e.target.tagName !== 'INPUT') {
+      e.preventDefault();
+      deleteSelectedRows();
+    }
+  });
+
+  // ===== アンドゥ =====
+  const undoStack = [];
+  const MAX_UNDO = 50;
+
+  function saveSnapshot() {
+    // vendor-body はグループヘッダーを除いたデータ行のみ保存
+    const vendorDataRows = Array.from(
+      document.getElementById('vendor-body').querySelectorAll(
+        'tr:not(.vendor-group-header):not(.vendor-subtotal-row)'
+      )
+    );
+    undoStack.push({
+      budget:   document.getElementById('budget-body').innerHTML,
+      vendor:   vendorDataRows.map(r => r.outerHTML).join(''),
+      billing:  document.getElementById('billing-body').innerHTML,
+      contract: document.getElementById('input-contract').value,
+    });
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+  }
+
+  function undo() {
+    if (undoStack.length === 0) return;
+    const snap = undoStack.pop();
+    document.getElementById('budget-body').innerHTML  = snap.budget;
+    document.getElementById('vendor-body').innerHTML  = snap.vendor;
+    document.getElementById('billing-body').innerHTML = snap.billing;
+    document.getElementById('input-contract').value   = snap.contract;
+    regroupVendors(); // グループ再構築（内部でrecalcAll()を呼ぶ）
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      undo();
+    }
+  });
+
+  // セル編集開始前にスナップショット保存（Ctrl+Z でいつでも元に戻せるよう）
+  let _lastSnapshotAt = 0;
+  document.addEventListener('focusin', function(e) {
+    if (!e.target.isContentEditable && e.target.tagName !== 'SELECT') return;
+    const now = Date.now();
+    if (now - _lastSnapshotAt > 800) {
+      saveSnapshot();
+      _lastSnapshotAt = now;
+    }
+  });
+
   // 行番号を振り直す
   function reindex(tbodyId) {
     let i = 1;
-    document.querySelectorAll('#' + tbodyId + ' tr:not(.cat-header)').forEach(row => {
+    document.querySelectorAll(
+      '#' + tbodyId + ' tr:not(.cat-header):not(.vendor-group-header):not(.vendor-subtotal-row):not(.vendor-cat-header)'
+    ).forEach(row => {
       const c = row.querySelector('td:first-child');
       if (c && !row.classList.contains('subtotal-row')) { c.textContent = i++; }
     });
   }
 
-  function removeRow(btn) {
-    const row = btn.closest('tr');
-    row.remove();
+  // ===== 業者グループ化 =====
+  function regroupVendors() {
+    const tbody = document.getElementById('vendor-body');
+
+    // vendor-group-header（自動生成）以外の全行を収集
+    const sourceRows = Array.from(tbody.querySelectorAll('tr:not(.vendor-group-header)'));
+
+    // vendor-cat-header を区切りとしてセクション分割
+    const sections = [];
+    let current = { header: null, rows: [] };
+    sourceRows.forEach(row => {
+      if (row.classList.contains('vendor-cat-header')) {
+        sections.push(current);
+        current = { header: row, rows: [] };
+      } else {
+        current.rows.push(row);
+      }
+    });
+    sections.push(current);
+
+    tbody.innerHTML = '';
+
+    sections.forEach(section => {
+      if (section.header) tbody.appendChild(section.header);
+
+      // セクション内を業者名でグループ化
+      const groups = new Map();
+      section.rows.forEach(row => {
+        const name = (row.cells[1]?.textContent || '').trim();
+        if (!groups.has(name)) groups.set(name, []);
+        groups.get(name).push(row);
+      });
+
+      groups.forEach((rows, vendorName) => {
+        let totalEx = 0, totalPaid = 0;
+        rows.forEach(row => {
+          totalEx   += parse(row.querySelector('.vendor-order-ex'));
+          totalPaid += parse(row.querySelector('.vendor-paid'));
+        });
+        const totalIn = Math.round(totalEx * 1.1);
+        const remain  = totalIn - totalPaid;
+
+        // 業者名が空のときはグループヘッダーを作らない
+        if (vendorName) {
+          const htr = document.createElement('tr');
+          htr.className = 'vendor-group-header';
+          htr.innerHTML =
+            `<td colspan="4" contenteditable="true">▼ ${vendorName}</td>` +
+            `<td class="num">${totalEx ? fmt(totalIn) : ''}</td>` +
+            `<td colspan="2"></td>` +
+            `<td class="num">${totalPaid ? fmt(totalPaid) : ''}</td>` +
+            `<td class="num" style="color:${remain > 0 ? '#dc2626' : ''}">${totalEx ? fmt(remain) : ''}</td>` +
+            `<td colspan="3"></td>`;
+          htr.querySelector('td[contenteditable]').dataset.vendor = vendorName;
+          tbody.appendChild(htr);
+        }
+        rows.forEach(row => tbody.appendChild(row));
+      });
+    });
+
+    reindex('vendor-body');
     recalcAll();
   }
 
-  function addBudgetRow() {
-    const tbody = document.getElementById('budget-body');
-    const rows  = tbody.querySelectorAll('tr:not(.cat-header)');
-    const no    = rows.length + 1;
+  // ===== 工種別予算管理表 ⇔ 業者支払管理表 の連動 =====
+  // 業者支払管理表の金額を正として、一番上の「見積合計（税込）」・工種別予算管理表の
+  // 「合計（税込）」に自動反映する。「担当業者」名が業者支払管理表の業者名と一致する
+  // 工種別の行には、その業者の発注金額（税抜）合計を反映する。
+  // 同じ業者が複数の工種行に割り当てられている場合は、各行に現在入力されている
+  // 金額の比率で業者合計を按分する（すべて未入力なら均等割り）ので、
+  // 行が何本に分かれていても合計は必ず業者支払管理表の合計と一致する。
+  // 業者名の照合用キー（全角/半角・空白の違いを無視する）
+  const vendorKey = (s) => (s || '').normalize('NFKC').replace(/\s+/g, '');
+
+  // 工種別「業者発注金額」は常に業者支払管理の「発注金額（税抜）」から自動計算する。
+  // 手入力は不可。どの工種にも紐づかない業者は「未割当」行に自動で出し、合計を必ず一致させる。
+  function syncBudgetFromVendor() {
+    const vendorTotals = new Map(); // key -> { name, total }
+    document.querySelectorAll('#vendor-body tr:not(.vendor-group-header):not(.vendor-cat-header)').forEach(row => {
+      const name = (row.cells[1]?.textContent || '').trim();
+      const ex = parse(row.querySelector('.vendor-order-ex'));
+      if (!name && !ex) return;
+      const key = vendorKey(name);
+      const cur = vendorTotals.get(key) || { name: name || '（業者名未入力）', total: 0 };
+      cur.total += ex;
+      vendorTotals.set(key, cur);
+    });
+
+    const budgetRows = Array.from(document.querySelectorAll('#budget-body tr:not(.cat-header)'));
+
+    // 業者ごとに、それを担当業者としている工種別行をグループ化
+    const rowsByVendor = new Map();
+    budgetRows.forEach(row => {
+      const key = vendorKey(row.cells[7]?.textContent);
+      const estCell = row.querySelector('.estimate-cell');
+      if (!estCell) return;
+      if (key && vendorTotals.has(key)) {
+        if (!rowsByVendor.has(key)) rowsByVendor.set(key, []);
+        rowsByVendor.get(key).push(row);
+      } else {
+        // 紐づく業者がいない行は金額を持てない（空欄・編集不可）
+        estCell.contentEditable = 'false';
+        estCell.classList.remove('linked-cell');
+        estCell.classList.add('unlinked-cell');
+        estCell.textContent = '';
+        estCell.title = '「担当業者」に業者支払管理の業者名を入れると、金額が自動で入ります';
+      }
+    });
+
+    // 工種に紐づいていない業者は「未割当」行として末尾に表示（保存対象外・毎回再生成）
+    const unassigned = document.getElementById('unassigned-body');
+    unassigned.innerHTML = '';
+    vendorTotals.forEach((v, key) => {
+      if (rowsByVendor.has(key) || !v.total) return;
+      const tr = document.createElement('tr');
+      tr.className = 'unassigned-row';
+      tr.title = '担当業者を指定すると、該当の工種に移ります';
+      tr.innerHTML = '<td class="center">未割当</td><td></td><td class="num estimate-cell"></td><td></td>' +
+        '<td class="num"></td><td class="num"></td><td></td><td></td><td></td><td class="no-print"></td>';
+      tr.cells[1].className = 'unassigned-name';
+      tr.cells[1].contentEditable = 'true';
+      tr.cells[7].textContent = v.name;
+      tr.cells[2].textContent = fmt(v.total).replace('¥', '');
+      unassigned.appendChild(tr);
+    });
+
+    rowsByVendor.forEach((rows, key) => {
+      const name = vendorTotals.get(key).name;
+      const total = vendorTotals.get(key).total;
+      // 金額セルは手入力できないので按分の重みは持てない。同業者が複数工種を担当する場合は均等割り
+      let remaining = total;
+      rows.forEach((row, i) => {
+        const estCell = row.querySelector('.estimate-cell');
+        const share = i === rows.length - 1
+          ? remaining // 端数は最後の行に寄せて合計を業者支払管理表と一致させる
+          : Math.round(total / rows.length);
+        remaining -= share;
+        estCell.textContent = share ? share.toLocaleString('ja-JP') : '';
+        estCell.contentEditable = 'false';
+        estCell.classList.remove('unlinked-cell');
+        estCell.classList.add('linked-cell');
+        estCell.title = '業者支払管理表「' + name + '」の発注金額（税抜）合計と連動しています'
+          + (rows.length > 1 ? '（同業者の複数工種に均等割り）' : '');
+      });
+    });
+  }
+
+  // 未割当行に工種名を入力して確定したら、その業者を担当業者とする通常の工種行に変える
+  document.getElementById('unassigned-body').addEventListener('focusout', function(e) {
+    const row = e.target.closest('tr.unassigned-row');
+    if (!row || e.target !== row.cells[1]) return;
+    const name = e.target.textContent.trim();
+    if (!name) return;
+    saveSnapshot();
+    const newRow = createBudgetRowEl();
+    newRow.cells[1].textContent = name;
+    newRow.cells[7].textContent = row.cells[7].textContent;
+    document.getElementById('budget-body').appendChild(newRow);
+    reindex('budget-body');
+    recalcAll();
+  });
+  document.getElementById('unassigned-body').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); e.target.blur(); }
+  });
+
+  // 工種別予算管理表の「担当業者」セルを編集したら連動を再判定
+  document.getElementById('budget-body').addEventListener('focusout', function(e) {
+    const row = e.target.closest('tr:not(.cat-header)');
+    if (!row) return;
+    if (e.target === row.cells[7]) {
+      recalcAll();
+    }
+  });
+
+  // 業者名セルのフォーカスアウトでグループ化
+  document.getElementById('vendor-body').addEventListener('focusout', function(e) {
+    // vendor-group-header の業者名を直接編集した場合 → 配下データ行の業者名を更新してリグループ
+    const groupHeader = e.target.closest('.vendor-group-header');
+    if (groupHeader) {
+      const cell = groupHeader.querySelector('td[contenteditable]');
+      if (!cell) return;
+      const oldName = cell.dataset.vendor || '';
+      const newName = cell.textContent.trim().replace(/^▼\s*/, '').trim() || oldName;
+      if (newName !== oldName) {
+        saveSnapshot();
+        document.querySelectorAll('#vendor-body tr:not(.vendor-group-header):not(.vendor-cat-header)').forEach(row => {
+          if ((row.cells[1]?.textContent || '').trim() === oldName) {
+            row.cells[1].textContent = newName;
+          }
+        });
+      }
+      setTimeout(regroupVendors, 0);
+      return;
+    }
+    // 通常データ行：業者名・金額セルが変更された場合にリグループ（グループ集計を更新）
+    const row = e.target.closest('tr:not(.vendor-group-header):not(.vendor-subtotal-row)');
+    if (!row) return;
+    if (e.target === row.cells[1] ||
+        e.target.classList.contains('vendor-order-ex') ||
+        e.target.classList.contains('vendor-paid')) {
+      setTimeout(regroupVendors, 0);
+    }
+  });
+
+  function removeRow(btn) {
+    saveSnapshot();
+    const row = btn.closest('tr');
+    const tbody = row.closest('tbody');
+    row.remove();
+    if (tbody && tbody.id === 'vendor-body') {
+      regroupVendors();
+    } else {
+      if (tbody) reindex(tbody.id);
+      recalcAll();
+    }
+  }
+
+  // ===== 右クリックメニュー =====
+  let ctxTargetRow = null;
+  let ctxTargetTable = null;
+
+  document.addEventListener('contextmenu', function(e) {
+    const budgetRow  = e.target.closest('#budget-body tr');
+    const vendorRow  = e.target.closest('#vendor-body tr');
+    const billingRow = e.target.closest('#billing-body tr');
+    const row = budgetRow || vendorRow || billingRow;
+    if (!row) { document.getElementById('ctx-menu').style.display = 'none'; return; }
+    e.preventDefault();
+    ctxTargetRow   = row;
+    ctxTargetTable = budgetRow ? 'budget' : (vendorRow ? 'vendor' : 'billing');
+
+    // カテゴリ見出し項目：工種テーブルと業者テーブルで表示
+    const hasCatOption = ctxTargetTable === 'budget' || ctxTargetTable === 'vendor';
+    document.querySelectorAll('.ctx-budget-only').forEach(el => {
+      el.style.display = hasCatOption ? '' : 'none';
+    });
+
+    // 複数行選択時は一括削除を表示
+    const bulkEl = document.getElementById('ctx-bulk-delete');
+    if (selectedRows.size > 1) {
+      bulkEl.style.display = '';
+      bulkEl.textContent = `× 選択した ${selectedRows.size} 行をすべて削除`;
+    } else {
+      bulkEl.style.display = 'none';
+    }
+
+    const menu = document.getElementById('ctx-menu');
+    menu.style.display = 'block';
+    menu.style.left = e.clientX + 'px';
+    menu.style.top  = e.clientY + 'px';
+    requestAnimationFrame(() => {
+      const rect = menu.getBoundingClientRect();
+      if (rect.right  > window.innerWidth)  menu.style.left = (e.clientX - rect.width)  + 'px';
+      if (rect.bottom > window.innerHeight) menu.style.top  = (e.clientY - rect.height) + 'px';
+    });
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#ctx-menu')) {
+      document.getElementById('ctx-menu').style.display = 'none';
+    }
+  });
+
+  function updateStatusStyle(sel) {
+    sel.className = 'status-select ' + sel.value;
+  }
+
+  function createBudgetRowEl() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="center">${no}</td>
+      <td class="center row-select-cell"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true" class="num estimate-cell" oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num budget-cell"   oninput="recalcAll()"></td>
       <td contenteditable="true" class="num order-cell"    oninput="recalcAll()"></td>
-      <td contenteditable="true" class="num actual-cell"   oninput="recalcAll()"></td>
-      <td class="num var-cell"></td>
-      <td class="center"><span class="status-badge badge-none">未発注</span></td>
+      <td class="num profit-cell"></td>
+      <td class="num rate-cell"></td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未発注</option><option value="badge-quote">見積済</option><option value="badge-ordered">発注済</option><option value="badge-done">完了</option><option value="badge-issue">問題あり</option></select></td>
       <td contenteditable="true"></td>
       <td contenteditable="true"></td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>`;
-    tbody.appendChild(tr);
+    return tr;
   }
 
-  function addVendorRow() {
-    const tbody = document.getElementById('vendor-body');
-    const no    = tbody.querySelectorAll('tr').length + 1;
+  function createCatHeaderEl() {
+    const tr = document.createElement('tr');
+    tr.className = 'cat-header';
+    tr.innerHTML = `<td colspan="10" contenteditable="true">【 新規カテゴリ 】</td>`;
+    return tr;
+  }
+
+  function createVendorCatHeaderEl() {
+    const tr = document.createElement('tr');
+    tr.className = 'vendor-cat-header';
+    tr.innerHTML = `<td colspan="12" contenteditable="true">【 新規カテゴリ 】</td>`;
+    return tr;
+  }
+
+  function createVendorRowEl() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="center">${no}</td>
+      <td class="center row-select-cell"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true" class="num vendor-order-ex" oninput="recalcVendor()"></td>
       <td class="num vendor-order-in"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true"></td>
-      <td contenteditable="true" class="num vendor-paid"     oninput="recalcVendor()"></td>
+      <td contenteditable="true" class="num vendor-paid" oninput="recalcVendor()"></td>
       <td class="num vendor-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未払</span></td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未払</option><option value="badge-quote">一部払</option><option value="badge-ordered">支払済</option><option value="badge-issue">問題あり</option></select></td>
       <td contenteditable="true"></td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>`;
-    tbody.appendChild(tr);
+    return tr;
   }
 
-  function addBillingRow() {
-    const tbody = document.getElementById('billing-body');
-    const no    = tbody.querySelectorAll('tr').length + 1;
+  function createBillingRowEl() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="center">${no}</td>
+      <td class="center row-select-cell"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true"></td>
-      <td contenteditable="true" class="num billing-invoice"  oninput="recalcBilling()"></td>
+      <td contenteditable="true" class="num billing-invoice" oninput="recalcBilling()"></td>
       <td contenteditable="true"></td>
       <td contenteditable="true" class="num billing-received" oninput="recalcBilling()"></td>
       <td class="num billing-remain"></td>
-      <td class="center"><span class="status-badge badge-none">未入金</span></td>
+      <td class="center"><select class="status-select badge-none" onchange="updateStatusStyle(this)"><option value="badge-none" selected>未入金</option><option value="badge-quote">一部入金</option><option value="badge-ordered">入金済</option></select></td>
       <td contenteditable="true"></td>
       <td class="center no-print"><button onclick="removeRow(this)" style="border:none;background:#dc2626;color:#fff;border-radius:3px;cursor:pointer;font-size:8.5pt;padding:2px 7px;">×</button></td>`;
-    tbody.appendChild(tr);
+    return tr;
   }
 
+  function insertRowCtx(position) {
+    if (!ctxTargetRow) return;
+    saveSnapshot();
+    const tbodyId = ctxTargetTable === 'budget' ? 'budget-body'
+                  : ctxTargetTable === 'vendor'  ? 'vendor-body' : 'billing-body';
+    const tbody = document.getElementById(tbodyId);
+    const newRow = ctxTargetTable === 'budget'  ? createBudgetRowEl()
+                 : ctxTargetTable === 'vendor'  ? createVendorRowEl() : createBillingRowEl();
+
+    // 業者テーブル：挿入先グループの業者名を新行に引き継ぐ
+    let vendorNameInherited = '';
+    if (ctxTargetTable === 'vendor') {
+      if (ctxTargetRow.classList.contains('vendor-group-header') && position === 'below') {
+        // グループヘッダーの「↓ 下に追加」→ そのグループの業者名を継承
+        vendorNameInherited = ctxTargetRow.querySelector('[data-vendor]')?.dataset.vendor || '';
+      } else if (!ctxTargetRow.classList.contains('vendor-group-header') &&
+                 !ctxTargetRow.classList.contains('vendor-cat-header')) {
+        // 通常データ行の上下に追加 → 同じグループに留まるよう業者名を継承
+        vendorNameInherited = (ctxTargetRow.cells[1]?.textContent || '').trim();
+      }
+      if (vendorNameInherited) newRow.cells[1].textContent = vendorNameInherited;
+    }
+
+    if (position === 'above') tbody.insertBefore(newRow, ctxTargetRow);
+    else ctxTargetRow.insertAdjacentElement('afterend', newRow);
+
+    if (ctxTargetTable === 'vendor') {
+      regroupVendors();
+      // 業者名を引き継いだ場合は工種セルへ、そうでなければ業者名セルへフォーカス
+      (vendorNameInherited ? newRow.cells[2] : newRow.cells[1])?.focus();
+    } else {
+      reindex(tbodyId);
+      recalcAll();
+      newRow.querySelector('[contenteditable]').focus();
+    }
+    document.getElementById('ctx-menu').style.display = 'none';
+  }
+
+  function insertCatHeaderCtx(position) {
+    if (!ctxTargetRow) return;
+    saveSnapshot();
+    const tbody = ctxTargetRow.closest('tbody');
+    const newHeader = ctxTargetTable === 'vendor'
+      ? createVendorCatHeaderEl()
+      : createCatHeaderEl();
+    if (position === 'above') {
+      tbody.insertBefore(newHeader, ctxTargetRow);
+    } else {
+      ctxTargetRow.insertAdjacentElement('afterend', newHeader);
+    }
+    if (ctxTargetTable === 'vendor') regroupVendors();
+    document.getElementById('ctx-menu').style.display = 'none';
+    newHeader.querySelector('td').focus();
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(newHeader.querySelector('td'));
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function removeRowCtx() {
+    if (!ctxTargetRow) return;
+    saveSnapshot();
+    const tbody = ctxTargetRow.closest('tbody');
+    ctxTargetRow.remove();
+    ctxTargetRow = null;
+    if (tbody && tbody.id === 'vendor-body') {
+      regroupVendors();
+    } else {
+      if (tbody) reindex(tbody.id);
+      recalcAll();
+    }
+    document.getElementById('ctx-menu').style.display = 'none';
+  }
+
+  function addBudgetRow() {
+    saveSnapshot();
+    const tbody = document.getElementById('budget-body');
+    const newRow = createBudgetRowEl();
+    tbody.appendChild(newRow);
+    reindex('budget-body');
+    recalcAll();
+    newRow.querySelector('[contenteditable]').focus();
+  }
+
+  function addVendorRow() {
+    saveSnapshot();
+    const tbody = document.getElementById('vendor-body');
+    const newRow = createVendorRowEl();
+    tbody.appendChild(newRow);
+    regroupVendors();
+    newRow.querySelector('[contenteditable]').focus();
+  }
+
+  function addVendorCatHeader() {
+    saveSnapshot();
+    const tbody = document.getElementById('vendor-body');
+    const newHeader = createVendorCatHeaderEl();
+    tbody.appendChild(newHeader);
+    regroupVendors();
+    const td = newHeader.querySelector('td');
+    td.focus();
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(td);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function addBillingRow() {
+    saveSnapshot();
+    const tbody = document.getElementById('billing-body');
+    const newRow = createBillingRowEl();
+    tbody.appendChild(newRow);
+    reindex('billing-body');
+    recalcAll();
+    newRow.querySelector('[contenteditable]').focus();
+  }
+
+  // ===== localStorage 自動保存 =====
+  // 保存先はファイル（パス）ごとに分ける。案件ごとにコピーして使っても自動保存が混ざらない
+  const LS_KEY = 'yosan_mgmt_v1:' + location.pathname;
+
+  function collectSaveData() {
+    const vendorRows = Array.from(
+      document.getElementById('vendor-body').querySelectorAll('tr:not(.vendor-group-header)')
+    );
+    const projCells = [];
+    document.querySelectorAll('.project-info td[contenteditable]').forEach(el => projCells.push(el.innerHTML));
+    const companyParts = [];
+    document.querySelectorAll('.company-block [contenteditable]').forEach(el => companyParts.push(el.innerHTML));
+    return {
+      budget:       document.getElementById('budget-body').innerHTML,
+      vendor:       vendorRows.map(r => r.outerHTML).join(''),
+      billing:      document.getElementById('billing-body').innerHTML,
+      contract:     document.getElementById('input-contract').value,
+      notes:        document.querySelector('.notes-box').innerHTML,
+      projCells, companyParts,
+      savedAt:      new Date().toLocaleString('ja-JP'),
+    };
+  }
+
+  function saveToLocalStorage() {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(collectSaveData()));
+      const el = document.getElementById('save-status');
+      if (el) {
+        const now = new Date();
+        el.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' 自動保存済';
+        el.style.color = '#16a34a';
+      }
+    } catch(e) {
+      const el = document.getElementById('save-status');
+      if (el) { el.textContent = '保存エラー（容量不足の可能性）'; el.style.color = '#dc2626'; }
+    }
+  }
+
+  function loadFromLocalStorage() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (data.budget)             document.getElementById('budget-body').innerHTML  = data.budget;
+      if (data.vendor)             document.getElementById('vendor-body').innerHTML  = data.vendor;
+      if (data.billing)            document.getElementById('billing-body').innerHTML = data.billing;
+      if (data.contract !== undefined) document.getElementById('input-contract').value = data.contract;
+      if (data.notes)              document.querySelector('.notes-box').innerHTML    = data.notes;
+      if (data.projCells) {
+        const cells = document.querySelectorAll('.project-info td[contenteditable]');
+        data.projCells.forEach((html, i) => { if (cells[i]) cells[i].innerHTML = html; });
+      }
+      if (data.companyParts) {
+        const parts = document.querySelectorAll('.company-block [contenteditable]');
+        data.companyParts.forEach((html, i) => { if (parts[i]) parts[i].innerHTML = html; });
+      }
+      const el = document.getElementById('save-status');
+      if (el && data.savedAt) { el.textContent = data.savedAt + ' のデータを復元'; el.style.color = '#2563eb'; }
+      return true;
+    } catch(e) { return false; }
+  }
+
+  // サンプル入りの初期表示を、案件名なし・空行の最小構成に置き換える
+  function resetToBlank() {
+    const fill = (id, nodes) => {
+      const body = document.getElementById(id);
+      body.innerHTML = '';
+      nodes.forEach(n => body.appendChild(n));
+    };
+    const rep = (n, fn) => Array.from({ length: n }, fn);
+    const cat = createCatHeaderEl();
+    cat.firstElementChild.textContent = '【 工事 】';
+    fill('budget-body', [cat, ...rep(3, createBudgetRowEl)]);
+    fill('vendor-body', rep(3, createVendorRowEl));
+    fill('billing-body', ['着手金', '中間金', '完成金'].map(label => {
+      const tr = createBillingRowEl();
+      tr.cells[2].textContent = label;
+      return tr;
+    }));
+    document.querySelectorAll('.project-info td[contenteditable]').forEach(el => { el.innerHTML = ''; });
+    document.getElementById('input-contract').value = '';
+    document.querySelector('.notes-box').innerHTML = '';
+  }
+
+  function clearLocalStorage() {
+    if (!confirm('保存データをすべてクリアして\n新規作成しますか？\n\nこの操作は元に戻せません。')) return;
+    localStorage.removeItem(LS_KEY);
+    location.reload();
+  }
+
+  // ===== JSONエクスポート / インポート =====
+  function exportJSON() {
+    const data = collectSaveData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const ymd  = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const proj = (document.getElementById('proj-name').textContent || '')
+      .replace(/[\\/:*?"<>|\s]+/g, '').slice(0, 30);
+    a.href     = url;
+    a.download = '予算管理_' + (proj ? proj + '_' : '') + ymd + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importJSON() {
+    document.getElementById('json-file-input').click();
+  }
+
+  function applyData(data) {
+    if (data.budget)             document.getElementById('budget-body').innerHTML  = data.budget;
+    if (data.vendor)             document.getElementById('vendor-body').innerHTML  = data.vendor;
+    if (data.billing)            document.getElementById('billing-body').innerHTML = data.billing;
+    if (data.contract !== undefined) document.getElementById('input-contract').value = data.contract;
+    if (data.notes)              document.querySelector('.notes-box').innerHTML    = data.notes;
+    if (data.projCells) {
+      const cells = document.querySelectorAll('.project-info td[contenteditable]');
+      data.projCells.forEach((html, i) => { if (cells[i]) cells[i].innerHTML = html; });
+    }
+    if (data.companyParts) {
+      const parts = document.querySelectorAll('.company-block [contenteditable]');
+      data.companyParts.forEach((html, i) => { if (parts[i]) parts[i].innerHTML = html; });
+    }
+    regroupVendors();
+  }
+
+  document.getElementById('json-file-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        const data = JSON.parse(ev.target.result);
+        applyData(data);
+        saveToLocalStorage();
+        const el = document.getElementById('save-status');
+        if (el) { el.textContent = file.name + ' を読み込みました'; el.style.color = '#2563eb'; }
+      } catch(err) {
+        alert('JSONファイルの読み込みに失敗しました。\n正しいファイルか確認してください。');
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file, 'UTF-8');
+  });
+
+  let _autoSaveTimer = null;
+  function scheduleSave() {
+    clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(saveToLocalStorage, 600);
+  }
+  document.addEventListener('input',    scheduleSave);
+  document.addEventListener('change',   scheduleSave);
+  document.addEventListener('focusout', scheduleSave);
+
+  // ===== 入力補助 =====
+  const TABLE_BODIES = '#budget-body, #vendor-body, #billing-body';
+
+  // 金額セル: 全角数字・¥・カンマを受け付け、"=100000*1.1" のような簡易計算式も使える
+  function normalizeAmount(text) {
+    const t = text.normalize('NFKC').replace(/[¥￥,\s]/g, '');
+    if (!t) return null;
+    const expr = t.startsWith('=') ? t.slice(1) : t;
+    if (!/^[0-9+\-*/().]+$/.test(expr)) return null;
+    if (!t.startsWith('=') && !/^-?\d+(\.\d+)?$/.test(expr)) return null;
+    try {
+      const v = Function('"use strict"; return (' + expr + ')')();
+      return Number.isFinite(v) ? Math.round(v) : null;
+    } catch (e) { return null; }
+  }
+
+  document.addEventListener('focusout', function(e) {
+    const cell = e.target;
+    if (!(cell instanceof HTMLTableCellElement) || !cell.matches('td.num[contenteditable="true"]')) return;
+    if (!cell.closest(TABLE_BODIES)) return;
+    const v = normalizeAmount(cell.textContent);
+    if (v === null) return; // 空欄や数値以外の文字はそのまま残す
+    const formatted = v.toLocaleString('ja-JP');
+    if (cell.textContent !== formatted) {
+      cell.textContent = formatted;
+      recalcAll();
+    }
+  });
+
+  function selectCellContents(cell) {
+    cell.focus();
+    const range = document.createRange();
+    range.selectNodeContents(cell);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  // Tab等でセルに入ったら中身を全選択（そのまま打てば上書き）
+  document.addEventListener('focusin', function(e) {
+    const cell = e.target;
+    if (cell instanceof HTMLTableCellElement && cell.matches('td.num[contenteditable="true"]') && cell.closest(TABLE_BODIES)) {
+      selectCellContents(cell);
+    }
+  });
+
+  // Enterで改行せず、同じ列の下のセルへ移動（Shift+Enterは通常の改行）
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+    const cell = e.target;
+    if (!(cell instanceof HTMLTableCellElement) || cell.contentEditable !== 'true' || !cell.closest(TABLE_BODIES)) return;
+    e.preventDefault();
+    const idx = cell.cellIndex;
+    let row = cell.parentElement.nextElementSibling;
+    while (row) {
+      const next = row.cells[idx];
+      if (next && next.contentEditable === 'true' && !row.matches('.cat-header, .vendor-cat-header, .vendor-group-header, .subtotal-row, .vendor-subtotal-row')) {
+        selectCellContents(next);
+        return;
+      }
+      row = row.nextElementSibling;
+    }
+    cell.blur();
+  });
+
   // 初期化
-  const today = new Date();
-  const ymd = today.getFullYear() + '年' + (today.getMonth()+1) + '月' + today.getDate() + '日';
-  document.getElementById('proj-date').textContent   = ymd;
-  document.getElementById('proj-update').textContent = ymd;
-  recalcAll();
+  const _restored = loadFromLocalStorage();
+
+  // 保存データがなければサンプルを消して空のひな形にし、今日の日付をセット
+  // 記入済みファイルは <body data-prefilled="1"> を付けると、初回表示で中身を消さない
+  if (!_restored && !document.body.dataset.prefilled) {
+    resetToBlank();
+    const today = new Date();
+    const ymd = today.getFullYear() + '年' + (today.getMonth()+1) + '月' + today.getDate() + '日';
+    document.getElementById('proj-date').textContent   = ymd;
+    document.getElementById('proj-update').textContent = ymd;
+  }
+
+  // 既存行のNo.セルに選択クラスを付与
+  document.querySelectorAll(
+    '#budget-body tr:not(.cat-header) td:first-child,' +
+    '#vendor-body tr td:first-child,' +
+    '#billing-body tr td:first-child'
+  ).forEach(cell => cell.classList.add('row-select-cell'));
+
+  regroupVendors(); // 初期グループ化（内部でrecalcAll()を呼ぶ）
 </script>
 </body>
 </html>

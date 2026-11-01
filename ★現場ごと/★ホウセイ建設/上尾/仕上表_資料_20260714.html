@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>内装仕上表資料（編集可）</title>
+<style>
+  @page { size: A4; margin: 15mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Yu Gothic", "Meiryo", sans-serif;
+    color: #222;
+    margin: 0;
+    background: #f4f4f2;
+  }
+  .sheet {
+    max-width: 1000px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 30px 40px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 3px solid #2b4a6f;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  header h1 {
+    font-size: 26px;
+    letter-spacing: 4px;
+    margin: 0;
+    color: #2b4a6f;
+  }
+  .company {
+    text-align: right;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #444;
+  }
+  .meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+  .meta-table td {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+  }
+  .meta-table td.label {
+    background: #eef2f7;
+    width: 120px;
+    font-weight: bold;
+    color: #2b4a6f;
+  }
+  h2.section-title {
+    font-size: 16px;
+    color: #fff;
+    background: #2b4a6f;
+    padding: 6px 14px;
+    margin: 12px 0 8px;
+    border-radius: 3px;
+  }
+  .floorplan-box {
+    text-align: center;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .floorplan-box img {
+    max-width: 92%;
+    max-height: 560px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  .floorplan-box .replace-hint {
+    font-size: 11px;
+    color: #888;
+  }
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+  .legend {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 12px;
+    margin: 8px 0 4px;
+  }
+  .legend span.swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+    vertical-align: middle;
+    border: 1px solid #999;
+  }
+  .legend span.swatch.dashed {
+    border: 2px dashed #0070c0;
+    background: none;
+  }
+  table.finish-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+  table.finish-table th {
+    background: #2b4a6f;
+    color: #fff;
+    padding: 5px 6px;
+    font-size: 11px;
+  }
+  table.finish-table td {
+    border: 1px solid #ccc;
+    padding: 5px 8px;
+    vertical-align: middle;
+    text-align: center;
+  }
+  table.finish-table td.name-cell {
+    text-align: left;
+  }
+  table.finish-table td.note-cell {
+    text-align: left;
+    font-size: 10.5px;
+    color: #555;
+    line-height: 1.4;
+  }
+  [contenteditable="true"] {
+    outline: none;
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+  [contenteditable="true"]:hover {
+    background: #fbf6df;
+  }
+  [contenteditable="true"]:focus {
+    background: #fff6cc;
+    box-shadow: 0 0 0 1px #e0c34a inset;
+  }
+  .photo-cell img {
+    width: 82px;
+    height: 82px;
+    object-fit: cover;
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .photo-placeholder {
+    width: 82px;
+    height: 82px;
+    margin: 0 auto;
+    border: 2px dashed #bbb;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 9px;
+    color: #999;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .photo-placeholder:hover {
+    border-color: #2b4a6f;
+    color: #2b4a6f;
+    background: #f6f8fb;
+  }
+  .color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+    border: 1px solid #999;
+  }
+  .paint-swatch {
+    width: 82px;
+    height: 82px;
+    background: #ffffff;
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #999;
+  }
+  .pending-flag {
+    display: inline-block;
+    background: #fdecea;
+    color: #c0392b;
+    font-size: 10.5px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-left: 4px;
+  }
+  .row-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .row-controls button, .toolbar button {
+    font-size: 12px;
+    padding: 4px 10px;
+    border: 1px solid #2b4a6f;
+    background: #fff;
+    color: #2b4a6f;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .row-controls button:hover, .toolbar button:hover {
+    background: #2b4a6f;
+    color: #fff;
+  }
+  .del-row-btn {
+    font-size: 11px;
+    padding: 2px 6px;
+    border: 1px solid #c0392b;
+    color: #c0392b;
+    background: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .del-row-btn:hover { background: #c0392b; color: #fff; }
+  td.ctrl-cell { border: none; text-align: center; padding: 4px; }
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    background: #f4f4f2;
+    padding: 10px 0;
+  }
+  .save-indicator {
+    font-size: 11px;
+    color: #2ea52e;
+    align-self: center;
+    min-width: 90px;
+  }
+  footer {
+    margin-top: 8px;
+    font-size: 10.5px;
+    color: #888;
+    border-top: 1px solid #ddd;
+    padding-top: 5px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .no-print { }
+  @media print {
+    body { background: #fff; }
+    .sheet { box-shadow: none; margin: 0; max-width: 100%; padding: 0; }
+    .no-print { display: none !important; }
+    [contenteditable="true"]:hover, [contenteditable="true"]:focus {
+      background: none; box-shadow: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar no-print">
+  <button onclick="window.print()">🖨️ 印刷 / PDF保存</button>
+  <button onclick="resetAll()">↺ 編集前の状態に戻す</button>
+  <span class="save-indicator" id="saveIndicator"></span>
+</div>
+
+<div class="sheet" id="sheet">
+
+  <header>
+    <h1>内 装 仕 上 表</h1>
+    <div class="company">
+      株式会社AXIS<br>
+      埼玉県草加市小山2-29-10（〒340-0045）<br>
+      TEL: 090-9825-2087
+    </div>
+  </header>
+
+  <table class="meta-table">
+    <tr>
+      <td class="label">工事名称</td>
+      <td contenteditable="true">尾山台団地第4地区第1号棟107号室　商店改装工事（店舗名：ポフタブナ）厨房区画</td>
+      <td class="label">作成日</td>
+      <td contenteditable="true">2026年7月14日</td>
+    </tr>
+  </table>
+
+  <h2 class="section-title">1. 仕上材配置図（色分け平面図）</h2>
+  <div class="floorplan-box">
+    <img id="floorplanImg" src="images/floorplan_20260714_r3.png" alt="内装仕上げ色分け平面図（2026/7/14版・更新）" onclick="triggerUpload('floorplanImg')">
+    <div class="replace-hint no-print">画像をクリックすると差し替えできます</div>
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#e2231a;"></span>TH32225（ホール・客席の壁）</span>
+    <span><span class="swatch" style="background:#2ea52e;"></span>TH32734（物入・カウンター周りの壁）</span>
+    <span><span class="swatch" style="background:#d477c9;"></span>TH32028（トイレの壁）</span>
+    <span><span class="swatch" style="background:#d477c9;"></span>天井（全体）：TH32028</span>
+    <span><span class="swatch dashed"></span>床（全体）：IS-2130</span>
+    <span><span class="swatch dashed" style="border-color:#e07a1e;"></span>厨房仕上（壁）：FAS1843ZMN</span>
+    <span>厨房天井：TH32028指定だが白塗装で仕上げ</span>
+  </div>
+
+  <h2 class="section-title page-break">2. 壁・天井・床仕上材一覧（商品写真）</h2>
+  <table class="finish-table" id="finishTable">
+    <colgroup>
+      <col style="width:13%">
+      <col style="width:18%">
+      <col style="width:20%">
+      <col style="width:15%">
+      <col style="width:26%">
+      <col style="width:8%">
+    </colgroup>
+    <tr>
+      <th>使用箇所</th>
+      <th>仕上材</th>
+      <th>品番／メーカー</th>
+      <th>商品写真</th>
+      <th>備考</th>
+      <th class="no-print"></th>
+    </tr>
+    <tbody id="finishBody">
+    <tr>
+      <td class="name-cell" contenteditable="true"><span class="color-dot" style="background:#e2231a;"></span>ホール・客席（壁）</td>
+      <td class="name-cell" contenteditable="true">クロス（黒板機能付き・レンガ色）</td>
+      <td contenteditable="true">TH32225<br><span style="color:#777;font-size:11px;">サンゲツ　FAITH（フェイス）</span></td>
+      <td class="photo-cell"><img src="images/TH32225.jpg" alt="TH32225" onclick="triggerUpload(this)"></td>
+      <td class="note-cell" contenteditable="true">2026/7/14版で従来のLL-6113から変更。テクスチャー&カラー［黒板］シリーズのレンガ色。チョークで書いて消せる黒板機能付き、準不燃認定。※旧品番のため現行品番TH34317（同色柄）のカタログ画像を掲載。</td>
+      <td class="ctrl-cell no-print"><button class="del-row-btn" onclick="delRow(this)">削除</button></td>
+    </tr>
+    <tr>
+      <td class="name-cell" contenteditable="true"><span class="color-dot" style="background:#2ea52e;"></span>物入・厨房カウンター周り（壁）</td>
+      <td class="name-cell" contenteditable="true">クロス（レンガ調）</td>
+      <td contenteditable="true">TH32734<br><span style="color:#777;font-size:11px;">サンゲツ　FAITH（フェイス）</span></td>
+      <td class="photo-cell"><img src="images/TH32734.jpg" alt="TH32734" onclick="triggerUpload(this)"></td>
+      <td class="note-cell" contenteditable="true">目地幅広め・角に丸みを持たせたベーシックな赤レンガ調。防カビ・表面強化仕様。</td>
+      <td class="ctrl-cell no-print"><button class="del-row-btn" onclick="delRow(this)">削除</button></td>
+    </tr>
+    <tr>
+      <td class="name-cell" contenteditable="true"><span class="color-dot" style="background:#d477c9;"></span>トイレ（壁）</td>
+      <td class="name-cell" contenteditable="true">クロス（自然の景観柄）</td>
+      <td contenteditable="true">TH32028<br><span style="color:#777;font-size:11px;">サンゲツ　FAITH（フェイス）</span></td>
+      <td class="photo-cell"><img src="images/TH32028.jpg" alt="TH32028" onclick="triggerUpload(this)"></td>
+      <td class="note-cell" contenteditable="true">海岸線をイメージした砂目・波柄。不燃・防カビ・抗菌仕様。</td>
+      <td class="ctrl-cell no-print"><button class="del-row-btn" onclick="delRow(this)">削除</button></td>
+    </tr>
+    <tr>
+      <td class="name-cell" contenteditable="true"><span class="color-dot" style="background:#d477c9;"></span>天井（厨房を除く全体）</td>
+      <td class="name-cell" contenteditable="true">クロス（トイレと同柄）</td>
+      <td contenteditable="true">TH32028<br><span style="color:#777;font-size:11px;">サンゲツ　FAITH（フェイス）</span></td>
+      <td class="photo-cell"><img src="images/TH32028.jpg" alt="TH32028" onclick="triggerUpload(this)"></td>
+      <td class="note-cell" contenteditable="true">2026/7/14版で新規追加。壁のトイレ仕上材と同一品番を天井にも使用。</td>
+      <td class="ctrl-cell no-print"><button class="del-row-btn" onclick="delRow(this)">削除</button></td>
+    </tr>
+    <tr>
+      <td class="name-cell" contenteditable="true">厨房（天井）</td>
+      <td class="name-cell" contenteditable="true">白塗装仕上げ</td>
+      <td contenteditable="true">―</td>
+      <td class="photo-cell"><div class="paint-swatch">白塗装</div></td>
+      <td class="note-cell" contenteditable="true">平面図上はTH32028指定エリア内だが、厨房天井のみ白塗装で仕上げる。</td>
+      <td class="ctrl-cell no-print"><button class="del-row-btn" onclick="delRow(this)">削除</button></td>
+    </tr>
+    <tr>
+      <td class="name-cell" contenteditable="true"><span class="color-dot" style="background:#e07a1e;"></span>厨房仕上（壁）</td>
+      <td class="name-cell" contenteditable="true">キッチンパネル（メラミン不燃化粧板・鏡面仕上げ）</td>
+      <td contenteditable="true">FAS1843ZMN<br><span style="color:#777;font-size:11px;">アイカ工業　セラール（CERAL）</span></td>
+      <td class="photo-cell"><img src="images/FAS1843ZMN.jpg" alt="FAS1843ZMN" onclick="triggerUpload(this)"></td>
+      <td class="note-cell" contenteditable="true">2026/7/14版で新規追加。935×2,455mm×厚さ3.0mm（3×8サイズ）。厨房機器まわりの壁（コールドテーブル・ガスレンジ・食器棚等の背面）に使用。</td>
+      <td class="ctrl-cell no-print"><button class="del-row-btn" onclick="delRow(this)">削除</button></td>
+    </tr>
+    <tr>
+      <td class="name-cell" contenteditable="true">床（全体）</td>
+      <td class="name-cell" contenteditable="true">フロアタイル（ストーン＆アクセント）</td>
+      <td contenteditable="true">IS-2130<br><span style="color:#777;font-size:11px;">サンゲツ　サルサリマーブル</span></td>
+      <td class="photo-cell"><img src="images/IS-2130.jpg" alt="IS-2130" onclick="triggerUpload(this)"></td>
+      <td class="note-cell" contenteditable="true">2026/7/14版で新規追加。繊細な斑模様の多配色マーブル柄。457.2mm角×2.5mm厚。</td>
+      <td class="ctrl-cell no-print"><button class="del-row-btn" onclick="delRow(this)">削除</button></td>
+    </tr>
+    </tbody>
+  </table>
+  <div class="row-controls no-print">
+    <button onclick="addRow()">＋ 行を追加</button>
+  </div>
+
+  <footer>
+    <span>出典：メーカー公式サイト／商品カタログ画像（サンゲツ株式会社）</span>
+    <span>作成：株式会社AXIS</span>
+  </footer>
+
+</div>
+
+<input type="file" id="fileInput" accept="image/*" style="display:none">
+
+<script>
+  const STORAGE_KEY = 'ageo_finish_table_20260714';
+  const CONTENT_VERSION = '2026-07-14-r3';
+  let uploadTarget = null;
+
+  function triggerUpload(target) {
+    uploadTarget = (typeof target === 'string') ? document.getElementById(target) : target;
+    document.getElementById('fileInput').click();
+  }
+
+  document.getElementById('fileInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file || !uploadTarget) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      if (uploadTarget.tagName === 'IMG') {
+        uploadTarget.src = ev.target.result;
+      } else {
+        const img = document.createElement('img');
+        img.src = ev.target.result;
+        img.onclick = function() { triggerUpload(img); };
+        uploadTarget.replaceWith(img);
+      }
+      scheduleSave();
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  function delRow(btn) {
+    const row = btn.closest('tr');
+    row.parentNode.removeChild(row);
+    scheduleSave();
+  }
+
+  function addRow() {
+    const tbody = document.getElementById('finishBody');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="name-cell" contenteditable="true">使用箇所</td>
+      <td class="name-cell" contenteditable="true">仕上材</td>
+      <td contenteditable="true">品番／メーカー</td>
+      <td class="photo-cell"><div class="photo-placeholder" onclick="triggerUpload(this)">📷<br>写真未登録<br>クリックして追加</div></td>
+      <td class="note-cell" contenteditable="true">備考</td>
+      <td class="ctrl-cell no-print"><button class="del-row-btn" onclick="delRow(this)">削除</button></td>
+    `;
+    tbody.appendChild(tr);
+    scheduleSave();
+  }
+
+  let saveTimer = null;
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveAll, 400);
+  }
+
+  function saveAll() {
+    const data = {
+      version: CONTENT_VERSION,
+      finishBody: document.getElementById('finishBody').innerHTML,
+      floorplanSrc: document.getElementById('floorplanImg').src,
+      meta: document.querySelector('.meta-table').innerHTML
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const ind = document.getElementById('saveIndicator');
+    ind.textContent = '保存済み ' + new Date().toLocaleTimeString('ja-JP');
+  }
+
+  function loadAll() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      if (data.version !== CONTENT_VERSION) {
+        // 資料本体が更新されているため、古い編集内容は復元せず破棄する
+        localStorage.removeItem(STORAGE_KEY);
+        return;
+      }
+      if (data.finishBody) document.getElementById('finishBody').innerHTML = data.finishBody;
+      if (data.floorplanSrc) document.getElementById('floorplanImg').src = data.floorplanSrc;
+      if (data.meta) document.querySelector('.meta-table').innerHTML = data.meta;
+    } catch (e) { console.warn('復元に失敗しました', e); }
+  }
+
+  function resetAll() {
+    if (confirm('保存済みの編集内容を破棄して、元の内容に戻します。よろしいですか？')) {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+  }
+
+  document.getElementById('sheet').addEventListener('input', scheduleSave);
+  loadAll();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>現場案内図_大宮店舗</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Noto Sans JP", "Yu Gothic", "游ゴシック", "Meiryo", "メイリオ", sans-serif;
+    font-size: 11pt;
+    color: #222;
+    background: #fff;
+    padding: 20mm 18mm;
+    max-width: 210mm;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 18pt;
+    text-align: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 8px;
+    margin-bottom: 18px;
+    letter-spacing: 0.2em;
+  }
+
+  .meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 18px;
+    font-size: 10.5pt;
+  }
+  .meta-table td {
+    padding: 6px 10px;
+    border: 1px solid #bbb;
+  }
+  .meta-table td:first-child {
+    background: #f0f0f0;
+    font-weight: bold;
+    width: 24%;
+    white-space: nowrap;
+  }
+
+  .address-box {
+    background: #eef3f7;
+    border: 1px solid #2c5f8a;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 12.5pt;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 0.03em;
+  }
+  .address-box .zip {
+    font-size: 10.5pt;
+    font-weight: normal;
+    color: #444;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .map-wrap {
+    position: relative;
+    border: 1px solid #999;
+    margin-bottom: 10px;
+  }
+  .map-wrap iframe {
+    width: 100%;
+    height: 380px;
+    display: block;
+    border: 0;
+  }
+  .compass {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #fff;
+    border: 1px solid #333;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 12pt;
+    color: #c0392b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .caption {
+    font-size: 9pt;
+    color: #666;
+    margin-bottom: 20px;
+    text-align: right;
+  }
+
+  h2 {
+    font-size: 12pt;
+    background: #2c5f8a;
+    color: #fff;
+    padding: 5px 10px;
+    margin: 20px 0 10px;
+    border-radius: 2px;
+  }
+
+  ul {
+    margin: 6px 0 6px 20px;
+    line-height: 1.9;
+  }
+
+  .note {
+    margin-top: 24px;
+    padding: 8px 10px;
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    font-size: 9pt;
+    color: #666;
+    border-radius: 2px;
+  }
+
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #eef3f7;
+    border: 1px solid #bcd;
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin: -20px -18mm 16px;
+    padding-left: 18mm;
+    padding-right: 18mm;
+    font-size: 9.5pt;
+  }
+  .toolbar button {
+    font-family: inherit;
+    font-size: 10pt;
+    padding: 6px 14px;
+    border: 1px solid #2c5f8a;
+    border-radius: 4px;
+    background: #2c5f8a;
+    color: #fff;
+    cursor: pointer;
+  }
+  .toolbar button.secondary {
+    background: #fff;
+    color: #2c5f8a;
+  }
+  .toolbar button:hover {
+    opacity: 0.85;
+  }
+  .toolbar #saveStatus {
+    color: #555;
+    margin-left: 4px;
+  }
+  .toolbar .hint {
+    margin-left: auto;
+    color: #789;
+    font-size: 8.5pt;
+  }
+
+  [contenteditable="true"]:hover {
+    outline: 1px dashed #2c5f8a;
+    outline-offset: 2px;
+  }
+  [contenteditable="true"]:focus {
+    outline: 2px solid #2c5f8a;
+    outline-offset: 2px;
+    background: #fffdf0;
+  }
+
+  @media print {
+    body { padding: 0; }
+    @page { size: A4; margin: 15mm 18mm; }
+    [contenteditable="true"]:hover,
+    [contenteditable="true"]:focus {
+      outline: none;
+      background: transparent;
+    }
+    .toolbar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="toolbar" contenteditable="false">
+    <button onclick="overwriteSave()">💾 上書き保存</button>
+    <button class="secondary" onclick="saveAsFile()">📁 名前を付けて保存</button>
+    <span id="saveStatus"></span>
+    <span class="hint">※ Chrome / Edge推奨。初回は保存先を選択してください</span>
+  </div>
+
+  <div id="docContent" contenteditable="true">
+
+  <h1>現　場　案　内　図</h1>
+
+  <table class="meta-table">
+    <tbody>
+      <tr><td>工事名称</td><td>柴田第2店舗（BAR）新装工事</td></tr>
+      <tr><td>提出先</td><td>さいたま市 大宮消防署　予防課 管理指導係</td></tr>
+      <tr><td>施行者</td><td>株式会社AXIS（代表取締役 菊池 匠）</td></tr>
+      <tr><td>作成日</td><td>2026年8月11日</td></tr>
+    </tbody>
+  </table>
+
+  <div class="address-box">
+    <span class="zip">〒330-0845</span>
+    埼玉県さいたま市大宮区仲町一丁目29番1号　柴田ビル 1F
+  </div>
+
+  <div class="map-wrap">
+    <iframe
+      src="https://maps.google.com/maps?q=35.904312,139.625778&z=17&output=embed"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade">
+    </iframe>
+    <div class="compass">N</div>
+  </div>
+  <div class="caption">※ 地図中心：現場所在地（緯度35.904312 / 経度139.625778）</div>
+
+  <h2>周辺情報</h2>
+  <ul>
+    <li>最寄駅：JR／東武野田線／埼玉新都市交通　大宮駅（現場から直線距離 約300m、徒歩約5分・北方向）</li>
+    <li>現場は大宮駅東側、旧中山道沿いの「仲町」交差点付近に位置する</li>
+    <li>建物：柴田ビル　1階（対象テナント：柴田第2店舗）</li>
+  </ul>
+
+  <div class="note">
+    ※ 座標は国土地理院 address-search API による住所照合結果に基づく。現地確認の上、消防署提出前に建物外観・入口位置等の相違がないかご確認ください。
+  </div>
+
+  </div>
+
+  <script>
+    let fileHandle = null;
+    const statusEl = () => document.getElementById('saveStatus');
+    const supportsFS = 'showSaveFilePicker' in window;
+
+    function buildHtmlString() {
+      const clone = document.documentElement.cloneNode(true);
+      const status = clone.querySelector('#saveStatus');
+      if (status) status.textContent = '';
+      return '<!DOCTYPE html>\n' + clone.outerHTML;
+    }
+
+    async function verifyPermission(handle) {
+      const opts = { mode: 'readwrite' };
+      if ((await handle.queryPermission(opts)) === 'granted') return true;
+      if ((await handle.requestPermission(opts)) === 'granted') return true;
+      return false;
+    }
+
+    async function writeToHandle(handle) {
+      const ok = await verifyPermission(handle);
+      if (!ok) throw new Error('書き込み権限がありません');
+      const writable = await handle.createWritable();
+      await writable.write(buildHtmlString());
+      await writable.close();
+    }
+
+    function downloadFallback() {
+      const blob = new Blob([buildHtmlString()], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = document.title.replace(/[\\/:*?"<>|]/g, '') + '.html';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function saveAsFile() {
+      if (!supportsFS) {
+        downloadFallback();
+        statusEl().textContent = 'ダウンロードしました（このブラウザは直接保存に非対応）';
+        return;
+      }
+      try {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName: document.title + '.html',
+          types: [{ description: 'HTML ファイル', accept: { 'text/html': ['.html'] } }]
+        });
+        await writeToHandle(fileHandle);
+        statusEl().textContent = '保存しました（' + new Date().toLocaleTimeString('ja-JP') + '）';
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          statusEl().textContent = '保存に失敗しました: ' + err.message;
+        }
+      }
+    }
+
+    async function overwriteSave() {
+      if (!fileHandle) {
+        await saveAsFile();
+        return;
+      }
+      try {
+        await writeToHandle(fileHandle);
+        statusEl().textContent = '上書き保存しました（' + new Date().toLocaleTimeString('ja-JP') + '）';
+      } catch (err) {
+        statusEl().textContent = '保存に失敗しました: ' + err.message;
+      }
+    }
+  </script>
+
+</body>
+</html>

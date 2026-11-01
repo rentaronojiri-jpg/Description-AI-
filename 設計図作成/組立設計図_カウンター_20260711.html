@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>組立設計図 カウンター製作図(2026.7.11)</title>
+<style>
+  @page { size: A4; margin: 12mm; }
+  body {
+    font-family: "Yu Gothic", "Meiryo", sans-serif;
+    color: #222;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px;
+    line-height: 1.6;
+  }
+  h1 {
+    font-size: 22px;
+    border-bottom: 3px solid #2b4c7e;
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+  }
+  .meta {
+    color: #555;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  h2 {
+    font-size: 17px;
+    background: #2b4c7e;
+    color: #fff;
+    padding: 6px 12px;
+    margin-top: 32px;
+    border-radius: 3px;
+  }
+  h3 {
+    font-size: 14px;
+    color: #2b4c7e;
+    margin-top: 18px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13px;
+    margin: 10px 0 20px;
+  }
+  th, td {
+    border: 1px solid #bbb;
+    padding: 6px 10px;
+    text-align: center;
+  }
+  th {
+    background: #eef2f8;
+  }
+  .diagram-box {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 12px;
+    margin: 12px 0 24px;
+    overflow-x: auto;
+    background: #fafcff;
+  }
+  .diagram-box svg { display: block; margin: 0 auto; }
+  .caption {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    margin-top: 6px;
+  }
+  ol.steps li {
+    margin-bottom: 10px;
+  }
+  .note {
+    background: #fff8e1;
+    border: 1px solid #e0c46c;
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+  .note strong { color: #8a6d00; }
+  .badge {
+    display: inline-block;
+    background: #2b4c7e;
+    color: #fff;
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+  }
+</style>
+</head>
+<body>
+
+<h1>カウンター 組立設計図</h1>
+<div class="meta">
+  元図面：カウンター製作図（作成日 2026.7.11）／本書作成日：2026.7.14／形状：L型カウンター
+</div>
+
+<div class="note">
+  <strong>ご確認のお願い：</strong>
+  本書は元PDF図面の寸法・面名称（A面〜D面）を読み取り、製作用に整理・再構成したものです。
+  立面図における「100mm」「30mm」部分（各面下端の見切り・幕板と推測）および壁面側の納まり寸法（450mm・500mm）は、
+  元図面上で明確な用途注記が無かったため<strong>推定を含みます</strong>。裁断・加工前に必ず原本PDFおよび現地寸法と照合してください。
+</div>
+
+<h2>1. 全体概要</h2>
+<table>
+  <tr><th>項目</th><th>内容</th></tr>
+  <tr><td>形状</td><td>L型（コーナー）カウンター</td></tr>
+  <tr><td>平面外形寸法</td><td>1000mm（D面方向）× 1830mm（A面方向）</td></tr>
+  <tr><td>天板までの立上り高さ</td><td>1100mm（各面共通）</td></tr>
+  <tr><td>板厚</td><td>20mm</td></tr>
+  <tr><td>構成面</td><td>A面・D面（外側＝客側）、B面・C面（内側入隅＝スタッフ側）</td></tr>
+</table>
+
+<h2>2. 平面図（読み取り再構成）</h2>
+<div class="diagram-box">
+<svg viewBox="0 0 1400 2200" width="480">
+  <!-- L-shape polygon: (0,0)-(0,1830)-(450,1830)-(450,500)-(1000,500)-(1000,0)-close, offset +150,+150 -->
+  <polygon points="150,150 150,1980 600,1980 600,650 1150,650 1150,150"
+    fill="#dce8f7" stroke="#2b4c7e" stroke-width="6"/>
+
+  <!-- A面 label: left edge -->
+  <text x="90" y="1080" font-size="26" fill="#2b4c7e" text-anchor="middle" transform="rotate(-90 90 1080)">A面（1830）</text>
+  <!-- D面 label: top edge -->
+  <text x="650" y="110" font-size="26" fill="#2b4c7e" text-anchor="middle">D面（1000）</text>
+  <!-- B面 label: inner vertical edge -->
+  <text x="560" y="1350" font-size="24" fill="#a33" text-anchor="middle" transform="rotate(-90 560 1350)">B面（1330）</text>
+  <!-- C面 label: inner horizontal edge -->
+  <text x="870" y="620" font-size="24" fill="#a33" text-anchor="middle">C面（550）</text>
+  <!-- wall edges (unlabeled faces) -->
+  <text x="375" y="2020" font-size="18" fill="#888" text-anchor="middle">壁付け 450</text>
+  <text x="1190" y="420" font-size="18" fill="#888" text-anchor="middle" transform="rotate(-90 1190 420)">壁付け 500</text>
+
+  <!-- overall dimension lines -->
+  <line x1="60" y1="150" x2="60" y2="1980" stroke="#333" stroke-width="2"/>
+  <text x="45" y="1080" font-size="22" fill="#333" text-anchor="middle" transform="rotate(-90 45 1080)">全長 1830</text>
+  <line x1="150" y1="70" x2="1150" y2="70" stroke="#333" stroke-width="2"/>
+  <text x="650" y="55" font-size="22" fill="#333" text-anchor="middle">全幅 1000</text>
+
+  <!-- notch corner marker -->
+  <circle cx="600" cy="650" r="8" fill="#a33"/>
+  <text x="700" y="700" font-size="16" fill="#a33">入隅コーナー(450,500)</text>
+</svg>
+<div class="caption">平面図：L字外形 1000×1830mm（板厚20mm）／入隅コーナー位置=元図の 20+430=450、20+480=500 の交点</div>
+</div>
+
+<h2>3. 立面図（展開・4面）</h2>
+<div class="diagram-box">
+<svg viewBox="0 0 5200 1500" width="100%">
+  <!-- A面 panel: width 1830, height 1100 + 100 skirt -->
+  <g transform="translate(50,100)">
+    <rect x="0" y="0" width="1830" height="1100" fill="#dce8f7" stroke="#2b4c7e" stroke-width="6"/>
+    <rect x="0" y="1100" width="1830" height="100" fill="#f7dcdc" stroke="#a33" stroke-width="4"/>
+    <text x="915" y="600" font-size="60" text-anchor="middle" fill="#2b4c7e">A面</text>
+    <text x="915" y="700" font-size="40" text-anchor="middle" fill="#2b4c7e">H1100</text>
+    <text x="915" y="1160" font-size="34" text-anchor="middle" fill="#a33">+100見切り</text>
+  </g>
+  <!-- B面 panel: width 1330, height 1100 + 30 -->
+  <g transform="translate(2050,100)">
+    <rect x="0" y="0" width="1330" height="1100" fill="#dce8f7" stroke="#2b4c7e" stroke-width="6"/>
+    <rect x="0" y="1100" width="1330" height="30" fill="#f7dcdc" stroke="#a33" stroke-width="4"/>
+    <text x="665" y="600" font-size="60" text-anchor="middle" fill="#2b4c7e">B面</text>
+    <text x="665" y="700" font-size="40" text-anchor="middle" fill="#2b4c7e">H1100</text>
+    <text x="665" y="1180" font-size="30" text-anchor="middle" fill="#a33">+30段差</text>
+  </g>
+  <!-- C面 panel: width 550, height 1100 + 30 -->
+  <g transform="translate(3550,100)">
+    <rect x="0" y="0" width="550" height="1100" fill="#dce8f7" stroke="#2b4c7e" stroke-width="6"/>
+    <rect x="0" y="1100" width="550" height="30" fill="#f7dcdc" stroke="#a33" stroke-width="4"/>
+    <text x="275" y="600" font-size="60" text-anchor="middle" fill="#2b4c7e">C面</text>
+    <text x="275" y="700" font-size="40" text-anchor="middle" fill="#2b4c7e">H1100</text>
+    <text x="275" y="1180" font-size="30" text-anchor="middle" fill="#a33">+30段差</text>
+  </g>
+  <!-- D面 panel: width 1000, height 1100 + 100 -->
+  <g transform="translate(4250,100)">
+    <rect x="0" y="0" width="1000" height="1100" fill="#dce8f7" stroke="#2b4c7e" stroke-width="6"/>
+    <rect x="0" y="1100" width="1000" height="100" fill="#f7dcdc" stroke="#a33" stroke-width="4"/>
+    <text x="500" y="600" font-size="60" text-anchor="middle" fill="#2b4c7e">D面</text>
+    <text x="500" y="700" font-size="40" text-anchor="middle" fill="#2b4c7e">H1100</text>
+    <text x="500" y="1160" font-size="34" text-anchor="middle" fill="#a33">+100見切り</text>
+  </g>
+</svg>
+<div class="caption">立面図（展開）：幅は各面の実長（A=1830 / B=1330 / C=550 / D=1000）、高さ1100mmは共通。ピンク部が推定の見切り・段差部分</div>
+</div>
+
+<h2>4. アイソメ図（イメージ）</h2>
+<div class="diagram-box">
+<svg viewBox="0 0 600 500" width="360">
+  <!-- simple isometric L box -->
+  <polygon points="80,320 260,220 260,60 80,160" fill="#dce8f7" stroke="#2b4c7e" stroke-width="4"/>
+  <polygon points="260,220 420,300 420,140 260,60" fill="#c3d6ef" stroke="#2b4c7e" stroke-width="4"/>
+  <polygon points="80,320 260,220 420,300 260,400" fill="#eef2f8" stroke="#2b4c7e" stroke-width="4"/>
+  <text x="150" y="250" font-size="18" fill="#2b4c7e">A面</text>
+  <text x="330" y="240" font-size="18" fill="#2b4c7e">D面</text>
+</svg>
+<div class="caption">アイソメ図：外側から見たL字カウンターのイメージ（内側のB面・C面は背面のため非表示）</div>
+</div>
+
+<h2>5. パーツ一覧</h2>
+<table>
+  <tr>
+    <th>部材名</th><th>寸法（幅×高さ）</th><th>板厚</th><th>数量</th><th>備考</th>
+  </tr>
+  <tr><td>A面パネル（外側・長辺）</td><td>1830 × 1100mm</td><td>20mm</td><td>1</td><td>下端に100mm見切り／幕板が付く想定</td></tr>
+  <tr><td>D面パネル（外側・短辺）</td><td>1000 × 1100mm</td><td>20mm</td><td>1</td><td>下端に100mm見切り／幕板が付く想定</td></tr>
+  <tr><td>B面パネル（内側入隅・長辺）</td><td>1330 × 1100mm</td><td>20mm</td><td>1</td><td>下端に30mm段差あり</td></tr>
+  <tr><td>C面パネル（内側入隅・短辺）</td><td>550 × 1100mm</td><td>20mm</td><td>1</td><td>下端に30mm段差あり</td></tr>
+  <tr><td>天板（甲板）</td><td>L型 外形1000×1830／切欠き550×1330</td><td>20mm（推定）</td><td>1</td><td>板厚は現物図面で要確認</td></tr>
+  <tr><td>壁付け部材（背面）</td><td>450mm・500mm 部分</td><td>20mm</td><td>各1</td><td>壁面への納まりは現地採寸で確認</td></tr>
+</table>
+
+<h2>6. 組立手順</h2>
+<ol class="steps">
+  <li><strong>裁断：</strong>製作図寸法に基づき、A面(1830×1100)・B面(1330×1100)・C面(550×1100)・D面(1000×1100)の各パネルを板厚20mmで裁断する。</li>
+  <li><strong>外側フレーム組立：</strong>A面とD面を直角（入隅コーナー位置：D面から450mm・A面から500mmの位置）で接合し、L字の外形フレームを組む。</li>
+  <li><strong>内側入隅の取付：</strong>B面（1330mm）とC面（550mm）を内側の入隅部に取付け、L字カウンターの内角を形成する。</li>
+  <li><strong>見切り・段差の取付：</strong>A面・D面の下端に100mm見切り（幕板）、B面・C面の下端に30mmの段差部材を取付ける。<span class="badge">要現物確認</span></li>
+  <li><strong>直角・対角確認：</strong>各パネルの直角・対角寸法を確認してから固定する。</li>
+  <li><strong>天板の取付：</strong>L型天板（外形1000×1830、切欠き550×1330）をビス留め・接着剤で本体に固定する。</li>
+  <li><strong>壁面納まりの確認：</strong>背面の壁付け部分（450mm・500mm）を現地の壁面と照合し、必要に応じて調整・固定する。</li>
+  <li><strong>仕上げ：</strong>塗装または化粧シート仕上げを行い、エッジ・見切り部を最終調整する。</li>
+</ol>
+
+<div class="note">
+  <strong>再確認ポイント：</strong>
+  ①天板の板厚、②100mm/30mm部分の実際の用途（見切り・幕板・段差の別）、③壁付け部（450mm・500mm）の現地納まり
+  の3点は元図面の読み取りだけでは確定できないため、原本図面（20260711カウンター製作図.pdf）と現地寸法を必ず併せてご確認ください。
+</div>
+
+</body>
+</html>

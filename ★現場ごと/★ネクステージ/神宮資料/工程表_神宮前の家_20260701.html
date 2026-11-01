@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>工程表 - 神宮前の家 新築工事</title>
+<style>
+@page { size: A3 landscape; margin: 6mm; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  font-family: 'メイリオ', 'Meiryo', 'ヒラギノ角ゴ ProN', sans-serif;
+  font-size: 9px;
+  margin: 0;
+  padding: 3px 5px;
+  color: #222;
+  background: white;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3px;
+  border-bottom: 2px solid #2c3e50;
+  padding-bottom: 3px;
+}
+.header h1 { font-size: 14px; margin: 0 0 2px; letter-spacing: 2px; }
+.header .info { font-size: 8.5px; color: #444; line-height: 1.4; }
+.header .note { font-size: 8.5px; color: #e74c3c; font-weight: bold; margin-top: 1px; }
+
+.legend {
+  display: flex; gap: 10px; margin-bottom: 3px;
+  font-size: 8.5px; align-items: center;
+}
+.legend-label { font-weight: bold; margin-right: 3px; }
+.legend-item { display: flex; align-items: center; gap: 2px; }
+.legend-box { width: 14px; height: 9px; border-radius: 2px; display: inline-block; }
+
+table { border-collapse: collapse; width: 100%; font-size: 8.5px; }
+th, td { border: 1px solid #aaa; padding: 1px 2px; white-space: nowrap; }
+
+.th-month {
+  background: #2c3e50; color: white;
+  text-align: center; font-weight: bold; font-size: 10px; padding: 2px;
+}
+.th-week {
+  background: #dde4ee; text-align: center;
+  font-size: 8px; font-weight: bold; line-height: 1.2;
+  padding: 1px 0; width: 30px; min-width: 30px;
+}
+.th-week-sub { font-size: 7px; color: #555; font-weight: normal; }
+
+.col-no   { width: 16px; text-align: center; background: #f5f5f5; font-weight: bold; }
+.col-cat  { width: 44px; text-align: center; font-size: 8px; }
+.col-work { width: 148px; text-align: left; }
+.col-cont { width: 40px; text-align: center; font-size: 8px; }
+
+tr.phase-header td {
+  background: #34495e; color: white;
+  font-weight: bold; font-size: 8.5px; padding: 1px 4px;
+}
+
+.cat-kenchiku { background: #d6eaf8; }
+.cat-denki    { background: #fef9e7; }
+.cat-setsubi  { background: #d5f5e3; }
+.cat-ev       { background: #fdebd0; }
+.cat-kukan    { background: #e8daef; }
+.cat-kansei   { background: #fadbd8; }
+
+.work-kenchiku { background: #f4f9fd; }
+.work-denki    { background: #fefdf3; }
+.work-setsubi  { background: #f2fbf5; }
+.work-ev       { background: #fef7f0; }
+.work-kukan    { background: #f9f4fe; }
+.work-kansei   { background: #fef5f4; }
+
+.g   { padding: 1px 0; }
+.g-k { background: #2980b9; }
+.g-d { background: #d4ac0d; }
+.g-s { background: #27ae60; }
+.g-e { background: #e67e22; }
+.g-a { background: #16a085; }
+.g-f { background: #e74c3c; }
+.g-m { background: #c0392b; text-align:center; color:white; font-size:8px; font-weight:bold; }
+
+.footer {
+  margin-top: 3px; font-size: 8px; color: #666;
+  border-top: 1px solid #ccc; padding-top: 2px;
+  display: flex; justify-content: space-between;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>工　程　表</h1>
+  <div class="info">
+    工事名称：神宮前の家 新築工事　／　所在地：東京都渋谷区神宮前2-15-25　／　建築主：WORLD WAVE PTE.LTD<br>
+    構造：WRC造（地下1階・地上3階・PH1階）　／　延床面積：163.03㎡（建築面積 41.08㎡）　／　EV：マシンルームレスEV ×1台（B1F・1F・2F・3F停止）
+  </div>
+  <div class="note">※ 躯体工事完了後の残工程（工期：2026年8月1日〜2026年10月31日 予定）</div>
+</div>
+
+<div class="legend">
+  <span class="legend-label">凡例：</span>
+  <div class="legend-item"><span class="legend-box" style="background:#2980b9;"></span>建築工事</div>
+  <div class="legend-item"><span class="legend-box" style="background:#d4ac0d;"></span>電気工事</div>
+  <div class="legend-item"><span class="legend-box" style="background:#27ae60;"></span>設備工事</div>
+  <div class="legend-item"><span class="legend-box" style="background:#e67e22;"></span>EV工事</div>
+  <div class="legend-item"><span class="legend-box" style="background:#16a085;"></span>空調工事</div>
+  <div class="legend-item"><span class="legend-box" style="background:#e74c3c;"></span>検査・完了</div>
+</div>
+
+<!-- W1=8/1, W2=8/8, W3=8/15, W4=8/22, W5=8/29, W6=9/5, W7=9/12, W8=9/19, W9=9/26, W10=10/3, W11=10/10, W12=10/17, W13=10/24 -->
+<table>
+  <thead>
+    <tr>
+      <th class="col-no"   rowspan="2">No</th>
+      <th class="col-cat"  rowspan="2">工事<br>区分</th>
+      <th class="col-work" rowspan="2">工　程　名</th>
+      <th class="col-cont" rowspan="2">施工者</th>
+      <th class="th-month" colspan="5">8月</th>
+      <th class="th-month" colspan="4">9月</th>
+      <th class="th-month" colspan="4">10月</th>
+    </tr>
+    <tr>
+      <th class="th-week">W1<br><span class="th-week-sub">8/1</span></th>
+      <th class="th-week">W2<br><span class="th-week-sub">8/8</span></th>
+      <th class="th-week">W3<br><span class="th-week-sub">8/15</span></th>
+      <th class="th-week">W4<br><span class="th-week-sub">8/22</span></th>
+      <th class="th-week">W5<br><span class="th-week-sub">8/29</span></th>
+      <th class="th-week">W6<br><span class="th-week-sub">9/5</span></th>
+      <th class="th-week">W7<br><span class="th-week-sub">9/12</span></th>
+      <th class="th-week">W8<br><span class="th-week-sub">9/19</span></th>
+      <th class="th-week">W9<br><span class="th-week-sub">9/26</span></th>
+      <th class="th-week">W10<br><span class="th-week-sub">10/3</span></th>
+      <th class="th-week">W11<br><span class="th-week-sub">10/10</span></th>
+      <th class="th-week">W12<br><span class="th-week-sub">10/17</span></th>
+      <th class="th-week">W13<br><span class="th-week-sub">10/24</span></th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <tr class="phase-header"><td colspan="17">▶ フェーズ1：外部工事（屋根・外壁・サッシ）</td></tr>
+
+    <tr>
+      <td class="col-no">1</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">仮設足場確認・補修</td><td class="col-cont">建築</td>
+      <td class="g g-k"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">2</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">屋根防水工事（ウレタン樹脂塗膜防水）</td><td class="col-cont">建築</td>
+      <td class="g g-k"></td><td class="g g-k"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">3</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">サッシ取付工事（アルミサッシ）</td><td class="col-cont">建築</td>
+      <td class="g g-k"></td><td class="g g-k"></td><td class="g g-k"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">4</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">バルコニー防水・EV昇降路ピット防水</td><td class="col-cont">建築</td>
+      <td class="g g-k"></td><td class="g g-k"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr class="phase-header"><td colspan="17">▶ フェーズ2：設備粗配線・粗配管工事</td></tr>
+
+    <tr>
+      <td class="col-no">5</td><td class="col-cat cat-denki">電気</td>
+      <td class="col-work work-denki">電気粗配線工事（幹線・分岐配線・EV用配線含）</td><td class="col-cont">電気</td>
+      <td class="g"></td><td class="g g-d"></td><td class="g g-d"></td><td class="g g-d"></td><td class="g g-d"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">6</td><td class="col-cat cat-setsubi">設備</td>
+      <td class="col-work work-setsubi">給排水・衛生設備粗配管工事</td><td class="col-cont">設備</td>
+      <td class="g"></td><td class="g g-s"></td><td class="g g-s"></td><td class="g g-s"></td><td class="g g-s"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr class="phase-header"><td colspan="17">▶ フェーズ3：断熱工事・EV据付・外壁仕上げ</td></tr>
+
+    <tr>
+      <td class="col-no">7</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">断熱工事</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g g-k"></td><td class="g g-k"></td><td class="g g-k"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">8</td><td class="col-cat cat-ev">EV</td>
+      <td class="col-work work-ev">EV本体据付工事（パナソニック XLミディモダンU1）</td><td class="col-cont">EV業者</td>
+      <td class="g"></td><td class="g"></td><td class="g g-e"></td><td class="g g-e"></td><td class="g g-e"></td>
+      <td class="g g-e"></td><td class="g g-e"></td><td class="g g-e"></td><td class="g g-e"></td>
+      <td class="g g-e"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">9</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">外壁塗装工事（アクリルシリコン塗装）</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g g-k"></td><td class="g g-k"></td><td class="g g-k"></td>
+      <td class="g g-k"></td><td class="g g-k"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">10</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">EV昇降路内壁・乗り場仕上げ（EV据付後・建築工事）</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g g-k"></td><td class="g g-k"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr class="phase-header"><td colspan="17">▶ フェーズ4：内装工事（ボード・床・クロス・建具）</td></tr>
+
+    <tr>
+      <td class="col-no">11</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">ボード工事（石膏ボード張り・B1F〜3F）</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g g-k"></td>
+      <td class="g g-k"></td><td class="g g-k"></td><td class="g g-k"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">12</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">床下地工事（全階）</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g g-k"></td><td class="g g-k"></td><td class="g g-k"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">13</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">床仕上げ工事（フローリング・タイル等、支給材含）</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g g-k"></td><td class="g g-k"></td><td class="g g-k"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">14</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">クロス工事（壁・天井）</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g g-k"></td><td class="g g-k"></td>
+      <td class="g g-k"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">15</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">内部建具取付工事（ドア・引き戸・収納扉）</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g g-k"></td>
+      <td class="g g-k"></td><td class="g g-k"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">16</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">内部塗装工事（造作部・階段等）</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g g-k"></td>
+      <td class="g g-k"></td><td class="g g-k"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr class="phase-header"><td colspan="17">▶ フェーズ5：設備機器取付・EV試運転・外構工事</td></tr>
+
+    <tr>
+      <td class="col-no">17</td><td class="col-cat cat-setsubi">設備</td>
+      <td class="col-work work-setsubi">衛生設備機器取付（支給品・キッチン・浴室・洗面等）</td><td class="col-cont">設備</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g g-s"></td><td class="g g-s"></td><td class="g g-s"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">18</td><td class="col-cat cat-denki">電気</td>
+      <td class="col-work work-denki">電気器具取付（照明・スイッチ・コンセント等）</td><td class="col-cont">電気</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g g-d"></td><td class="g g-d"></td><td class="g g-d"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">19</td><td class="col-cat cat-kukan">空調</td>
+      <td class="col-work work-kukan">空調機取付工事（家庭用ルームエアコン・個別式）</td><td class="col-cont">空調</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g g-a"></td><td class="g g-a"></td><td class="g g-a"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">20</td><td class="col-cat cat-ev">EV</td>
+      <td class="col-work work-ev">EV試運転・調整・検査（パナソニック立会）</td><td class="col-cont">EV業者</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g g-e"></td><td class="g g-e"></td><td class="g"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">21</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">外構工事（駐車場・門扉・外周・植栽等）</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g g-k"></td><td class="g g-k"></td>
+      <td class="g g-k"></td><td class="g g-k"></td><td class="g g-k"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">22</td><td class="col-cat cat-kenchiku">建築</td>
+      <td class="col-work work-kenchiku">足場解体</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g g-k"></td><td class="g g-k"></td><td class="g"></td>
+    </tr>
+
+    <tr class="phase-header"><td colspan="17">▶ フェーズ6：完了・引き渡し</td></tr>
+
+    <tr>
+      <td class="col-no">23</td><td class="col-cat cat-denki">電気</td>
+      <td class="col-work work-denki">消防設備工事（火災報知機・非常照明・非常放送）</td><td class="col-cont">電気</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g g-d"></td><td class="g g-d"></td><td class="g g-d"></td><td class="g"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">24</td><td class="col-cat cat-kansei">完了</td>
+      <td class="col-work work-kansei">清掃・手直し工事（全体）</td><td class="col-cont">建築</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g g-f"></td><td class="g g-f"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">25</td><td class="col-cat cat-kansei">完了</td>
+      <td class="col-work work-kansei">竣工検査（完了検査・EV定期検査申請）</td><td class="col-cont">全体</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g g-f"></td>
+    </tr>
+
+    <tr>
+      <td class="col-no">26</td><td class="col-cat cat-kansei">完了</td>
+      <td class="col-work work-kansei">引き渡し（書類整備・鍵渡し）</td><td class="col-cont">-</td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g"></td>
+      <td class="g"></td><td class="g"></td><td class="g"></td><td class="g g-m">★</td>
+    </tr>
+
+  </tbody>
+</table>
+
+<div style="margin-top:4px; font-size:8px; color:#444; border:1px solid #ccc; padding:3px 6px; background:#fffde7;">
+  <strong>注意事項：</strong>
+  （1）EV工事（パナソニック）は建築工事との工区分けを事前確認し、昇降路内壁仕上げはEV据付完了後に行うこと。
+  （2）衛生機器・B1Fフローリング材は支給品のため、搬入タイミングを設備業者・施主と事前調整すること。
+  （3）足場は外壁塗装・EV工事が完了するまで存置（外壁確認後に解体）。
+  （4）EV竣工検査（昇降機検査）は行政手続きのため、EV業者と申請時期を事前確認すること（試運転完了後2〜4週間目安）。
+  （5）8月の外部工事は夏期熱中症・天候に注意。外壁塗装は温度・湿度管理を徹底すること。
+</div>
+
+<div class="footer">
+  <div>工事名：神宮前の家 新築工事　／　所在地：東京都渋谷区神宮前2-15-25</div>
+  <div>作成日：2026年6月30日　／　作成：株式会社AXIS</div>
+</div>
+
+</body>
+</html>

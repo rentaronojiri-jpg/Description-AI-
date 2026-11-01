@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>工事のお知らせ</title>
+<style>
+  @page { size: A4; margin: 15mm; }
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+  body {
+    font-family: "Yu Gothic", "Meiryo", "Hiragino Kaku Gothic ProN", sans-serif;
+    color: #222;
+    margin: 0;
+    padding: 20mm 15mm;
+  }
+  .sheet {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .title-bar {
+    background: #1b2a52;
+    color: #fff;
+    text-align: center;
+    padding: 18px 10px 14px;
+    letter-spacing: 4px;
+  }
+  .title-bar .jp {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: 10px;
+  }
+  .title-bar .en {
+    font-size: 12px;
+    letter-spacing: 4px;
+    margin-top: 6px;
+    color: #cdd6ec;
+  }
+  .lead {
+    font-size: 14px;
+    line-height: 1.9;
+    margin: 22px 0 20px;
+  }
+  table.info {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    margin-bottom: 18px;
+  }
+  table.info th, table.info td {
+    border: 1px solid #c9c9c9;
+    padding: 12px 16px;
+    text-align: left;
+    vertical-align: middle;
+  }
+  table.info th {
+    background: #e9ebf1;
+    width: 28%;
+    font-weight: 700;
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+  .note-box {
+    border: 1px solid #c9a24a;
+    background: #fbf3df;
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.9;
+    margin-bottom: 34px;
+  }
+  .company {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 4px;
+  }
+  .company .mark {
+    flex: none;
+    height: 44px;
+  }
+  .company .mark img {
+    height: 100%;
+    width: auto;
+    display: block;
+  }
+  .company .name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1b2a52;
+  }
+  .company-address {
+    font-size: 12px;
+    color: #555;
+    margin-left: 118px;
+    margin-top: 4px;
+  }
+  @media print {
+    body { padding: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="title-bar">
+      <div class="jp">工事のお知らせ</div>
+      <div class="en">NOTICE OF CONSTRUCTION WORK</div>
+    </div>
+
+    <div class="lead">
+      この度、下記の通り内装工事を行っております。ご不便・ご迷惑をおかけいたしますが、ご理解とご協力をお願い申し上げます。
+    </div>
+
+    <table class="info">
+      <tr><th>工事名</th><td>UR団地内料理店改装内装工事</td></tr>
+      <tr><th>工事期間</th><td>2026年7月1日（水）〜2026年9月30日（水）　※仮</td></tr>
+      <tr><th>作業時間</th><td>午前8:00〜午後17:00　（仮）</td></tr>
+      <tr><th>施工者</th><td>株式会社AXIS</td></tr>
+      <tr><th>ご連絡先</th><td>TEL：090-9825-2087</td></tr>
+    </table>
+
+    <div class="note-box">
+      作業中は工事車両の出入りや音・振動が発生する場合があります。<br>
+      安全には十分配慮し、近隣の皆様への影響を最小限に努めてまいります。
+    </div>
+
+    <div class="company">
+      <div class="mark"><img src="AXIS_logo.png" alt="AXIS"></div>
+      <div class="name">株式会社AXIS</div>
+    </div>
+    <div class="company-address">埼玉県草加市小山2-29-10&nbsp;&nbsp;代表取締役　菊池 匠</div>
+  </div>
+</body>
+</html>

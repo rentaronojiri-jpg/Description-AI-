@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>議事録 2026年8月14日</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Noto Sans JP", "Yu Gothic", "游ゴシック", "Meiryo", "メイリオ", sans-serif;
+      font-size: 11pt;
+      color: #222;
+      background: #fff;
+      padding: 20mm 18mm;
+      max-width: 210mm;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 16pt;
+      text-align: center;
+      border-bottom: 2px solid #333;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+      letter-spacing: 0.1em;
+    }
+
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 10pt;
+    }
+    .meta-table td {
+      padding: 4px 10px;
+      border: 1px solid #bbb;
+    }
+    .meta-table td:first-child {
+      background: #f0f0f0;
+      font-weight: bold;
+      width: 28%;
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 12pt;
+      background: #2c5f8a;
+      color: #fff;
+      padding: 5px 10px;
+      margin: 20px 0 10px;
+      border-radius: 2px;
+    }
+
+    h3 {
+      font-size: 11pt;
+      border-left: 4px solid #2c5f8a;
+      padding-left: 8px;
+      margin: 14px 0 8px;
+      color: #2c5f8a;
+    }
+
+    p {
+      margin: 6px 0;
+      line-height: 1.7;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 12px;
+      font-size: 10pt;
+    }
+    table th {
+      background: #dde8f0;
+      padding: 6px 10px;
+      border: 1px solid #bbb;
+      text-align: left;
+      font-weight: bold;
+    }
+    table td {
+      padding: 6px 10px;
+      border: 1px solid #bbb;
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    table tr:nth-child(even) td {
+      background: #f8f8f8;
+    }
+
+    ul, ol {
+      margin: 6px 0 6px 20px;
+      line-height: 1.8;
+    }
+
+    .highlight {
+      background: #fff3cd;
+      border-left: 3px solid #e6a817;
+      padding: 4px 8px;
+      margin: 6px 0;
+      font-weight: bold;
+    }
+
+    .action-list {
+      list-style: none;
+      margin-left: 0;
+    }
+    .action-list li {
+      padding: 4px 0 4px 22px;
+      border-bottom: 1px dotted #ccc;
+      position: relative;
+    }
+    .action-list li::before {
+      content: "□";
+      position: absolute;
+      left: 4px;
+      color: #2c5f8a;
+    }
+
+    .note {
+      margin-top: 24px;
+      padding: 8px 10px;
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      font-size: 9pt;
+      color: #666;
+      border-radius: 2px;
+    }
+
+    [contenteditable="true"]:hover {
+      outline: 1px dashed #2c5f8a;
+      outline-offset: 2px;
+    }
+    [contenteditable="true"]:focus {
+      outline: 2px solid #2c5f8a;
+      outline-offset: 2px;
+      background: #fffdf0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #eef3f7;
+      border: 1px solid #bcd;
+      border-radius: 4px;
+      padding: 8px 10px;
+      margin: -20px -18mm 16px;
+      padding-left: 18mm;
+      padding-right: 18mm;
+      font-size: 9.5pt;
+    }
+    .toolbar button {
+      font-family: inherit;
+      font-size: 10pt;
+      padding: 6px 14px;
+      border: 1px solid #2c5f8a;
+      border-radius: 4px;
+      background: #2c5f8a;
+      color: #fff;
+      cursor: pointer;
+    }
+    .toolbar button.secondary {
+      background: #fff;
+      color: #2c5f8a;
+    }
+    .toolbar button:hover {
+      opacity: 0.85;
+    }
+    .toolbar #saveStatus {
+      color: #555;
+      margin-left: 4px;
+    }
+    .toolbar .hint {
+      margin-left: auto;
+      color: #789;
+      font-size: 8.5pt;
+    }
+
+    @media print {
+      body { padding: 0; }
+      @page { size: A4; margin: 15mm 18mm; }
+      [contenteditable="true"]:hover,
+      [contenteditable="true"]:focus {
+        outline: none;
+        background: transparent;
+      }
+      .toolbar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar" contenteditable="false">
+    <button onclick="overwriteSave()">💾 上書き保存</button>
+    <button class="secondary" onclick="saveAsFile()">📁 名前を付けて保存</button>
+    <span id="saveStatus"></span>
+    <span class="hint">※ Chrome / Edge推奨。初回は保存先を選択してください</span>
+  </div>
+
+  <div id="docContent" contenteditable="true">
+
+  <h1>議　事　録</h1>
+
+  <table class="meta-table">
+    <tbody><tr><td>日　付</td><td>2026年8月14日（電話）</td></tr>
+    <tr><td>作　成</td><td>野尻 連太朗（株式会社AXIS）</td></tr>
+    <tr><td>出席者</td><td>吉川様（大宮消防署 予防課 管理指導係）、野尻（弊社）</td></tr>
+    <tr><td>備　考</td><td>録音データより自動文字起こしを元に作成。大宮駅前ビル1階でのバー新装工事に関する、消防署への使用開始届（厨房設備仕様等）についての事前相談。8/10相談の続き。</td></tr>
+  </tbody></table>
+
+  <h2>1. 建物・現況設備の確認</h2>
+  <ul>
+    <li>対象ビルの2階はクリニック等が使用中の様子。施工対象はあくまで1階のみ。</li>
+    <li>今回の入居に伴い、ビル全体として新たに増える設備はなし。</li>
+    <li>現状の火災感知器は既存の「配線式」（電池式ではない）。</li>
+    <li>誘導灯は店舗出入口に既存で最低1箇所設置済み。</li>
+  </ul>
+
+  <h2>2. レイアウト・電気工事に関する確認</h2>
+  <ul>
+    <li>新しく間仕切りを設け、天井まで塞ぐ形にする場合は、その間仕切り内にも感知器の増設が必要。既存が配線式のため、設備士を手配しての電気工事が発生する。</li>
+    <li>誘導灯についても、レイアウト次第で通路誘導（矢印付き等）の追加が必要と判断された場合は、同様に電気工事が必要になる。</li>
+  </ul>
+  <p class="highlight">→ レイアウトが固まり次第、間仕切り位置・誘導灯の要否を吉川様側で確認し、電気工事の要否を最終判断する。</p>
+
+  <h2>3. 現地訪問（8/17）の進め方</h2>
+  <ul>
+    <li>2026年8月17日（月）に訪問予約済み。朝に一度訪問して図面等を確認してもらい、内容を直してから夕方に再度出直す案で調整。</li>
+    <li>吉川様：この日程で対応可能との回答。</li>
+    <li>夕方の再訪問が難しい場合は、修正・追加データをメールで提出する形でも対応可能との案内あり。</li>
+    <li>受付番号をできるだけ早く取得したい旨を野尻より伝達。</li>
+  </ul>
+
+  <h2>4. 使用開始届：厨房設備仕様書の記載事項</h2>
+  <p>火を使用する厨房設備（フード・ダクト）がある場合に必要な仕様書について、記載すべき項目を確認。</p>
+  <table>
+    <tbody><tr><th style="width:22%">項目</th><th>記載内容</th></tr>
+    <tr><td>フード</td><td>寸法、材質（亜鉛メッキ鋼板・ステンレス等）</td></tr>
+    <tr><td>ダクト</td><td>寸法、材質に加え、「スパイラルダクト」を使用する旨を明記</td></tr>
+    <tr><td>ダクトの断熱措置</td><td>可燃物から10cmの離隔が取れない場合、断熱材（ロックウール50mm）で代替可。使用する断熱材を平面図上に明記する</td></tr>
+    <tr><td>防火ダンパー（ヒューズ付き）</td><td>ガス調理器具の出力が21kW以上となる場合、フード内に設置。設置する旨を明記する</td></tr>
+    <tr><td>グリスフィルター</td><td>油を使う調理（天ぷら・肉やソーセージを焼く等）を行う場合、フード表面に設置。湯煎やパスタを茹でる程度であれば設置義務はないが、焼く・炒める調理があれば設置が望ましい</td></tr>
+  </tbody></table>
+  <p class="highlight">→ 今回はバー業態だが、ソーセージ等を焼いて提供する想定のため、グリスフィルターは設置する方向で記載する。</p>
+
+  <h2>5. 確認事項・懸案事項</h2>
+  <p class="highlight">→ 厨房設備の仕様書をここまで詳細に提出するのは野尻にとって今回が初めて。他県の物件では同様の提出を求められていないため、埼玉市の条例基準が他自治体より細かい可能性がある（吉川様からも同様の見解あり）。</p>
+  <p>現地訪問時に「吉川さんはいらっしゃいますか」と伝えれば対応してもらえることを確認済み（吉川様の名前を出せばよいとの回答）。</p>
+
+  <h2>6. 次回アクション</h2>
+  <ul class="action-list">
+    <li>野尻：厨房設備仕様書を作成し、フード・ダクトの寸法／材質、スパイラルダクトの使用、ダクト断熱措置（ロックウール50mm）、防火ダンパー（ヒューズ付き）、グリスフィルターの設置を平面図等に明記して資料をまとめる</li>
+    <li>野尻：2026年8月17日（月）朝に現地訪問し、図面等を吉川様に確認してもらう（吉川さん宛に来訪を伝える）</li>
+    <li>野尻：朝の確認内容をもとに修正し、同日夕方に再訪問（または、難しい場合はメールで修正・追加データを提出）</li>
+    <li>野尻：レイアウト確定後、間仕切り内の感知器・誘導灯追加の要否を確認し、必要であれば電気工事（設備士手配）を手配</li>
+    <li>吉川様：月曜日（8/17）に向けてできるだけ情報を整理</li>
+  </ul>
+
+  <div class="note">
+    ※ 本議事録は録音データの自動文字起こしを元に作成しています。音声認識の誤変換が含まれる可能性があるため、内容に相違がある場合は録音原文をご確認ください。「使用回届」は文脈より「使用開始届」と判断して記載しています。人名・固有名詞は聞き取れた範囲のみ記載しており、送付・提出前に必ず内容をご確認ください。
+  </div>
+
+  </div>
+
+  <script>
+    let fileHandle = null;
+    const statusEl = () => document.getElementById('saveStatus');
+    const supportsFS = 'showSaveFilePicker' in window;
+
+    function buildHtmlString() {
+      const clone = document.documentElement.cloneNode(true);
+      const status = clone.querySelector('#saveStatus');
+      if (status) status.textContent = '';
+      return '<!DOCTYPE html>\n' + clone.outerHTML;
+    }
+
+    async function verifyPermission(handle) {
+      const opts = { mode: 'readwrite' };
+      if ((await handle.queryPermission(opts)) === 'granted') return true;
+      if ((await handle.requestPermission(opts)) === 'granted') return true;
+      return false;
+    }
+
+    async function writeToHandle(handle) {
+      const ok = await verifyPermission(handle);
+      if (!ok) throw new Error('書き込み権限がありません');
+      const writable = await handle.createWritable();
+      await writable.write(buildHtmlString());
+      await writable.close();
+    }
+
+    function downloadFallback() {
+      const blob = new Blob([buildHtmlString()], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = document.title.replace(/[\\/:*?"<>|]/g, '') + '.html';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function saveAsFile() {
+      if (!supportsFS) {
+        downloadFallback();
+        statusEl().textContent = 'ダウンロードしました（このブラウザは直接保存に非対応）';
+        return;
+      }
+      try {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName: document.title + '.html',
+          types: [{ description: 'HTML ファイル', accept: { 'text/html': ['.html'] } }]
+        });
+        await writeToHandle(fileHandle);
+        statusEl().textContent = '保存しました（' + new Date().toLocaleTimeString('ja-JP') + '）';
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          statusEl().textContent = '保存に失敗しました: ' + err.message;
+        }
+      }
+    }
+
+    async function overwriteSave() {
+      if (!fileHandle) {
+        await saveAsFile();
+        return;
+      }
+      try {
+        await writeToHandle(fileHandle);
+        statusEl().textContent = '上書き保存しました（' + new Date().toLocaleTimeString('ja-JP') + '）';
+      } catch (err) {
+        statusEl().textContent = '保存に失敗しました: ' + err.message;
+      }
+    }
+  </script>
+
+
+
+</body></html>

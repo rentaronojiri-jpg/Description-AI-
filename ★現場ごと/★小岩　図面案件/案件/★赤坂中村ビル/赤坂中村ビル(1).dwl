@@ -1,0 +1,3 @@
+renta
+LAPTOP-GNGP9FS8 
+2026”N9ŒŽ4“ú  21:43:05

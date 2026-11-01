@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>議事録 2026年8月27日</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Noto Sans JP", "Yu Gothic", "游ゴシック", "Meiryo", "メイリオ", sans-serif;
+      font-size: 11pt;
+      color: #222;
+      background: #fff;
+      padding: 20mm 18mm;
+      max-width: 210mm;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 16pt;
+      text-align: center;
+      border-bottom: 2px solid #333;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+      letter-spacing: 0.1em;
+    }
+
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 10pt;
+    }
+    .meta-table td {
+      padding: 4px 10px;
+      border: 1px solid #bbb;
+    }
+    .meta-table td:first-child {
+      background: #f0f0f0;
+      font-weight: bold;
+      width: 28%;
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 12pt;
+      background: #2c5f8a;
+      color: #fff;
+      padding: 5px 10px;
+      margin: 20px 0 10px;
+      border-radius: 2px;
+    }
+
+    h3 {
+      font-size: 11pt;
+      border-left: 4px solid #2c5f8a;
+      padding-left: 8px;
+      margin: 14px 0 8px;
+      color: #2c5f8a;
+    }
+
+    p {
+      margin: 6px 0;
+      line-height: 1.7;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 12px;
+      font-size: 10pt;
+    }
+    table th {
+      background: #dde8f0;
+      padding: 6px 10px;
+      border: 1px solid #bbb;
+      text-align: left;
+      font-weight: bold;
+    }
+    table td {
+      padding: 6px 10px;
+      border: 1px solid #bbb;
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    table tr:nth-child(even) td {
+      background: #f8f8f8;
+    }
+
+    ul, ol {
+      margin: 6px 0 6px 20px;
+      line-height: 1.8;
+    }
+
+    .highlight {
+      background: #fff3cd;
+      border-left: 3px solid #e6a817;
+      padding: 4px 8px;
+      margin: 6px 0;
+      font-weight: bold;
+    }
+
+    .action-list {
+      list-style: none;
+      margin-left: 0;
+    }
+    .action-list li {
+      padding: 4px 0 4px 22px;
+      border-bottom: 1px dotted #ccc;
+      position: relative;
+    }
+    .action-list li::before {
+      content: "□";
+      position: absolute;
+      left: 4px;
+      color: #2c5f8a;
+    }
+
+    .note {
+      margin-top: 24px;
+      padding: 8px 10px;
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      font-size: 9pt;
+      color: #666;
+      border-radius: 2px;
+    }
+
+    [contenteditable="true"]:hover {
+      outline: 1px dashed #2c5f8a;
+      outline-offset: 2px;
+    }
+    [contenteditable="true"]:focus {
+      outline: 2px solid #2c5f8a;
+      outline-offset: 2px;
+      background: #fffdf0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #eef3f7;
+      border: 1px solid #bcd;
+      border-radius: 4px;
+      padding: 8px 10px;
+      margin: -20px -18mm 16px;
+      padding-left: 18mm;
+      padding-right: 18mm;
+      font-size: 9.5pt;
+    }
+    .toolbar button {
+      font-family: inherit;
+      font-size: 10pt;
+      padding: 6px 14px;
+      border: 1px solid #2c5f8a;
+      border-radius: 4px;
+      background: #2c5f8a;
+      color: #fff;
+      cursor: pointer;
+    }
+    .toolbar button.secondary {
+      background: #fff;
+      color: #2c5f8a;
+    }
+    .toolbar button:hover {
+      opacity: 0.85;
+    }
+    .toolbar #saveStatus {
+      color: #555;
+      margin-left: 4px;
+    }
+    .toolbar .hint {
+      margin-left: auto;
+      color: #789;
+      font-size: 8.5pt;
+    }
+
+    @media print {
+      body { padding: 0; }
+      @page { size: A4; margin: 15mm 18mm; }
+      [contenteditable="true"]:hover,
+      [contenteditable="true"]:focus {
+        outline: none;
+        background: transparent;
+      }
+      .toolbar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar" contenteditable="false">
+    <button onclick="overwriteSave()">💾 上書き保存</button>
+    <button class="secondary" onclick="saveAsFile()">📁 名前を付けて保存</button>
+    <span id="saveStatus"></span>
+    <span class="hint">※ Chrome / Edge推奨。初回は保存先を選択してください</span>
+  </div>
+
+  <div id="docContent" contenteditable="true">
+
+  <h1>議　事　録</h1>
+
+  <table class="meta-table">
+    <tr><td>日　付</td><td>2026年8月27日（現場での打ち合わせ・録音より／会話内に日付の明言なし）</td></tr>
+    <tr><td>作　成</td><td>野尻 連太朗（株式会社AXIS）</td></tr>
+    <tr><td>出席者</td><td>（不明）現場担当者・下請け業者との現地打ち合わせ。会話中に「木村さん」「上野さん」等の名前の言及あり（役割・所属は特定できず）</td></tr>
+    <tr><td>備　考</td><td>録音データの自動文字起こしを元に作成。音声が非常に不明瞭な箇所が多く、内容の多くは文脈からの推定です。内装・解体（原状回復系）の現地見積もり打ち合わせと推測されます。数値・固有名詞・工法の呼称は特に誤りが多い可能性が高いため、必ず録音原文と照合のうえご確認ください。</td></tr>
+  </table>
+
+  <h2>1. 現場概要</h2>
+  <ul>
+    <li>複数の部屋を順に回りながら、床・壁・天井の仕上げ方針を確認する現地打ち合わせ（見積もり作成のための現況調査と推測）</li>
+    <li>建物はかなり古い（「50年以上」「80年」といった発言あり）</li>
+    <li>対象面積は合計で概ね80〜85㎡程度という発言あり</li>
+    <li>元請けからの依頼を受け、会話の相手（下請け業者）が見積もりを作成する立場と推測</li>
+  </ul>
+
+  <h2>2. お客様・元請けの意向</h2>
+  <ul>
+    <li>元請けの希望として、金額をなるべく抑えたい意向がある</li>
+    <li>ただしお客様は「安いから」だけで業者を選ぶわけではなく、内容がきちんと整っている見積もりを重視するとのこと</li>
+    <li>お客様は着工後に「もともと無かったものが出てきたので追加費用をください」という進め方が通用しないタイプ</li>
+  </ul>
+  <p class="highlight">→ 事前に現況をよく見た上で、ギリギリまで見込んだ金額（想定される上振れ＝アッパーまで含めた金額）を最初の見積もりに反映させる必要がある。</p>
+
+  <h2>3. 床の仕様（共通方針）</h2>
+  <ul>
+    <li>基本的に既存の床（ベニヤ）は剥がさず残し、その上に新しいベニヤを重ね張りする方針（会話内では「縛り」という言い方をしており、捨て張り／増し張りに近い意味と推測）</li>
+    <li>仕上げは長尺シート張り。きれいな仕上げまでは求められておらず、実用レベルでよいとの認識</li>
+    <li>幅木は一度撤去し、床・壁を仕上げた後、最後にソフト巾木等できれいなものに交換</li>
+    <li>一部屋は床の腐食を確認済み。→ 床・天井ともにやり直し（解体を含む）が必要</li>
+    <li>別の部屋では、既存ベニヤ残しのままでよく、そこまできれいに仕上げなくてよいとの指示あり</li>
+    <li>一部、複数箇所での長尺の張り替えが発生する見込みとの発言あり</li>
+  </ul>
+  <p class="highlight">→ 懸念事項：幅木を剥がす際に下地のベニヤごと剥がれてしまう（破損する）ケースがある。発生した場合は該当箇所のみ張り替えとなるため、数か所分の張り替えをあらかじめ見積もりに計上しておく。</p>
+
+  <h2>4. 壁・天井の仕様（共通方針）</h2>
+  <ul>
+    <li>壁も床と同様、既存を撤去せず重ね張り（「縛り」）で対応し、その上にクロス仕上げ。お客様の意向は「安ければクロスの方でよい」とのこと</li>
+    <li>天井も可能な範囲で重ね張り（会話内「マシガリ」＝増し張りと推測）で対応</li>
+    <li>天井が垂れている・傷んでいる箇所は解体して張り直し（「天井を落とす」という表現あり）</li>
+    <li>ロッカー等の造作物は元請け側で先行して撤去済みの区画あり（未対応の区画もある可能性）</li>
+    <li>天井の状態がよく手を加えなくてよい部屋もあり、部屋ごとに現況を見ながら仕上げ方針を判断する</li>
+  </ul>
+
+  <h2>5. 照明・設備関連</h2>
+  <ul>
+    <li>各部屋に点検灯を1個ずつ設置することを見積もりに含める</li>
+    <li>既存の照明・配線ループのうち活かせるものは再利用する方向</li>
+    <li>ダクト（配管）が屋根下地から溶接で取り付けられている既存ルートがある。金属部分の推定使用年数は50年以上の可能性あり（老朽化リスクありだが、今回のスコープ外という認識）</li>
+    <li>一部屋、窓がすでに塞がれている（「窓殺し」）箇所は床工事の対象外</li>
+    <li>建物の年数から、防水工事が必要になりそうな箇所があるとの発言あり</li>
+  </ul>
+
+  <h2>6. ごみ処分・搬入出</h2>
+  <ul>
+    <li>廃材処分用のコンテナは元請け（AXIS）側で準備・手配し、現場で処分してもらう想定（産廃処分費用の別途請求はなし）</li>
+    <li>車両は本日駐車した場所に引き続き駐車可能</li>
+    <li>資材の搬入・荷下ろしは、車両を敷地内まで入れて対応できる見込み（詳細は現地調整）</li>
+    <li>ごみ置き場・コンテナの設置場所は未確定。向かいの工場が稼働している場合はスペースが使えず、近隣（組合）との調整が必要になる可能性あり</li>
+  </ul>
+  <p class="highlight">→ コンテナを表側にしか置けない場合、搬出入に人員2名×1日程度がかかる可能性があるため、その分もコストとして見積もりに含めておく。</p>
+
+  <h2>7. 他業者・関連案件の話</h2>
+  <ul>
+    <li>元々予定していた業者が会社方針で今回の受注を見送ったという話あり。お客様がネットで探した業者では対応できなかったため、AXIS側で別の協力業者を紹介する方向で調整中</li>
+    <li>過去に八王子の現場で同様の入れ替え工事を行った実績があるとの言及あり（参考事例）</li>
+  </ul>
+
+  <h2>8. 現場で聞き取れた数量・単価メモ（要確認）</h2>
+  <p>音声が非常に不明瞭なため、聞き取れた数値をそのままメモとして残します。金額・単位・対象箇所の対応関係は要確認です。</p>
+  <table>
+    <tr><th style="width:30%">項目</th><th>会話内の発言（要確認）</th></tr>
+    <tr><td>対象面積（全体目安）</td><td>約80〜85㎡</td></tr>
+    <tr><td>長尺張り単価（目安）</td><td>㎡あたり 3,570円／3,630円 という発言あり</td></tr>
+    <tr><td>不採用となった単価案</td><td>木村さんより3,000円／2,280円の案が出たが、採用しない旨の発言あり</td></tr>
+    <tr><td>防水関連の単価（目安）</td><td>2,508円という発言あり（対象・単位は不明）</td></tr>
+    <tr><td>部屋寸法の一例</td><td>4.47（m）／3.57／3.63／6.81→7.97（歩留まり・ロス込みの換算後数量と推測）</td></tr>
+    <tr><td>追加購入予定品</td><td>「これ」× 4件、後付け部材との言及あり（品目は特定できず）</td></tr>
+  </table>
+
+  <h2>9. 確認事項・懸案事項</h2>
+  <p class="highlight">→ 幅木撤去時にベニヤ下地が破損するリスクがあり、該当箇所の長尺張り替えを予備項目として見積もりに計上する必要がある。</p>
+  <p class="highlight">→ ごみ置き場・コンテナの設置場所が未確定（隣接工場の稼働状況次第）。現地調整が必要。</p>
+  <p class="highlight">→ 一部配管・ダクトの経年劣化（推定50年以上）を確認。今回のスコープ外という認識だが、念のため要確認。</p>
+  <p class="highlight">→ 防水工事の要否判断が必要な箇所あり。</p>
+  <p class="highlight">→ お客様は着工後の追加請求を許容しないため、見積もり時点で上振れ（アッパー）まで見込んで金額を確定させる必要がある。</p>
+
+  <h2>10. 提出期限</h2>
+  <ul>
+    <li>明確な期限指定はなし。「できるだけ早く出してほしい」という依頼のみ</li>
+    <li>目安として来週前半の提出を想定</li>
+  </ul>
+
+  <h2>11. 次回アクション</h2>
+  <ul class="action-list">
+    <li>現地で確認した各部屋の床・壁・天井の仕様を整理し、見積書を作成する</li>
+    <li>幅木撤去時の下地破損リスクを踏まえ、数か所分の長尺張り替えを予備項目として計上する</li>
+    <li>各部屋への点検灯1個の設置費用を計上する</li>
+    <li>ごみ置き場・コンテナの設置場所について、元請け・お客様側と調整する</li>
+    <li>コンテナが表側にしか置けない場合の搬出入人員（2名×1日目安）をコストに反映するか検討する</li>
+    <li>別協力業者の紹介・調整を進める</li>
+    <li>見積もりを来週前半を目安に急ぎ提出する</li>
+  </ul>
+
+  <div class="note">
+    ※ 本議事録は録音データの自動文字起こしを元に作成しています。今回の音声は特に不明瞭な箇所が多く、内容の多くは文脈からの推定・要約です。数値（寸法・単価）、工法名（「縛り」「マシガリ」等の現場用語は捨て張り・増し張りの意味と推測して記載）、人名等は聞き取れた範囲・推測を含めて記載しており、実際の内容と相違する可能性があります。見積書作成・提出前に、必ず録音原文および現場担当者への確認をお願いします。
+  </div>
+
+  </div>
+
+  <script>
+    let fileHandle = null;
+    const statusEl = () => document.getElementById('saveStatus');
+    const supportsFS = 'showSaveFilePicker' in window;
+
+    function buildHtmlString() {
+      const clone = document.documentElement.cloneNode(true);
+      const status = clone.querySelector('#saveStatus');
+      if (status) status.textContent = '';
+      return '<!DOCTYPE html>\n' + clone.outerHTML;
+    }
+
+    async function verifyPermission(handle) {
+      const opts = { mode: 'readwrite' };
+      if ((await handle.queryPermission(opts)) === 'granted') return true;
+      if ((await handle.requestPermission(opts)) === 'granted') return true;
+      return false;
+    }
+
+    async function writeToHandle(handle) {
+      const ok = await verifyPermission(handle);
+      if (!ok) throw new Error('書き込み権限がありません');
+      const writable = await handle.createWritable();
+      await writable.write(buildHtmlString());
+      await writable.close();
+    }
+
+    function downloadFallback() {
+      const blob = new Blob([buildHtmlString()], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = document.title.replace(/[\\/:*?"<>|]/g, '') + '.html';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function saveAsFile() {
+      if (!supportsFS) {
+        downloadFallback();
+        statusEl().textContent = 'ダウンロードしました（このブラウザは直接保存に非対応）';
+        return;
+      }
+      try {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName: document.title + '.html',
+          types: [{ description: 'HTML ファイル', accept: { 'text/html': ['.html'] } }]
+        });
+        await writeToHandle(fileHandle);
+        statusEl().textContent = '保存しました（' + new Date().toLocaleTimeString('ja-JP') + '）';
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          statusEl().textContent = '保存に失敗しました: ' + err.message;
+        }
+      }
+    }
+
+    async function overwriteSave() {
+      if (!fileHandle) {
+        await saveAsFile();
+        return;
+      }
+      try {
+        await writeToHandle(fileHandle);
+        statusEl().textContent = '上書き保存しました（' + new Date().toLocaleTimeString('ja-JP') + '）';
+      } catch (err) {
+        statusEl().textContent = '保存に失敗しました: ' + err.message;
+      }
+    }
+  </script>
+
+</body>
+</html>

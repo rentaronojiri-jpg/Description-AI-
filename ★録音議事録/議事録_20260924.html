@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>議事録 2026年9月24日</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Noto Sans JP", "Yu Gothic", "游ゴシック", "Meiryo", "メイリオ", sans-serif;
+      font-size: 11pt;
+      color: #222;
+      background: #fff;
+      padding: 20mm 18mm;
+      max-width: 210mm;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 16pt;
+      text-align: center;
+      border-bottom: 2px solid #333;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+      letter-spacing: 0.1em;
+    }
+
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 10pt;
+    }
+    .meta-table td {
+      padding: 4px 10px;
+      border: 1px solid #bbb;
+    }
+    .meta-table td:first-child {
+      background: #f0f0f0;
+      font-weight: bold;
+      width: 28%;
+      white-space: nowrap;
+    }
+
+    h2 {
+      font-size: 12pt;
+      background: #2c5f8a;
+      color: #fff;
+      padding: 5px 10px;
+      margin: 20px 0 10px;
+      border-radius: 2px;
+    }
+
+    h3 {
+      font-size: 11pt;
+      border-left: 4px solid #2c5f8a;
+      padding-left: 8px;
+      margin: 14px 0 8px;
+      color: #2c5f8a;
+    }
+
+    p {
+      margin: 6px 0;
+      line-height: 1.7;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 12px;
+      font-size: 10pt;
+    }
+    table th {
+      background: #dde8f0;
+      padding: 6px 10px;
+      border: 1px solid #bbb;
+      text-align: left;
+      font-weight: bold;
+    }
+    table td {
+      padding: 6px 10px;
+      border: 1px solid #bbb;
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    table tr:nth-child(even) td {
+      background: #f8f8f8;
+    }
+
+    ul, ol {
+      margin: 6px 0 6px 20px;
+      line-height: 1.8;
+    }
+
+    .highlight {
+      background: #fff3cd;
+      border-left: 3px solid #e6a817;
+      padding: 4px 8px;
+      margin: 6px 0;
+      font-weight: bold;
+    }
+
+    .action-list {
+      list-style: none;
+      margin-left: 0;
+    }
+    .action-list li {
+      padding: 4px 0 4px 22px;
+      border-bottom: 1px dotted #ccc;
+      position: relative;
+    }
+    .action-list li::before {
+      content: "□";
+      position: absolute;
+      left: 4px;
+      color: #2c5f8a;
+    }
+
+    .note {
+      margin-top: 24px;
+      padding: 8px 10px;
+      background: #f5f5f5;
+      border: 1px solid #ccc;
+      font-size: 9pt;
+      color: #666;
+      border-radius: 2px;
+    }
+
+    [contenteditable="true"]:hover {
+      outline: 1px dashed #2c5f8a;
+      outline-offset: 2px;
+    }
+    [contenteditable="true"]:focus {
+      outline: 2px solid #2c5f8a;
+      outline-offset: 2px;
+      background: #fffdf0;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #eef3f7;
+      border: 1px solid #bcd;
+      border-radius: 4px;
+      padding: 8px 10px;
+      margin: -20px -18mm 16px;
+      padding-left: 18mm;
+      padding-right: 18mm;
+      font-size: 9.5pt;
+    }
+    .toolbar button {
+      font-family: inherit;
+      font-size: 10pt;
+      padding: 6px 14px;
+      border: 1px solid #2c5f8a;
+      border-radius: 4px;
+      background: #2c5f8a;
+      color: #fff;
+      cursor: pointer;
+    }
+    .toolbar button.secondary {
+      background: #fff;
+      color: #2c5f8a;
+    }
+    .toolbar button:hover {
+      opacity: 0.85;
+    }
+    .toolbar #saveStatus {
+      color: #555;
+      margin-left: 4px;
+    }
+    .toolbar .hint {
+      margin-left: auto;
+      color: #789;
+      font-size: 8.5pt;
+    }
+
+    @media print {
+      body { padding: 0; }
+      @page { size: A4; margin: 15mm 18mm; }
+      [contenteditable="true"]:hover,
+      [contenteditable="true"]:focus {
+        outline: none;
+        background: transparent;
+      }
+      .toolbar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar" contenteditable="false">
+    <button onclick="overwriteSave()">💾 上書き保存</button>
+    <button class="secondary" onclick="saveAsFile()">📁 名前を付けて保存</button>
+    <span id="saveStatus"></span>
+    <span class="hint">※ Chrome / Edge推奨。初回は保存先を選択してください</span>
+  </div>
+
+  <div id="docContent" contenteditable="true">
+
+  <h1>議　事　録</h1>
+
+  <table class="meta-table">
+    <tr><td>日　付</td><td>2026年9月24日（会話内に日付の明言なし／作成日を記載）</td></tr>
+    <tr><td>作　成</td><td>野尻 連太朗（株式会社AXIS）</td></tr>
+    <tr><td>出席者</td><td>先方ご担当者（氏名・所属：不明）／野尻 連太朗（株式会社AXIS）</td></tr>
+    <tr><td>案　件</td><td>既存ホテル（ラブホテル）リニューアル工事　見積内容の見直し打ち合わせ（案件名：不明）</td></tr>
+    <tr><td>備　考</td><td>打ち合わせ録音の自動文字起こしを元に作成。金額・単位・固有名詞に聞き取り不明瞭な箇所が多いため、「（不明）」「要確認」と記載した箇所は確認のこと。</td></tr>
+  </table>
+
+  <h2>1. 打ち合わせの趣旨・前提</h2>
+  <ul>
+    <li>提出済みの見積について、先方より「単価・項目とも甘く見ている箇所がある」との指摘。見直しのうえ、<b>早急に再提出</b>してほしいとの依頼</li>
+    <li>本件は新築ではなく<b>既存ホテルのリニューアルで、予算ありき</b>。工事費を含めた<b>総額予算の範囲内</b>で収める必要がある</li>
+    <li>追加工事・追加費用は原則認められない。あとから「ギブアップ」となる（赤字覚悟・工事継続困難）事態は双方にとって避けたい</li>
+    <li>最安値ベースの見積だと「できること」が増えて見えてしまい、実際に品番を選定した段階で大幅に予算超過（「3,000万円」との発言あり・詳細不明瞭）となり、発注済みで戻せなくなるリスクがある。<b>ある程度これくらいあれば概ね収まる、という水準</b>で予算を組み、そのうえで実施範囲を決めたい</li>
+    <li>現時点では品番が未指定のため、品番確定時に改めて詰める前提。ただし現状の見積がそのまま「生きて」基準になってしまうため、想定水準を先に見直す</li>
+  </ul>
+
+  <h2>2. 協議内容</h2>
+
+  <h3>(1) クロス（壁紙）</h3>
+  <ul>
+    <li>現行見積は<b>約1,800円/㎡</b>（1,875円との発言）＝定番の量産ビニルクロス相当。ホテルでは品番が指定されていない段階でこの単価だと、実際の選定時に成立しない</li>
+    <li>先方の想定：量産品（1000番台）は使わず、色・柄・デザインが選べる価格帯（メタリック系など）。<b>上代で4,000〜5,000円/㎡程度</b>の品を選ぶ可能性が高い。1万円/㎡クラスの高級品までは想定しない</li>
+    <li>見積上は<b>施工込みで3,500円/㎡程度</b>を見ておくよう依頼（下地処理は別途計上で可）</li>
+    <li>単価が高くなる理由
+      <ul>
+        <li>折り返し天井・丸みのある部分が多く、内側・外側で材料ロスが大きい（使用率が1/3程度になる箇所もある）</li>
+        <li>リピート柄はロスが多い。部屋ごとに柄を変えるため、ロールが余る（全室分でロールが大量に残ることもある）</li>
+        <li>既存のクロスの上にクロスが貼ってある場合は撤去・捨て張りが必要になる。下地が傷んでいることも多い</li>
+      </ul>
+    </li>
+    <li>浴室・洗面などの水回りは、客の入浴が1日2〜3回転と使用頻度が高く、家庭と違って傷みが早い。<b>下地をしっかり作る</b>前提で見ること</li>
+    <li>定番ビニルクロスの単価でしか見ていないと、「疲労はしょうがない」は通用しない。先方は「予備費」という項目ではなく、<b>クロス等の想定単価そのものを上げて</b>おく形を希望</li>
+  </ul>
+
+  <h3>(2) ダイノック（化粧シート）</h3>
+  <ul>
+    <li>ダイノックは選定品によって単価が大きく変わる（13,000〜14,000円/㎡クラスを選ぶ可能性あり）。メタリック調・石目調など、選択肢次第で倍近く差が出る</li>
+    <li>製品の選定（メーカー・シリーズ）によっては施工性・耐久性に問題が出る旨の指摘あり（該当製品名は文字起こしが不明瞭：「スリーム」と聞こえる箇所あり・要確認）</li>
+    <li>伸びやすい・貼りにくい、水平ラインの線が出る、などの施工性の差があるため、<b>施工業者側から「こちらの品番の方が施工しやすい／手間がかかる」等のフィードバックを歓迎</b>。先方が選んだ候補の中で、予算を下げつつ施工性の良いものへ寄せていく</li>
+  </ul>
+
+  <h3>(3) 窓フィルム・ガラスシート・自動ドア</h3>
+  <ul>
+    <li>窓フィルムは<b>2,600円</b>（単位は要確認）で見ているが、普通の黒・白の無地を想定した単価。目隠し用の曇りガラス調・意匠入りなどを選ぶ可能性がある</li>
+    <li>ガラスへのシート貼りは<b>22,000円（貼り込み）</b>（数量3㎡分か1㎡あたりか、聞き取り不明瞭）で見ているが、妥当かどうか確認したい。腕の良いクロス屋・施工業者に依頼できるかで単価は上下する</li>
+    <li>自動ドアへのシート貼りについても、施工業者次第で金額が変わるため要確認</li>
+  </ul>
+
+  <h3>(4) 浴室床タイル</h3>
+  <ul>
+    <li>タイル割り一式を<b>約6万円</b>で見ているが、安すぎる可能性がある。格安で対応できる業者がいれば別だが、見直しが必要との指摘</li>
+  </ul>
+
+  <h3>(5) 電気設備</h3>
+  <ul>
+    <li>照明取付は<b>1部屋17万円</b>（LED）で見ている。配線・引き込み・ブレーカー増設が含まれているかを確認したい</li>
+    <li>ホテル客室は既存回路数の流用ではなく、<b>最低3回路が必要</b>。エアコン（動力・200V）を含めると4系統
+      <ol>
+        <li>照明・制御系：リモコンスイッチ・<b>リモコンブレーカー</b>。扉を閉めると消灯／空室で消灯／入室（扉開放）で点灯といった制御</li>
+        <li>洗面・電子レンジ・ポット・ドライヤーなど電力を多く使う機器（洗面系と電子レンジ系は分ける）</li>
+        <li>システム系：コンピューター管理（時間請求等）の回路、テレビ</li>
+      </ol>
+    </li>
+    <li>回路が増えることで、<b>分電盤の容量・盤の余裕</b>、配線の引き回しルートを見る必要がある。項目としてしっかり拾ってほしい</li>
+    <li>キュービクルの容量が足りるかを確認し、不足する場合は先方へ相談（受電設備側の増設は通常の見積範囲外）。ビルタイプでエレベーターもあるため、容量は極端に少なくはない見込み</li>
+    <li>コンセントは<b>各部屋1か所増設</b>を見込んでおく（ベッド周りでスマホ等を充電する需要があるため、ラブホテルの機能上必要）。実際の位置・数は現場で詰める</li>
+    <li>スイッチプレート交換も含める</li>
+  </ul>
+
+  <h3>(6) 給排水・衛生設備</h3>
+  <ul>
+    <li><b>ボイラーの入れ替え</b>が必要。2機あるうち1機は寿命が近く、もう1機は新しく入っているとのこと（詳細は文字起こし不明瞭・要確認）。同程度容量のボイラーの入れ替えを見積に含めてほしい</li>
+    <li><b>トイレ</b>：現状はタンク式と思われる。節水型は流す水量が少なく、既存の排水勾配が緩い旧式の配管だと、トイレットペーパーが詰まりやすい（合流部で滞留・逆流の恐れ）。運用面ではシングルのトイレットペーパーに変えるなどの対策をしている
+      <ul>
+        <li>まずは<b>タンク付きを想定</b>して見積。スペース的に厳しい場合のみ節水（タンクレス）タイプを検討する</li>
+        <li>タンクレスに変更する場合は、排水（穴）位置が既存と合わなくなる。位置を下げる工事が必要で、1か所あたり相当額かかる（金額は「二十00」と聞こえ不明瞭・要確認）</li>
+        <li>そのため、「便器を載せ替えるだけ」の見積ではなく、<b>排水位置・前スペースを想定した見積</b>にしてほしい。商品選定は設備業者を交えて相談する</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>(7) 解体・外回り</h3>
+  <ul>
+    <li>図面は既存図に対する差し替え図面が出ている（詳細は先方から聞いている範囲）</li>
+    <li>解体工事（工作物系）が現行見積に含まれていない可能性がある（先方担当者が見ていなかったのではとの発言。担当者名は「原島／花島」と聞こえ不明瞭）</li>
+    <li>ブロックの解体処分：場所は<b>現在の駐車場の奥（後ろ）部分</b>と思われる（現場確認要）。外回りが中心で、重機使用・鉄骨あり。<b>クロスと同様に想定漏れがないか再確認</b>すること</li>
+    <li>サイン用のアーム（鉄骨）は既存だと900程度までしか出せない旨の発言あり（詳細不明瞭）</li>
+  </ul>
+
+  <h3>(8) 見積範囲外（別途扱い）</h3>
+  <ul>
+    <li>エアコン、サイン、足場、塗装は別見積でよい</li>
+    <li>天井は、エアコン・照明の位置がすべて変わるため、クロス・天井仕上げの範囲に影響する点に留意</li>
+  </ul>
+
+  <h3>(9) 既存ホテル特有のリスクの見込み</h3>
+  <ul>
+    <li>ホテルは開けると想定以上に傷んでいることが多い（クロスを剥がすと下地がぐずぐず、エアコン漏水で天井下地が傷んでいる、など）。<b>各部屋で下地補修・張替えが発生する前提</b>で見ておく</li>
+    <li>追加が認められないため、後から増えることを想定して単価・数量に余裕を持たせる</li>
+  </ul>
+
+  <h2>3. 決定事項・依頼事項</h2>
+  <table>
+    <tr><th style="width:8%">No.</th><th style="width:27%">項目</th><th>内容</th></tr>
+    <tr><td>1</td><td>クロス単価</td><td>定番ビニルクロス想定（約1,800円/㎡）を改め、<b>施工込み3,500円/㎡程度</b>で見直す。品番確定後に再調整</td></tr>
+    <tr><td>2</td><td>下地処理・補修</td><td>下地処理・補修は別途項目で見込む。水回りは特に下地をしっかり見る</td></tr>
+    <tr><td>3</td><td>ダイノック・窓フィルム等</td><td>デザイン系・意匠品を選ぶ可能性を前提に想定単価を上げる。施工性に関する提案・フィードバックは歓迎</td></tr>
+    <tr><td>4</td><td>電気（客室）</td><td>客室は<b>3回路＋エアコン動力</b>で項目を見直す。リモコンブレーカー・分電盤容量・配線ルートを拾う</td></tr>
+    <tr><td>5</td><td>コンセント</td><td>各部屋<b>1か所増設</b>を見込む</td></tr>
+    <tr><td>6</td><td>トイレ</td><td><b>タンク付きを基本想定</b>。排水位置・スペースを踏まえ、設備業者と相談のうえ最終決定</td></tr>
+    <tr><td>7</td><td>ボイラー</td><td>入れ替え（同程度容量）を見積に含める</td></tr>
+    <tr><td>8</td><td>範囲外</td><td>エアコン・サイン・足場・塗装は別途</td></tr>
+    <tr><td>9</td><td>進め方</td><td>単価見直し後、<b>現場で野尻と先方で項目の付き合わせ</b>を行う。見積の再提出は早急に</td></tr>
+  </table>
+
+  <h2>4. 確認事項・懸案事項</h2>
+  <p class="highlight">→ 総額予算内で収める必要があり、追加請求は原則不可。品番選定後の大幅な予算超過を防ぐため、想定単価・数量に余裕を持たせる必要がある。</p>
+  <p class="highlight">→ 窓フィルム（2,600円）、ガラスシート貼り（22,000円）の単位・数量・内訳が聞き取り不明瞭。現行見積の記載を確認すること。</p>
+  <p class="highlight">→ トイレのタンクレス化に伴う排水位置変更の費用（「二十00」の聞き取りが不明瞭）。</p>
+  <p class="highlight">→ キュービクル・分電盤の容量が3回路化に耐えられるか（不足時は先方へ相談）。</p>
+  <p class="highlight">→ 解体工事（工作物）・ブロック解体処分・重機の想定漏れがないか。ブロックの範囲（駐車場奥）を現場で要確認。</p>
+  <p class="highlight">→ ボイラーの台数・入れ替え対象（2機のうち1機は寿命近く、もう1機は新しいとの発言）。</p>
+  <p class="highlight">→ 見積再提出の期限・現場での付き合わせ日程は未定（要調整）。</p>
+
+  <h2>5. 次回アクション</h2>
+  <ul class="action-list">
+    <li>クロス単価を3,500円/㎡程度（施工込み）に見直し、下地処理・補修を別途計上する（担当：野尻）</li>
+    <li>ダイノック・窓フィルム・ガラスシート・自動ドアシートの想定単価を見直す（担当：野尻）</li>
+    <li>浴室床タイルのタイル割り単価（現行約6万円）を再確認・見直す（担当：野尻）</li>
+    <li>客室電気を3回路＋動力で再積算し、照明取付（1部屋17万円）の内訳・分電盤容量・配線ルートを確認する（担当：野尻／電気業者）</li>
+    <li>コンセント各部屋1か所増設、スイッチプレート交換を見積に追加する（担当：野尻）</li>
+    <li>ボイラー入れ替えを見積に追加する（担当：野尻／設備業者）</li>
+    <li>トイレ（タンク付き想定）の排水位置・スペースを設備業者と相談する（担当：野尻／設備業者）</li>
+    <li>解体工事（ブロック解体処分・重機・外回り）の想定漏れを確認する（要現場確認）</li>
+    <li>キュービクルの容量について先方へ確認する（担当：要調整）</li>
+    <li>見直した見積を早急に再提出する（期限：要確認）</li>
+    <li>現場で先方と項目の付き合わせを行う（日程：要調整）</li>
+  </ul>
+
+  <div class="note">
+    ※ 本議事録は打ち合わせ録音の自動文字起こしを元に作成しています。文字起こしには誤変換・言い直し・聞き取り不明瞭な箇所が多く、特に金額・単位・数量、人名（先方担当者名・「原島／花島」）、製品名（ダイノック関連）、キュービクル・ボイラーに関する記述は推定を含みます。内容は必ずご確認のうえご利用ください。
+  </div>
+
+  </div>
+
+  <script>
+    let fileHandle = null;
+    const statusEl = () => document.getElementById('saveStatus');
+    const supportsFS = 'showSaveFilePicker' in window;
+
+    function buildHtmlString() {
+      const clone = document.documentElement.cloneNode(true);
+      const status = clone.querySelector('#saveStatus');
+      if (status) status.textContent = '';
+      return '<!DOCTYPE html>\n' + clone.outerHTML;
+    }
+
+    async function verifyPermission(handle) {
+      const opts = { mode: 'readwrite' };
+      if ((await handle.queryPermission(opts)) === 'granted') return true;
+      if ((await handle.requestPermission(opts)) === 'granted') return true;
+      return false;
+    }
+
+    async function writeToHandle(handle) {
+      const ok = await verifyPermission(handle);
+      if (!ok) throw new Error('書き込み権限がありません');
+      const writable = await handle.createWritable();
+      await writable.write(buildHtmlString());
+      await writable.close();
+    }
+
+    function downloadFallback() {
+      const blob = new Blob([buildHtmlString()], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = document.title.replace(/[\\/:*?"<>|]/g, '') + '.html';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function saveAsFile() {
+      if (!supportsFS) {
+        downloadFallback();
+        statusEl().textContent = 'ダウンロードしました（このブラウザは直接保存に非対応）';
+        return;
+      }
+      try {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName: document.title + '.html',
+          types: [{ description: 'HTML ファイル', accept: { 'text/html': ['.html'] } }]
+        });
+        await writeToHandle(fileHandle);
+        statusEl().textContent = '保存しました（' + new Date().toLocaleTimeString('ja-JP') + '）';
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          statusEl().textContent = '保存に失敗しました: ' + err.message;
+        }
+      }
+    }
+
+    async function overwriteSave() {
+      if (!fileHandle) {
+        await saveAsFile();
+        return;
+      }
+      try {
+        await writeToHandle(fileHandle);
+        statusEl().textContent = '上書き保存しました（' + new Date().toLocaleTimeString('ja-JP') + '）';
+      } catch (err) {
+        statusEl().textContent = '保存に失敗しました: ' + err.message;
+      }
+    }
+  </script>
+
+</body>
+</html>

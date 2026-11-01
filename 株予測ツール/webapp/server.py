@@ -127,7 +127,7 @@ def build_chart_payload(hist, tail_days: int = 220):
 def api_analyze():
     query = (request.args.get("q") or "").strip()
     forecast_days = request.args.get("forecast_days", default=10, type=int)
-    tech_weight = request.args.get("tech_weight", default=0.55, type=float)
+    tech_weight = request.args.get("tech_weight", default=0.45, type=float)
 
     if not query:
         return jsonify({"error": "銘柄を入力してください。"}), 400
@@ -147,6 +147,7 @@ def api_analyze():
     info = result["info"]
     tech = result["tech"]
     fund = result["fund"]
+    world = result["world"]
     combined = result["combined"]
     forecast = result["forecast"]
     live_price = result["live_price"]
@@ -169,6 +170,7 @@ def api_analyze():
         "updated_at": hist.index[-1].strftime("%Y-%m-%d"),
         "tech": tech,
         "fund": fund,
+        "world": world,
         "combined": combined,
         "forecast": {
             "trend": forecast["trend"],

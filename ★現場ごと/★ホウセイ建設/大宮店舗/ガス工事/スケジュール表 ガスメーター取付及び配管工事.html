@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<!-- saved from url=(0311)file:///C:/Users/renta/OneDrive/Desktop/AI%E4%BA%8B%E5%8B%99/%E2%98%85%E7%8F%BE%E5%A0%B4%E3%81%94%E3%81%A8/%E3%82%B9%E3%82%B1%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB%E8%A1%A8_%E3%82%AC%E3%82%B9%E3%83%A1%E3%83%BC%E3%82%BF%E3%83%BC%E5%8F%96%E4%BB%98%E5%8F%8A%E3%81%B3%E9%85%8D%E7%AE%A1%E5%B7%A5%E4%BA%8B_20261026.html -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>スケジュール表 ガスメーター取付及び配管工事</title>
+<style>
+  @page { size: A3 landscape; margin: 12mm; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Yu Gothic","Meiryo",sans-serif; color:#222; margin:0; background:#f4f4f2; }
+  .sheet { width: 1100px; margin: 20px auto; background:#fff; padding: 30px 40px; box-shadow:0 0 10px rgba(0,0,0,.15); }
+  header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:3px solid #2b4a6f; padding-bottom:8px; margin-bottom:16px; }
+  header h1 { font-size:28px; letter-spacing:4px; margin:0; color:#2b4a6f; }
+  .company { text-align:right; font-size:12px; line-height:1.6; color:#444; }
+  table { border-collapse:collapse; width:100%; }
+  .meta td { border:1px solid #ccc; padding:8px 12px; font-size:15px; }
+  .meta td.label { background:#eef2f7; width:120px; font-weight:bold; color:#2b4a6f; }
+  h2 { font-size:17px; color:#fff; background:#2b4a6f; padding:6px 14px; margin:18px 0 8px; border-radius:3px; }
+  .sch th { background:#2b4a6f; color:#fff; padding:8px; font-size:14px; border:1px solid #2b4a6f; }
+  .sch td { border:1px solid #ccc; padding:10px 12px; font-size:16px; vertical-align:middle; }
+  .sch td.time { width:170px; text-align:center; font-weight:bold; white-space:nowrap; }
+  .sch td.no { width:50px; text-align:center; font-weight:bold; }
+  .sch td.hours { width:80px; text-align:center; }
+  /* 時間軸バー */
+  .gantt { position:relative; border:1px solid #ccc; }
+  .g-head, .g-row { display:grid; grid-template-columns: 260px repeat(9, 1fr); }
+  .g-head div { background:#eef2f7; color:#2b4a6f; font-weight:bold; font-size:13px; padding:5px 0; text-align:center; border-left:1px solid #ccc; }
+  .g-head div:first-child { border-left:none; }
+  .g-row { border-top:1px solid #ccc; height:46px; }
+  .g-row .name { padding:0 10px; font-size:14px; display:flex; align-items:center; border-right:1px solid #ccc; }
+  .g-row .lane { grid-column: 2 / span 9; position:relative;
+    background-image: repeating-linear-gradient(to right, #ddd 0, #ddd 1px, transparent 1px, transparent calc(100%/9)); }
+  .bar { position:absolute; top:8px; height:30px; border-radius:4px; color:#fff; font-size:13px; font-weight:bold;
+         display:flex; align-items:center; justify-content:center; white-space:nowrap; }
+  .c1 { background:#c0504d; } .c2 { background:#2b6fa8; } .c3 { background:#2e8b57; }
+  .note { margin-top:14px; font-size:13px; color:#555; line-height:1.8; }
+  [contenteditable="true"] { outline:none; cursor:text; }
+  [contenteditable="true"]:hover { background:#f6f9ff; }
+  [contenteditable="true"]:focus { background:#eaf2ff; box-shadow:inset 0 0 0 1px #7ba7e8; }
+  #bar-tool { position:fixed; top:12px; right:12px; background:rgba(255,255,255,.95); border:1px solid #bbb; border-radius:8px; padding:8px 12px; }
+  #bar-tool button { padding:6px 14px; border:none; border-radius:5px; background:#2b4a6f; color:#fff; cursor:pointer; font-size:12px; }
+  @media print {
+    body { background:#fff; } .sheet { box-shadow:none; margin:0; width:100%; padding:0; }
+    #bar-tool { display:none; }
+    [contenteditable="true"]:hover, [contenteditable="true"]:focus { background:none; box-shadow:none; }
+  }
+</style>
+</head>
+<body>
+<div id="bar-tool"><button onclick="window.print()">印刷 / PDF保存</button></div>
+<div class="sheet">
+  <header>
+    <h1>ス ケ ジ ュ ー ル 表</h1>
+    <div class="company">株式会社AXIS<br>埼玉県草加市小山2-29-10（〒340-0045）<br>TEL: 090-9825-2087</div>
+  </header>
+
+  <table class="meta">
+    <tbody><tr>
+      <td class="label">工事名称</td><td contenteditable="true">ガスメーター取付及び配管工事</td>
+      <td class="label">作業日</td><td contenteditable="true">2026年10月26日（月）</td>
+    </tr>
+  </tbody></table>
+
+  <h2>当日の作業内容</h2>
+  <table class="sch">
+    <tbody><tr><th>No.</th><th>時間</th><th>作業内容</th><th>所要</th></tr>
+    <tr><td class="no">1</td><td class="time" contenteditable="true">8：00 ～ 9：00</td>
+      <td contenteditable="true">一層シンク取り外し、点検口取付、瞬間湯沸かし器取付</td><td class="hours" contenteditable="true">1時間</td></tr>
+    <tr><td class="no">2</td><td class="time" contenteditable="true">9：00 ～ 15：00</td>
+      <td contenteditable="true">ガス配管、メーター取付</td><td class="hours" contenteditable="true">6時間</td></tr>
+    <tr><td class="no">3</td><td class="time" contenteditable="true">15：00 ～ 17：00</td>
+      <td contenteditable="true">一層シンク復旧、シーリング</td><td class="hours" contenteditable="true">2時間</td></tr>
+  </tbody></table>
+
+  <h2>時間軸</h2>
+  <div class="gantt">
+    <div class="g-head"><div></div><div>8:00</div><div>9:00</div><div>10:00</div><div>11:00</div><div>12:00</div><div>13:00</div><div>14:00</div><div>15:00</div><div>16:00</div></div>
+    <div class="g-row"><div class="name" contenteditable="true">一層シンク取り外し・点検口・湯沸かし器</div><div class="lane"><div class="bar c1" style="left:0;width:calc(100%/9*1)">8:00-9:00</div></div></div>
+    <div class="g-row"><div class="name" contenteditable="true">ガス配管、メーター取付</div><div class="lane"><div class="bar c2" style="left:calc(100%/9*1);width:calc(100%/9*6)">9:00-15:00</div></div></div>
+    <div class="g-row"><div class="name" contenteditable="true">一層シンク復旧・シーリング</div><div class="lane"><div class="bar c3" style="left:calc(100%/9*7);width:calc(100%/9*2)">15:00-17:00</div></div></div>
+  </div>
+  <div class="note" contenteditable="true">※ 時間軸は 8:00〜17:00。各列の左端がその時刻の開始です。</div>
+</div>
+
+
+</body></html>

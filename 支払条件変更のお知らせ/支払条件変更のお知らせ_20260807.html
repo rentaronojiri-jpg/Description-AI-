@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>お支払い条件変更のお知らせ</title>
+<style>
+  @page { size: A4; margin: 20mm; }
+  * {
+    box-sizing: border-box;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+  body {
+    font-family: "Yu Gothic", "Meiryo", "Hiragino Kaku Gothic ProN", sans-serif;
+    color: #222;
+    margin: 0;
+    padding: 15mm 12mm;
+  }
+  .sheet {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .doc-no {
+    color: #444;
+  }
+  .date {
+    color: #444;
+  }
+  .addressee {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 30px;
+  }
+  .sender {
+    text-align: right;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 34px;
+  }
+  .sender .name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1b2a52;
+  }
+  .company-mark {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2px;
+  }
+  .company-mark img {
+    height: 34px;
+    width: auto;
+  }
+  .title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: #1b2a52;
+    margin-bottom: 36px;
+    border-top: 3px solid #1b2a52;
+    border-bottom: 3px solid #1b2a52;
+    padding: 12px 0;
+  }
+  .lead {
+    font-size: 14.5px;
+    line-height: 2;
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+  }
+  table.info {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+    margin-bottom: 22px;
+  }
+  table.info th, table.info td {
+    border: 1px solid #c9c9c9;
+    padding: 12px 16px;
+    text-align: left;
+    vertical-align: middle;
+  }
+  table.info th {
+    background: #e9ebf1;
+    width: 30%;
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-bottom: 22px;
+  }
+  table.compare th, table.compare td {
+    border: 1px solid #c9c9c9;
+    padding: 10px 14px;
+    text-align: center;
+  }
+  table.compare th {
+    background: #1b2a52;
+    color: #fff;
+  }
+  table.compare td.current {
+    color: #888;
+    text-decoration: line-through;
+  }
+  table.compare td.new {
+    color: #b3231c;
+    font-weight: 700;
+  }
+  .note-box {
+    border: 1px solid #c9a24a;
+    background: #fbf3df;
+    padding: 16px 20px;
+    font-size: 13.5px;
+    line-height: 1.9;
+    margin-bottom: 30px;
+  }
+  .note-box .note-title {
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .closing {
+    font-size: 14px;
+    line-height: 1.9;
+    margin-bottom: 40px;
+  }
+  .contact {
+    font-size: 13px;
+    color: #444;
+    border-top: 1px solid #c9c9c9;
+    padding-top: 12px;
+  }
+  .contact .name {
+    font-weight: 700;
+    color: #1b2a52;
+  }
+  .end-mark {
+    text-align: right;
+    font-size: 14px;
+    margin-top: 10px;
+    margin-bottom: 30px;
+  }
+  @media print {
+    body { padding: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="sheet">
+
+    <div class="top-row">
+      <div class="doc-no">AXIS発第2026-08号</div>
+      <div class="date">2026年8月7日</div>
+    </div>
+
+    <div class="addressee">協力業者　各位</div>
+
+    <div class="sender">
+      <div class="company-mark">
+        <img src="../会社情報/AXIS_logo.png" alt="AXIS">
+        <span class="name">株式会社AXIS</span>
+      </div>
+      <div>埼玉県草加市小山2-29-10</div>
+      <div>代表取締役　菊池　匠</div>
+    </div>
+
+    <div class="title">お支払い条件変更のお知らせ</div>
+
+    <div class="lead">
+      拝啓　時下ますますご清栄のこととお慶び申し上げます。平素は格別のお引き立てを賜り、厚く御礼申し上げます。<br><br>
+      さて、誠に勝手ながら、下記の通り貴社へのお支払い条件を変更させていただくこととなりましたので、ご案内申し上げます。何卒事情ご賢察のうえ、ご理解を賜りますようお願い申し上げます。
+    </div>
+
+    <div class="section-title">記</div>
+
+    <table class="compare">
+      <tr>
+        <th style="width:34%;"></th>
+        <th style="width:33%;">変更前</th>
+        <th style="width:33%;">変更後</th>
+      </tr>
+      <tr>
+        <td style="text-align:left; font-weight:700; background:#f4f5f8;">締め日</td>
+        <td>毎月末日締め</td>
+        <td>毎月末日締め（変更なし）</td>
+      </tr>
+      <tr>
+        <td style="text-align:left; font-weight:700; background:#f4f5f8;">お支払い</td>
+        <td class="current">締め月末日払い</td>
+        <td class="new">締め後40日払い</td>
+      </tr>
+    </table>
+
+    <table class="info">
+      <tr><th>適用開始</th><td>2026年9月分（2026年9月30日締め分）のお支払いより適用</td></tr>
+      <tr><th>お支払い日の例</th><td>2026年9月30日締め分 → 2026年11月9日お支払い予定</td></tr>
+      <tr><th>支払方法</th><td>従来通り銀行振込</td></tr>
+    </table>
+
+    <div class="note-box">
+      <div class="note-title">【ご留意事項】</div>
+      ・お支払い日が金融機関休業日にあたる場合は、翌営業日のお支払いとさせていただきます。<br>
+      ・2026年8月分（8月31日締め分）までは、従来通り「締め月末日払い」を適用いたします。<br>
+      ・ご請求書の締め日・提出方法に変更はございません。
+    </div>
+
+    <div class="closing">
+      ご不明な点、ご不便をおかけする点がございましたら、下記お問い合わせ先までご連絡くださいますようお願い申し上げます。<br>
+      今後とも変わらぬご支援・ご協力を賜りますよう、何卒よろしくお願い申し上げます。
+    </div>
+
+    <div class="end-mark">敬具</div>
+
+    <div class="contact">
+      <div class="name">株式会社AXIS</div>
+      <div>埼玉県草加市小山2-29-10</div>
+      <div>担当：菊池　匠　　TEL：090-9825-2087</div>
+    </div>
+
+  </div>
+</body>
+</html>

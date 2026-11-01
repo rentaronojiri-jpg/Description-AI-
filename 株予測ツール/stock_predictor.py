@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 株予測ツール（CLI版）
-ファンダメンタルズ分析とテクニカル分析を組み合わせ、売買シグナルと
+テクニカル・ファンダメンタルズ・世界情勢（ニュース見出し）の3専門エージェントで
+それぞれスコアリングし、加重平均によるチーム評価（売買シグナル）と
 簡易的な株価トレンド予測を行い、自己完結型のHTMLレポートを出力する。
 
 使い方:
@@ -166,7 +167,7 @@ def score_bar_html(score: int) -> str:
     )
 
 
-def build_html_report(ticker_symbol, name, hist, info, live_price, prev_close, tech, fund, combined, forecast, candle_img, forecast_img) -> str:
+def build_html_report(ticker_symbol, name, hist, info, live_price, prev_close, tech, fund, world, combined, forecast, candle_img, forecast_img) -> str:
     last = hist.iloc[-1]
     change = live_price - prev_close
     change_pct = change / prev_close * 100 if prev_close else 0
@@ -175,6 +176,7 @@ def build_html_report(ticker_symbol, name, hist, info, live_price, prev_close, t
 
     tech_reasons = "".join(f"<li>{r}</li>" for r in tech["reasons"]) or "<li>該当する指標なし</li>"
     fund_reasons = "".join(f"<li>{r}</li>" for r in fund["reasons"]) or "<li>ファンダメンタルズ情報が取得できませんでした</li>"
+    world_reasons = "".join(f"<li>{r}</li>" for r in world["reasons"]) or "<li>関連ニュースが取得できませんでした</li>"
 
     generated_at = datetime.now().strftime("%Y年%m月%d日 %H:%M")
 
@@ -191,6 +193,8 @@ def build_html_report(ticker_symbol, name, hist, info, live_price, prev_close, t
   .change {{ font-size:1.1em; font-weight:bold; }}
   .signal-badge {{ display:inline-block; padding:6px 18px; border-radius:20px; font-weight:bold; font-size:1.3em; color:#fff; }}
   .grid2 {{ display:grid; grid-template-columns: 1fr 1fr; gap:20px; }}
+  .grid3 {{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; }}
+  .agents-label {{ font-size:0.85em; color:#888; font-weight:bold; margin-bottom:10px; }}
   h2 {{ font-size:1.1em; border-left:4px solid #34495e; padding-left:10px; margin-top:0; }}
   ul {{ margin:6px 0; padding-left:20px; line-height:1.7; }}
   .score-track {{ position:relative; height:10px; background:linear-gradient(to right,#c0392b,#eee 50%,#1e8449); border-radius:5px; margin:10px 0 4px; }}
@@ -216,14 +220,21 @@ def build_html_report(ticker_symbol, name, hist, info, live_price, prev_close, t
     <div style="margin-top:16px;">{score_bar_html(combined['score'])}</div>
   </div>
 
-  <div class="card grid2">
-    <div>
-      <h2>テクニカル分析（重み {combined['tech_weight']*100:.0f}%）　スコア: {tech['score']:+d}</h2>
-      <ul>{tech_reasons}</ul>
-    </div>
-    <div>
-      <h2>ファンダメンタルズ分析（重み {combined['fund_weight']*100:.0f}%）　スコア: {fund['score']:+d}</h2>
-      <ul>{fund_reasons}</ul>
+  <div class="card">
+    <div class="agents-label">🧑‍💼 専門エージェントチームによる評価</div>
+    <div class="grid3">
+      <div>
+        <h2>テクニカル分析エージェント（重み {combined['tech_weight']*100:.0f}%）　スコア: {tech['score']:+d}</h2>
+        <ul>{tech_reasons}</ul>
+      </div>
+      <div>
+        <h2>ファンダメンタルズ分析エージェント（重み {combined['fund_weight']*100:.0f}%）　スコア: {fund['score']:+d}</h2>
+        <ul>{fund_reasons}</ul>
+      </div>
+      <div>
+        <h2>世界情勢分析エージェント（重み {combined['world_weight']*100:.0f}%）　スコア: {world['score']:+d}</h2>
+        <ul>{world_reasons}</ul>
+      </div>
     </div>
   </div>
 
@@ -283,17 +294,20 @@ def _fmt_optional_pct(pct):
 # コンソール出力
 # ---------------------------------------------------------------------------
 
-def print_console_report(ticker_symbol, name, live_price, info, tech, fund, combined, forecast):
+def print_console_report(ticker_symbol, name, live_price, info, tech, fund, world, combined, forecast):
     sym = currency_symbol(info)
     print("=" * 60)
     print(f" {name}（{ticker_symbol}）  現在値: {sym}{live_price:,.0f}")
     print("=" * 60)
-    print(f" 総合判定: {combined['label']}  (スコア {combined['score']:+d} / -100〜+100)")
-    print(f"   - テクニカルスコア: {tech['score']:+d}")
+    print(f" 総合判定（3専門エージェントのチーム評価）: {combined['label']}  (スコア {combined['score']:+d} / -100〜+100)")
+    print(f"   - テクニカルエージェント: {tech['score']:+d}")
     for r in tech["reasons"]:
         print(f"      ・{r}")
-    print(f"   - ファンダメンタルズスコア: {fund['score']:+d}")
+    print(f"   - ファンダメンタルズエージェント: {fund['score']:+d}")
     for r in fund["reasons"]:
+        print(f"      ・{r}")
+    print(f"   - 世界情勢エージェント: {world['score']:+d}")
+    for r in world["reasons"]:
         print(f"      ・{r}")
     print(f" 簡易トレンド予測: 今後{forecast['change_pct']:+.1f}%（{forecast['trend']}）※参考値")
     print("-" * 60)
@@ -311,18 +325,19 @@ def analyze_one(code: str, forecast_days: int, tech_weight: float, output_dir: P
     info = result["info"]
     tech = result["tech"]
     fund = result["fund"]
+    world = result["world"]
     combined = result["combined"]
     forecast = result["forecast"]
     live_price = result["live_price"]
     prev_close = result["prev_close"]
 
-    print_console_report(ticker_symbol, name, live_price, info, tech, fund, combined, forecast)
+    print_console_report(ticker_symbol, name, live_price, info, tech, fund, world, combined, forecast)
 
     candle_img = make_candle_chart(hist, name)
     forecast_img = make_forecast_chart(hist, forecast, name)
     html = build_html_report(
         ticker_symbol, name, hist, info, live_price, prev_close,
-        tech, fund, combined, forecast, candle_img, forecast_img,
+        tech, fund, world, combined, forecast, candle_img, forecast_img,
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -374,7 +389,8 @@ def main():
         help="銘柄コード・ティッカー・会社名（例: 7203, 9984, AAPL, Toyota）。省略すると対話モードで入力できます。",
     )
     parser.add_argument("--forecast-days", type=int, default=10, help="トレンド予測日数（デフォルト10営業日）")
-    parser.add_argument("--tech-weight", type=float, default=0.55, help="テクニカル分析の重み（0〜1、デフォルト0.55）")
+    parser.add_argument("--tech-weight", type=float, default=0.45,
+                         help="テクニカル分析の重み（0〜1、デフォルト0.45）。残りはファンダメンタルズ・世界情勢で35:20の比率配分")
     parser.add_argument("--output-dir", type=str, default=str(OUTPUT_DIR), help="HTML出力先ディレクトリ")
     parser.add_argument("--open", action="store_true", help="生成したHTMLレポートを既定のブラウザで自動的に開く")
     args = parser.parse_args()

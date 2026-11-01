@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>工程表 日別作業内容一覧</title>
+<style>
+  @page { size: A4; margin: 15mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Yu Gothic", "Meiryo", sans-serif;
+    color: #222;
+    margin: 0;
+    background: #f4f4f2;
+  }
+  .sheet {
+    max-width: 1000px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 30px 40px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 3px solid #2b4a6f;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  header h1 {
+    font-size: 24px;
+    letter-spacing: 3px;
+    margin: 0;
+    color: #2b4a6f;
+  }
+  .company {
+    text-align: right;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #444;
+  }
+  .meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+  .meta-table td {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+  }
+  .meta-table td.label {
+    background: #eef2f7;
+    width: 120px;
+    font-weight: bold;
+    color: #2b4a6f;
+  }
+  h2.section-title {
+    font-size: 16px;
+    color: #fff;
+    background: #2b4a6f;
+    padding: 6px 14px;
+    margin: 12px 0 8px;
+    border-radius: 3px;
+  }
+  table.day-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 4px;
+    font-size: 12.5px;
+  }
+  table.day-table th {
+    background: #2b4a6f;
+    color: #fff;
+    padding: 6px 6px;
+    font-size: 12px;
+  }
+  table.day-table td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    vertical-align: top;
+  }
+  table.day-table td.date-cell {
+    text-align: center;
+    white-space: nowrap;
+    font-weight: bold;
+    width: 90px;
+  }
+  table.day-table tr.milestone td {
+    background: #fdecea;
+  }
+  table.day-table td.zone-tag {
+    color: #2b4a6f;
+    font-weight: bold;
+  }
+  .no-work {
+    color: #999;
+  }
+  [contenteditable="true"] {
+    outline: none;
+    cursor: text;
+    min-height: 1.4em;
+  }
+  [contenteditable="true"]:hover {
+    background: #f6f9ff;
+  }
+  [contenteditable="true"]:focus {
+    background: #eaf2ff;
+    box-shadow: inset 0 0 0 1px #7ba7e8;
+  }
+  td.work-cell ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  td.del-cell {
+    width: 28px;
+    text-align: center;
+    padding: 2px !important;
+    vertical-align: middle;
+  }
+  .row-del-btn {
+    border: none;
+    background: none;
+    color: #c0392b;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 4px;
+  }
+  .row-del-btn:hover { color: #e74c3c; }
+  #edit-toolbar {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 9999;
+    display: flex;
+    gap: 8px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #edit-toolbar button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+  }
+  #btn-print { background: #2b4a6f; color: #fff; }
+  #btn-print:hover { background: #1d3552; }
+  #btn-addrow { background: #2ea52e; color: #fff; }
+  #btn-addrow:hover { background: #23821f; }
+  footer {
+    margin-top: 10px;
+    font-size: 10.5px;
+    color: #888;
+    border-top: 1px solid #ddd;
+    padding-top: 5px;
+    display: flex;
+    justify-content: space-between;
+  }
+  @media print {
+    body { background: #fff; }
+    .sheet { box-shadow: none; margin: 0; max-width: 100%; padding: 0; }
+    #edit-toolbar, td.del-cell, th.del-th { display: none !important; }
+    [contenteditable="true"]:hover, [contenteditable="true"]:focus {
+      background: none; box-shadow: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="edit-toolbar">
+  <button id="btn-addrow" onclick="addRow()">＋ 行を追加</button>
+  <button id="btn-print" onclick="window.print()">印刷 / PDF保存</button>
+</div>
+
+<div class="sheet">
+
+  <header>
+    <h1>工 程 表　日 別 作 業 内 容</h1>
+    <div class="company">
+      株式会社AXIS<br>
+      埼玉県草加市小山2-29-10（〒340-0045）<br>
+      TEL: 090-9825-2087
+    </div>
+  </header>
+
+  <table class="meta-table">
+    <tr>
+      <td class="label">工事名称</td>
+      <td contenteditable="true">上尾西塚様店舗改修工事</td>
+      <td class="label">着工日</td>
+      <td contenteditable="true">2026年7月5日</td>
+    </tr>
+    <tr>
+      <td class="label">工期</td>
+      <td contenteditable="true">2026年7月2日 〜 2026年7月30日（引き渡し）</td>
+      <td class="label">作成日</td>
+      <td contenteditable="true">2026年7月13日</td>
+    </tr>
+  </table>
+
+  <h2 class="section-title">工程表（20260713版）に基づく日別作業内容</h2>
+  <table class="day-table" id="day-table">
+    <colgroup>
+      <col style="width:90px">
+      <col>
+      <col style="width:28px">
+    </colgroup>
+    <tr><th>日付</th><th>作業内容</th><th class="del-th"></th></tr>
+
+    <tbody id="day-rows">
+    <tr><td class="date-cell" contenteditable="true">7/2（木）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【既存間仕切り】</span>解体工事</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/3（金）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【既存間仕切り】</span>解体工事</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/4（土）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【既存間仕切り】</span>解体工事</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr class="milestone"><td class="date-cell" contenteditable="true">7/5（日）</td><td class="work-cell" contenteditable="true"><ul>
+      <li>着工（上尾西塚様店舗改修工事 起工日）</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/6（月）</td><td class="work-cell no-work" contenteditable="true">記載なし</td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/7（火）</td><td class="work-cell no-work" contenteditable="true">記載なし</td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/8（水）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>墨出し／給排水配管着手</li>
+      <li><span class="zone-tag">【厨房】</span>ガス管立上げ着手</li>
+      <li><span class="zone-tag">【トイレ】</span>天井・壁LGS工事着手</li>
+      <li><span class="zone-tag">【トイレ】</span>給排水配管着手</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/9（木）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>給排水配管／天井LGS</li>
+      <li><span class="zone-tag">【厨房】</span>ガス管立上げ</li>
+      <li><span class="zone-tag">【トイレ】</span>天井・壁LGS工事</li>
+      <li><span class="zone-tag">【客室】</span>天井・壁LGS工事着手</li>
+      <li><span class="zone-tag">【ホール】</span>天井・壁LGS工事着手</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/10（金）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>天井LGS／CB積み・防水</li>
+      <li><span class="zone-tag">【厨房】</span>ガス管立上げ</li>
+      <li><span class="zone-tag">【客室】</span>天井・壁LGS工事／電気配線着手</li>
+      <li><span class="zone-tag">【ホール】</span>天井・壁LGS工事</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/11（土）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>給排水配管</li>
+      <li><span class="zone-tag">【厨房】</span>ガス管立上げ</li>
+      <li><span class="zone-tag">【客室】</span>電気配線／レベラー着手</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/12（日）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>水張り試験・コンクリート打設</li>
+      <li><span class="zone-tag">【厨房】</span>ガス管立上げ完了</li>
+      <li><span class="zone-tag">【客室】</span>レベラー</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/13（月）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>養生期間</li>
+      <li><span class="zone-tag">【客室】</span>養生期間</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/14（火）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>養生期間</li>
+      <li><span class="zone-tag">【客室】</span>養生期間</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/15（水）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>電気工事</li>
+      <li><span class="zone-tag">【トイレ】</span>電気工事</li>
+      <li><span class="zone-tag">【客室】</span>電気工事</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/16（木）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>電気工事</li>
+      <li><span class="zone-tag">【トイレ】</span>電気工事</li>
+      <li><span class="zone-tag">【客室】</span>電気工事</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/17（金）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房／トイレ／客室／ホール】</span>建具・ボード工事</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/18（土）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房／トイレ／客室／ホール】</span>建具・ボード工事</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/19（日）</td><td class="work-cell no-work" contenteditable="true">記載なし</td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/20（月）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>天井ボード貼り</li>
+      <li><span class="zone-tag">【トイレ／客室／ホール】</span>天井・壁ボード貼り</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/21（火）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>壁ケイカル板貼り</li>
+      <li><span class="zone-tag">【トイレ／客室】</span>置床</li>
+      <li><span class="zone-tag">【ホール】</span>天井・壁ボード貼り／レベラー</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/22（水）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>天井塗装／パネル工事着手</li>
+      <li><span class="zone-tag">【トイレ／客室】</span>クロス工事</li>
+      <li><span class="zone-tag">【ホール】</span>レベラー／クロス工事</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/23（木）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>パネル工事／カウンター設置</li>
+      <li><span class="zone-tag">【トイレ】</span>クロス工事／カウンター設置</li>
+      <li><span class="zone-tag">【客室／ホール】</span>クロス工事</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/24（金）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>カウンター設置／モルタル巾木</li>
+      <li><span class="zone-tag">【トイレ／客室／ホール】</span>床仕上げ</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/25（土）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>モルタル巾木／フード取付</li>
+      <li><span class="zone-tag">【ホール】</span>物入れ棚設置</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/26（日）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>衛生器具取付</li>
+      <li><span class="zone-tag">【ホール】</span>電気器具取付</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/27（月）</td><td class="work-cell" contenteditable="true"><ul>
+      <li><span class="zone-tag">【厨房】</span>衛生器具取付</li>
+      <li><span class="zone-tag">【ホール】</span>消防設備取付</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/28（火）</td><td class="work-cell" contenteditable="true"><ul>
+      <li>エアコン搬入・設置</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr><td class="date-cell" contenteditable="true">7/29（水）</td><td class="work-cell" contenteditable="true"><ul>
+      <li>厨房機器搬入</li>
+      <li><span class="zone-tag">【ホール】</span>クリーニング</li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    <tr class="milestone"><td class="date-cell" contenteditable="true">7/30（木）</td><td class="work-cell" contenteditable="true"><ul>
+      <li>クリーニング</li>
+      <li><strong>引き渡し</strong></li>
+    </ul></td><td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td></tr>
+    </tbody>
+  </table>
+
+  <footer>
+    <span></span>
+    <span>作成：株式会社AXIS</span>
+  </footer>
+
+</div>
+
+<script>
+function delRow(btn) {
+  const tr = btn.closest('tr');
+  tr.parentElement.removeChild(tr);
+}
+function addRow() {
+  const tbody = document.getElementById('day-rows');
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td class="date-cell" contenteditable="true">日付</td>' +
+    '<td class="work-cell" contenteditable="true"><ul><li>作業内容を入力</li></ul></td>' +
+    '<td class="del-cell"><button class="row-del-btn" onclick="delRow(this)">×</button></td>';
+  tbody.appendChild(tr);
+  tr.querySelector('.date-cell').focus();
+}
+</script>
+
+</body>
+</html>

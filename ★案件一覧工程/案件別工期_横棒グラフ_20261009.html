@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案件別 工期一覧（横棒グラフ）</title>
+<style>
+  @page { size: A3 landscape; margin: 10mm; }
+  :root{
+    --ink:#1f2933; --sub:#5f6b76; --line:#d5dbe0; --grid:#eef1f4; --bg:#ffffff;
+    --done:#8a97a3; --doing:#e08a00; --plan:#1f6fb2; --prep:#bcd3ea; --today:#d6336c;
+  }
+  *{ box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  html,body{ margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Yu Gothic","Meiryo","Hiragino Sans",sans-serif; }
+  .page{ width:400mm; margin:0 auto; padding:6mm 0; }
+  header{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:8px; }
+  h1{ font-size:26px; margin:0; letter-spacing:.04em; }
+  .meta{ font-size:12px; color:var(--sub); text-align:right; line-height:1.6; }
+  .legend{ display:flex; gap:18px; flex-wrap:wrap; font-size:12px; margin:6px 0 10px; align-items:center; }
+  .legend span.sw{ display:inline-block; width:26px; height:12px; border-radius:3px; vertical-align:middle; margin-right:5px; }
+  .legend .ms{ display:inline-block; width:0; height:0; border:7px solid transparent; border-bottom:10px solid var(--ink); border-top:0; vertical-align:middle; margin-right:5px; }
+
+  .chart{ border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  .row{ display:grid; grid-template-columns:340px 1fr; border-bottom:1px solid var(--line); min-height:64px; }
+  .row:last-child{ border-bottom:0; }
+  .head{ min-height:0; background:#f6f8fa; }
+  .label{ padding:8px 12px; border-right:1px solid var(--line); display:flex; flex-direction:column; justify-content:center; gap:3px; background:#fff; }
+  .head .label{ background:#f6f8fa; font-weight:700; font-size:12px; color:var(--sub); }
+  .label .name{ font-size:15px; font-weight:700; line-height:1.3; }
+  .label .term{ font-size:12px; color:var(--sub); }
+  .label .tag{ display:inline-block; font-size:10px; font-weight:700; color:#fff; border-radius:9px; padding:1px 8px; width:max-content; }
+  .track{ position:relative; }
+  .head .track{ height:44px; }
+  .month{ position:absolute; top:0; bottom:0; border-left:1px solid var(--line); font-size:12px; padding:4px 0 0 6px; color:var(--sub); font-weight:700; }
+  .month small{ display:block; font-weight:400; font-size:10px; }
+  .row:not(.head) .month{ border-left:1px solid var(--grid); padding:0; }
+  .bar{ position:absolute; top:50%; height:24px; transform:translateY(-50%); border-radius:4px; }
+  .bar.prep{ background:repeating-linear-gradient(135deg,var(--prep) 0 6px,#d9e7f5 6px 12px); height:16px; border:1px solid #9fbddb; }
+  .bar.main{ box-shadow:0 1px 2px rgba(0,0,0,.18); }
+  .bar.hand{ height:24px; width:6px; background:var(--ink); border-radius:2px; }
+  .txt{ position:absolute; top:50%; transform:translateY(-50%); font-size:12px; font-weight:700; white-space:nowrap; }
+  .sub{ position:absolute; top:calc(50% + 15px); font-size:10px; color:var(--sub); white-space:nowrap; }
+  .today{ position:absolute; top:0; bottom:0; width:0; border-left:2px dashed var(--today); z-index:3; pointer-events:none; }
+  .todaylabel{ position:absolute; top:2px; transform:translateX(-50%); font-size:10px; font-weight:700; color:#fff; background:var(--today); padding:1px 6px; border-radius:8px; z-index:4; white-space:nowrap; }
+  .note{ margin-top:10px; font-size:11px; color:var(--sub); line-height:1.7; }
+  .note b{ color:var(--ink); }
+
+  .editor{ margin-top:18px; border:2px solid var(--plan); border-radius:8px; padding:14px 16px; background:#f5f9fd; }
+  .editor h2{ margin:0 0 4px; font-size:17px; }
+  .editor p{ margin:0 0 10px; font-size:12px; color:var(--sub); }
+  .editor table{ border-collapse:collapse; width:100%; font-size:13px; background:#fff; }
+  .editor th{ background:#e8f0f8; font-size:11px; padding:5px 6px; text-align:left; border:1px solid var(--line); }
+  .editor td{ border:1px solid var(--line); padding:3px 4px; }
+  .editor input{ font:inherit; padding:4px 5px; border:1px solid #c5ced6; border-radius:4px; width:100%; }
+  .editor input[type=date]{ width:136px; }
+  .editor td.name input{ min-width:260px; }
+  .editor button{ font:inherit; font-size:13px; padding:6px 14px; border-radius:6px; border:1px solid var(--plan); background:#fff; color:var(--plan); cursor:pointer; }
+  .editor button.main{ background:var(--plan); color:#fff; }
+  .editor button.del{ border-color:#c0392b; color:#c0392b; padding:4px 10px; }
+  .editor .btns{ display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; align-items:center; }
+  .editor .msg{ font-size:12px; color:#1e8449; }
+  @media print{ .editor{ display:none; } }
+  @media print{ .page{ width:auto; padding:0; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>案件別 工期一覧　<span style="font-size:15px;font-weight:400;color:var(--sub)">株式会社AXIS</span></h1>
+    <div class="meta">作成日 2026年10月9日　／　色分けの基準日 2026年10月9日<br>元データ：★案件一覧工程 の工程表5ファイル（Excel 1本・PDF 4本）</div>
+  </header>
+  <div class="legend">
+    <span><span class="sw" style="background:var(--done)"></span>完了</span>
+    <span><span class="sw" style="background:var(--doing)"></span>施工中</span>
+    <span><span class="sw" style="background:var(--plan)"></span>これから</span>
+    <span><span class="sw" style="background:repeating-linear-gradient(135deg,var(--prep) 0 6px,#d9e7f5 6px 12px);border:1px solid #9fbddb"></span>着工前の準備期間（見積・申請・調整など）</span>
+    <span><span class="ms"></span>引渡し日</span>
+  </div>
+  <div class="chart" id="chart"></div>
+  <div class="note" id="note"></div>
+  <section class="editor" id="editor">
+    <h2>✏️ 工期を直す（この枠は印刷されません）</h2>
+    <p>日付や名前を直すと、上のグラフがすぐ変わります。直した内容はこのパソコンのブラウザに自動で残ります。「準備」欄は空でもかまいません。</p>
+    <table><thead><tr><th>案件名</th><th>着工日</th><th>終了日</th><th>引渡し日</th><th>準備 開始</th><th>準備 終了</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+    <div class="btns">
+      <button onclick="addRow()">＋ 案件を追加</button>
+      <button class="main" onclick="saveFile()">この内容でHTMLを保存（ダウンロード）</button>
+      <button onclick="resetAll()">最初の状態に戻す</button>
+      <span class="msg" id="msg"></span>
+    </div>
+  </section>
+</div>
+
+<script>
+// ▼ 数字を直せば、グラフもそのまま変わります（日付は yyyy-mm-dd）
+const AXIS_START = "2026-07-01";
+const AXIS_END   = "2027-06-30";
+const TODAY      = "2026-10-09";
+
+const PROJECTS = [
+  { name:"上尾西塚様 店舗改修工事",              start:"2026-07-01", end:"2026-07-31", handover:"2026-07-31", src:"Excel「武蔵村山ジムスタ」シート" },
+  { name:"大宮店舗 改修工事",                    start:"2026-09-01", end:"2026-09-15", handover:"2026-09-15", src:"Excel「大宮」シート" },
+  { name:"バリューアドバイザーズ オフィス移転工事", start:"2026-10-08", end:"2026-10-25", handover:"2026-10-26", prepStart:"2026-08-17", prepEnd:"2026-10-07", src:"PDF 2026.8.13版（仮）／着工10/8・竣工10/25・引渡10/26" },
+  { name:"荒川区大規模改修工事（鉄骨階段・塗装）", start:"2026-11-02", end:"2026-11-30", handover:"2026-11-30", src:"PDF 2026.10.9版・Excel「荒川区大規模改修」" },
+  { name:"赤坂中村オフィス 改修工事",            start:"2026-11-16", end:"2026-12-28", src:"Excel「赤坂中村オフィス」シート（内装解体〜クリーニング）" },
+  { name:"中目黒大規模改修工事（解体のみ）",      start:"2026-11-16", end:"2027-01-22", prepStart:"2026-10-19", prepEnd:"2026-11-13", src:"PDF 2026.10.7版／稼働52日" },
+  { name:"PCI-1 1F・2F改修工事",                 start:"2026-10-20", end:"2027-05-25", handover:"2027-05-31", prepStart:"2026-09-21", prepEnd:"2026-10-19", src:"PDF 2026.9.24版（仮）／着工10/20・竣工2027/5/25・引渡5/31" },
+];
+// ▲ ここまで
+
+const D = s => new Date(s+"T00:00:00");
+const DAY = 86400000;
+const a0 = D(AXIS_START), a1 = D(AXIS_END), todayD = D(TODAY);
+const total = (a1-a0)/DAY + 1;
+const pct = d => ((d-a0)/DAY)/total*100;
+const pctEnd = d => ((d-a0)/DAY+1)/total*100;           // 終了日の終わりまで塗る
+const fmt = d => `${d.getMonth()+1}/${d.getDate()}`;
+const fmtY = d => `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+const days = (s,e) => Math.round((D(e)-D(s))/DAY)+1;
+
+const chart = document.getElementById("chart");
+
+// 月の区切り
+function months(track, withLabel){
+  let d = new Date(a0.getFullYear(), a0.getMonth(), 1);
+  while(d <= a1){
+    const next = new Date(d.getFullYear(), d.getMonth()+1, 1);
+    const s = d < a0 ? a0 : d, e = new Date(Math.min(next-DAY, a1));
+    const m = document.createElement("div");
+    m.className="month";
+    m.style.left = pct(s)+"%";
+    m.style.width = (pctEnd(e)-pct(s))+"%";
+    if(withLabel){
+      const jan = d.getMonth()===0 || d.getTime()===new Date(a0.getFullYear(),a0.getMonth(),1).getTime();
+      m.innerHTML = `${d.getMonth()+1}月` + (jan ? `<small>${d.getFullYear()}年</small>` : "");
+    }
+    track.appendChild(m);
+    d = next;
+  }
+}
+function addToday(track, label){
+  return; // 今日の赤ラインは非表示
+  const t = document.createElement("div");
+  t.className="today"; t.style.left = (pct(todayD)+0.5/total*100)+"%";
+  track.appendChild(t);
+  if(label){
+    const l = document.createElement("div"); l.className="todaylabel";
+    l.style.left = t.style.left; l.textContent = "今日 "+fmt(todayD);
+    track.appendChild(l);
+  }
+}
+
+function render(){
+chart.innerHTML="";
+// ヘッダ
+const head = document.createElement("div"); head.className="row head";
+head.innerHTML = `<div class="label">案件名・工期</div><div class="track"></div>`;
+months(head.lastChild, true); addToday(head.lastChild, true);
+chart.appendChild(head);
+
+// 開始日順（着工日の早い順）
+const list = PROJECTS.slice().sort((x,y)=> D(x.start)-D(y.start) || D(x.end)-D(y.end));
+list.forEach(p=>{
+  const s=D(p.start), e=D(p.end);
+  const st = e < todayD ? ["完了","var(--done)"] : s <= todayD ? ["施工中","var(--doing)"] : ["これから","var(--plan)"];
+  const row = document.createElement("div"); row.className="row";
+  const dur = days(p.start,p.end);
+  row.innerHTML = `<div class="label">
+      <span class="tag" style="background:${st[1]}">${st[0]}</span>
+      <div class="name">${p.name}</div>
+      <div class="term">${fmtY(s)} 〜 ${fmtY(e)}（${dur}日間）</div></div><div class="track"></div>`;
+  const tr = row.lastChild;
+  months(tr,false);
+
+  if(p.prepStart){
+    const b=document.createElement("div"); b.className="bar prep";
+    b.style.left=pct(D(p.prepStart))+"%"; b.style.width=(pctEnd(D(p.prepEnd))-pct(D(p.prepStart)))+"%";
+    b.title=`準備期間 ${fmt(D(p.prepStart))}〜${fmt(D(p.prepEnd))}`;
+    tr.appendChild(b);
+  }
+  const b=document.createElement("div"); b.className="bar main";
+  b.style.left=pct(s)+"%"; b.style.width=(pctEnd(e)-pct(s))+"%"; b.style.background=st[1];
+  b.title=`${p.name}　${fmt(s)}〜${fmt(e)}`;
+  tr.appendChild(b);
+
+  if(p.handover){
+    const h=document.createElement("div"); h.className="bar hand";
+    const hd=D(p.handover);
+    h.style.left=`calc(${pct(hd)}% + ${0.5/total*100}% - 3px)`;
+    tr.appendChild(h);
+  }
+  // 日付ラベル：右側に余裕があれば右、なければ左
+  const endP = Math.max(pctEnd(e), p.handover ? pctEnd(D(p.handover)) : 0);
+  const t=document.createElement("div"); t.className="txt";
+  const label = `${fmt(s)} 〜 ${fmt(e)}`;
+  t.textContent = label;
+  if(endP < 82){ t.style.left=`calc(${endP}% + 10px)`; }
+  else { t.style.left=`calc(${pct(s)}% + 12px)`; t.style.color="#fff"; t.style.zIndex=2; }
+  tr.appendChild(t);
+  if(p.prepStart){
+    const sb=document.createElement("div"); sb.className="sub";
+    sb.textContent = `準備 ${fmt(D(p.prepStart))}〜${fmt(D(p.prepEnd))}`;
+    sb.style.left = pct(D(p.prepStart))+"%";
+    tr.appendChild(sb);
+  }
+  addToday(tr,false);
+  chart.appendChild(row);
+});
+
+// 注記
+const first = list.reduce((m,p)=> D(p.prepStart||p.start)<m?D(p.prepStart||p.start):m, D("2999-01-01"));
+document.getElementById("note").innerHTML =
+ `<b>読み方：</b>色つきの棒が実際の工事期間、斜線の棒が着工前の準備期間、黒い縦棒が引渡し日です。棒の右（または左）の数字は工事の開始日〜終了日です。<br>`+
+ `<b>ご確認ください：</b>`+
+ `①「上尾西塚様」はExcelのシート名が「武蔵村山ジムスタ」ですが、シート内の表題が「上尾西塚様店舗改修工事」のため、表題の名前で表記しています。`+
+ `②「赤坂中村オフィス」のExcelは、引渡し・搬入の目印が12/9〜12/11にありますが、内装工事・クリーニングは12/28まで続いているため、棒は12/28までで作っています（引渡し日は未記載扱い）。`+
+ `③PCI-1とバリューアドバイザーズは「（仮）」の工程表、中目黒は解体工事のみの範囲です。`;
+}
+// ---- 編集パネル ----
+const ORIGINAL = JSON.stringify(PROJECTS);
+const KEY = "koki-graph-v1";
+const FIELDS = ["name","start","end","handover","prepStart","prepEnd"];
+function loadSaved(){
+  try{ const v=localStorage.getItem(KEY); if(v){ const a=JSON.parse(v); if(Array.isArray(a)&&a.length) PROJECTS.splice(0,PROJECTS.length,...a); } }catch(e){}
+}
+function persist(msg){
+  try{ localStorage.setItem(KEY, JSON.stringify(PROJECTS)); }catch(e){}
+  document.getElementById("msg").textContent = msg||"自動保存しました";
+}
+function buildEditor(){
+  const tb=document.getElementById("rows"); tb.innerHTML="";
+  PROJECTS.forEach((p,i)=>{
+    const tr=document.createElement("tr");
+    FIELDS.forEach(k=>{
+      const td=document.createElement("td"); if(k==="name") td.className="name";
+      const inp=document.createElement("input"); inp.type = k==="name" ? "text" : "date"; inp.value=p[k]||"";
+      inp.addEventListener("change",()=>{
+        if(inp.value) p[k]=inp.value; else if(k!=="name"&&k!=="start"&&k!=="end") delete p[k]; else { inp.value=p[k]||""; return; }
+        persist(); render();
+      });
+      td.appendChild(inp); tr.appendChild(td);
+    });
+    const td=document.createElement("td"); const b=document.createElement("button"); b.className="del"; b.textContent="削除";
+    b.onclick=()=>{ if(confirm("「"+p.name+"」を削除しますか？")){ PROJECTS.splice(i,1); persist(); buildEditor(); render(); } };
+    td.appendChild(b); tr.appendChild(td); tb.appendChild(tr);
+  });
+}
+function addRow(){
+  PROJECTS.push({name:"新しい案件", start:TODAY, end:TODAY});
+  persist(); buildEditor(); render();
+}
+function resetAll(){
+  if(!confirm("直した内容を消して、最初の状態に戻しますか？")) return;
+  try{ localStorage.removeItem(KEY); }catch(e){}
+  PROJECTS.splice(0,PROJECTS.length,...JSON.parse(ORIGINAL)); buildEditor(); render(); document.getElementById("msg").textContent="最初の状態に戻しました";
+}
+function saveFile(){
+  const src=document.documentElement.outerHTML;
+  // 生成部分を空にし、データ部分を現在の内容に差し替える
+  const doc=new DOMParser().parseFromString("<!DOCTYPE html>"+src,"text/html");
+  ["chart","note","rows","msg"].forEach(id=>{ const e=doc.getElementById(id); if(e) e.innerHTML=""; });
+  const sc=[...doc.querySelectorAll("script")].pop();
+  const arr="const PROJECTS = "+JSON.stringify(PROJECTS,null,1).replace(/\n\s*/g," ").replace(/\},/g,"},\n  ")+";";
+  sc.textContent=sc.textContent.replace(/const PROJECTS = \[[\s\S]*?\n?\];/,()=>arr);
+  const blob=new Blob(["<!DOCTYPE html>\n"+doc.documentElement.outerHTML],{type:"text/html"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="案件別工期_横棒グラフ_編集後.html"; a.click();
+  persist("ダウンロードしました（ダウンロードフォルダに保存）");
+}
+loadSaved(); buildEditor(); render();
+</script>
+</body>
+</html>

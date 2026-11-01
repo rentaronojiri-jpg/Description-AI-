@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="UTF-8">
+<title>工程表 - 中目黒大規模改修工事（解体工事）</title>
+<style>
+  @page { size: A3 landscape; margin: 8mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Meiryo','Yu Gothic','MS Gothic',sans-serif; font-size: 10px; color: #111; background: #fff; padding: 6mm; width: 1640px; }
+  /* ---- toolbar (not printed) ---- */
+  .toolbar { position: sticky; top: 0; z-index: 50; background: #1a3a6b; color: #fff; padding: 6px 10px; margin: -6mm -6mm 8px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 11.5px; }
+  .toolbar label { display: flex; align-items: center; gap: 5px; }
+  .toolbar input[type=date] { font-size: 12px; padding: 1px 3px; }
+  .toolbar button { font-size: 11.5px; padding: 4px 10px; border: 0; border-radius: 3px; cursor: pointer; background: #fff; color: #1a3a6b; font-weight: bold; }
+  .toolbar button.pri { background: #ffc94d; }
+  .toolbar button:disabled { opacity: .45; cursor: default; }
+  .toolbar .hint { font-size: 10.5px; opacity: .85; flex-basis: 100%; }
+  details.hol { flex-basis: 100%; background: #f1f4fb; color: #111; padding: 4px 8px; border-radius: 3px; }
+  details.hol summary { cursor: pointer; font-weight: bold; }
+  details.hol textarea { width: 100%; height: 90px; font-size: 11px; margin-top: 4px; }
+  .doc-title { text-align: center; font-size: 22px; font-weight: bold; letter-spacing: 12px; border-bottom: 2px solid #1a3a6b; padding-bottom: 4px; margin-bottom: 6px; }
+  .info { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 10.5px; }
+  .info td { border: 1px solid #999; padding: 3px 8px; }
+  .info .lb { background: #dde4f0; font-weight: bold; width: 82px; white-space: nowrap; }
+  [contenteditable]:hover { background: #fffbe0; outline: 1px dashed #d9b400; }
+  [contenteditable]:focus { background: #fff8c4; outline: 2px solid #f0b400; }
+  table.gantt { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 9.5px; }
+  .gantt th, .gantt td { border: 1px solid #888; padding: 0; vertical-align: middle; }
+  .gantt thead th { background: #e8eaf6; font-weight: bold; text-align: center; height: 20px; }
+  tr.grp td { background: #dfe6f5; color: #1a3a6b; font-weight: bold; font-size: 10.5px; padding: 2px 8px; letter-spacing: 1px; border-top: 2px solid #1a3a6b; }
+  tr.grp .gname { display: inline-block; min-width: 120px; }
+  tr.grp .gctl { float: right; font-weight: normal; letter-spacing: 0; }
+  tr.row { height: 21px; page-break-inside: avoid; break-inside: avoid; }
+  tr.row td.no { text-align: center; color: #555; font-size: 9px; position: relative; }
+  tr.row td.name { padding: 1px 6px; line-height: 1.25; }
+  tr.row td.per { text-align: center; font-size: 8.8px; color: #222; white-space: nowrap; }
+  tr.row td.per input { font-size: 9px; width: 84px; padding: 0 1px; border: 1px solid #ccd; background: #fafcff; }
+  tr.row td.per .sep { font-size: 8px; }
+  tr.row td.note { padding: 1px 5px; font-size: 8.5px; color: #444; line-height: 1.2; }
+  tr.row td.ctl { text-align: center; white-space: nowrap; }
+  tr.row td.ctl button, tr.grp .gctl button { font-size: 10px; padding: 0 4px; border: 1px solid #aab; background: #f6f7fb; cursor: pointer; border-radius: 2px; }
+  tr.row td.ctl select { font-size: 9px; max-width: 74px; }
+  tr.row.ms td.name { font-weight: bold; color: #5a1a7a; }
+  tr.row.warn td.no { background: #ffe0b8; }
+  .warnmark { color: #c25800; font-weight: bold; cursor: help; }
+  td.tl { position: relative; background-color: #fff; }
+  .bar { position: absolute; top: 4px; height: 13px; border-radius: 2px; cursor: grab; touch-action: none; }
+  .bar:hover { filter: brightness(1.15); box-shadow: 0 0 0 1.5px #f0b400; }
+  .bar .hl, .bar .hr { position: absolute; top: 0; bottom: 0; width: 6px; cursor: ew-resize; }
+  .bar .hl { left: 0; } .bar .hr { right: 0; }
+  .bar.approval { background: repeating-linear-gradient(135deg,#fff 0 3px,#f6a21e 3px 6px) !important; border: 1.5px solid #e08600; }
+  .bar.buffer { background: repeating-linear-gradient(135deg,#fff 0 3px,#b9c0c9 3px 6px) !important; border: 1px dashed #7f8a97; }
+  .ms-mark { position: absolute; top: 2px; width: 16px; height: 16px; margin-left: -8px; background: #7b1fa2; transform: rotate(45deg) scale(.72); border: 1.5px solid #fff; box-shadow: 0 0 0 1.5px #7b1fa2; cursor: grab; touch-action: none; }
+  .ms-lbl { position: absolute; top: 4px; font-size: 8.5px; font-weight: bold; color: #5a1a7a; white-space: nowrap; pointer-events: none; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; padding: 5px 10px; border: 1px solid #bbb; background: #fafafa; font-size: 9.5px; align-items: center; }
+  .lg { display: flex; align-items: center; gap: 4px; } .lg i { display: inline-block; width: 22px; height: 11px; border-radius: 2px; }
+  .notes { margin-top: 6px; display: flex; justify-content: space-between; gap: 16px; align-items: flex-end; }
+  #notes { flex: 1; font-size: 9px; color: #333; line-height: 1.65; min-height: 20px; }
+  #notes p { margin: 0; }
+  .sign { display: flex; gap: 8px; } .sign div { border: 1px solid #888; width: 84px; text-align: center; font-size: 9px; } .sign div b { display: block; border-bottom: 1px solid #aaa; padding: 2px; } .sign div span { display: block; height: 26px; }
+  .foot { font-size: 9px; color: #444; margin-top: 4px; text-align: right; }
+  .print-only { display: none; }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 0; width: auto; }
+    .noprint, .toolbar { display: none !important; }
+    col.ctlcol { width: 0 !important; }
+    th.ctlcol, td.ctlcol { width: 0 !important; max-width: 0; padding: 0 !important; border: 0 !important; overflow: hidden; visibility: hidden; font-size: 0; }
+    thead { display: table-header-group; }
+    [contenteditable]:hover, [contenteditable]:focus { background: none; outline: none; }
+    tr.row td.per input { display: none; } .print-only { display: inline; }
+    tr.row.warn td.no { background: none; }
+  }
+</style>
+</head>
+<body>
+<div class="toolbar noprint" id="toolbar">
+  <label><b>着工日</b><input type="date" id="startDate"></label>
+  <label><input type="checkbox" id="satWork"> 土曜も稼働</label>
+  <button id="btnUndo">↶ 元に戻す</button>
+  <span id="zoomCtl" style="display:inline-flex;gap:4px;align-items:center"><b>表示の大きさ</b><button id="zOut" type="button">－</button><span id="zVal" style="min-width:42px;text-align:center">100%</span><button id="zIn" type="button">＋</button><button id="zReset" type="button">100%</button></span>
+  <button id="btnGroup">＋ 工種グループ追加</button>
+  <button id="btnSave" class="pri">💾 保存（.html）</button>
+  <button id="btnPrint">🖨 印刷 / PDF保存</button>
+  <span id="dirty" style="font-size:11px;color:#ffc94d"></span>
+  <details class="hol"><summary>休工日の設定（祝日・休工期間）</summary>
+    <div style="font-size:10.5px;margin-top:3px">1行に1件。休工日は「2027-05-03」、休工期間は「2026-12-29〜2027-01-03」の形式。日曜は常に休工です。</div>
+    <textarea id="holText"></textarea>
+    <button id="btnHol" style="margin-top:3px;background:#1a3a6b;color:#fff">休工日を反映</button>
+  </details>
+  <div class="hint">編集方法：バーをドラッグで移動、左右端をドラッグで期間変更／日付欄・作業名・備考・注記の文字は直接編集／右端の ▲▼✕ で並べ替え・削除。日付は休工日を自動で避けます。着工日を変えると全体が休工日を避けて再計算されます。先行作業と順序が逆になった行は No. 欄が橙色になります。</div>
+</div>
+
+<div class="doc-title">工　程　表</div>
+<table class="info">
+  <tbody><tr><td class="lb">工事名称</td><td colspan="3" contenteditable="" data-meta="name"></td><td class="lb">発注者</td><td contenteditable="" data-meta="client"></td><td class="lb">作成日</td><td contenteditable="" data-meta="created"></td></tr>
+  <tr><td class="lb">工事場所</td><td colspan="3" contenteditable="" data-meta="place"></td><td class="lb">施工者</td><td contenteditable="" data-meta="contractor"></td><td class="lb">担　当</td><td contenteditable="" data-meta="person"></td></tr>
+  <tr><td class="lb">工　期</td><td colspan="3" id="period"></td><td class="lb">工事範囲</td><td colspan="3" contenteditable="" data-meta="scope"></td></tr>
+</tbody></table>
+
+<table class="gantt" id="gantt" data-render=""></table>
+
+<div class="legend" id="legend" data-render=""></div>
+<div class="notes">
+  <div id="notes" contenteditable="" data-render="" title="クリックして編集（1行＝1項目）"></div>
+  <div class="sign"><div><b>発注者 確認</b><span></span></div><div><b>施工者 作成</b><span></span></div></div>
+</div>
+<div class="foot">株式会社AXIS　登録番号 T7030001171938</div>
+
+<script id="state" type="application/json">{"meta":{"name":"中目黒大規模改修工事（解体工事）","place":"東京都目黒区中目黒","client":"英進工業株式会社　御中","contractor":"株式会社AXIS（〒340-0045 埼玉県草加市小山2-29-10）","person":"野尻　連太朗","created":"2026年10月7日","scope":"解体工事のみ（B1〜3F・屋上・階段・EV新設開口・外部）／仕上・外装・防水・EV本体・設備の別途工事は含みません"},"start":"2026-11-16","satWork":true,"holidays":["2026-10-12","2026-11-03","2026-11-23","2027-01-01","2027-01-11"],"breaks":[["2026-12-29","2027-01-03"]],"groups":[{"name":"準備・申請","color":"#546e7a"},{"name":"仮設工事","color":"#00838f"},{"name":"解体 3F","color":"#e53935"},{"name":"解体 2F","color":"#e53935"},{"name":"解体 1F","color":"#e53935"},{"name":"解体 B1","color":"#e53935"},{"name":"解体 屋上","color":"#d8541e"},{"name":"解体 階段・EV開口","color":"#d8541e"},{"name":"解体 外部","color":"#d8541e"},{"name":"産廃・現場管理","color":"#8d6e63"}],"tasks":[{"id":"PR-2","group":"準備・申請","name":"足場計画届の提出（労働基準監督署）","note":"組立の30日前まで","type":"approval","dep":"","s":-23,"d":1},{"id":"PR-1","group":"準備・申請","name":"契約・施工計画書・工程表・作業員名簿の提出","note":"","type":"task","dep":"","s":-23,"d":5},{"id":"PR-3","group":"準備・申請","name":"石綿（アスベスト）事前調査（現地確認・採取・分析）","note":"解体着手前に完了","type":"task","dep":"","s":-28,"d":10},{"id":"PR-6","group":"準備・申請","name":"近隣挨拶・工事看板設置・建設リサイクル法届出","note":"","type":"task","dep":"","s":-17,"d":5},{"id":"PR-7","group":"準備・申請","name":"電柱・電線の防護協議（電力会社）","note":"防護管設置の前提","type":"task","dep":"","s":-17,"d":16},{"id":"PR-4","group":"準備・申請","name":"石綿調査結果の確定・報告","note":"解体着手前に報告","type":"milestone","dep":"PR-3","s":-11,"d":1},{"id":"PR-10","group":"準備・申請","name":"キュービクル・ボイラー(灯油)の停止協議・消防署届出","note":"PCB有無の確認含む","type":"task","dep":"","s":-11,"d":10},{"id":"PR-5","group":"準備・申請","name":"石綿含有時の届出・除去協議の予備","note":"含有時のみ使用","type":"buffer","dep":"PR-4","s":-10,"d":9},{"id":"PR-9","group":"準備・申請","name":"騒音・振動の特定建設作業届","note":"7日前までに提出","type":"approval","dep":"","s":-8,"d":1},{"id":"PR-11","group":"準備・申請","name":"給水・ガス閉栓の手配","note":"仮設給排水へ切替","type":"task","dep":"","s":-6,"d":5},{"id":"PR-8","group":"準備・申請","name":"道路使用・道路占用許可の取得","note":"ユニック搬入の前に取得","type":"approval","dep":"","s":-3,"d":1},{"id":"PR-12","group":"準備・申請","name":"構造協議の完了（RCはつり・EV開口・棟屋スラブ）","note":"はつり着手の前提","type":"approval","dep":"","s":-2,"d":1},{"id":"TM-1","group":"仮設工事","name":"仮設事務所・作業員トイレ・発電機の設置","note":"ユニック車で搬入","type":"task","dep":"PR-8","s":0,"d":2},{"id":"TM-12","group":"仮設工事","name":"誘導員の配置","note":"搬出入の全期間","type":"task","dep":"","s":0,"d":52},{"id":"TM-4","group":"仮設工事","name":"電線防護管の設置","note":"電力会社と協議済み","type":"task","dep":"PR-7","s":1,"d":51},{"id":"TM-3","group":"仮設工事","name":"現場養生・開口養生設備の取付","note":"","type":"task","dep":"","s":1,"d":5},{"id":"TM-2","group":"仮設工事","name":"仮設電気（各階分電盤）・仮設給排水の立上げ","note":"","type":"task","dep":"TM-1;PR-11","s":2,"d":2},{"id":"TM-5","group":"仮設工事","name":"外部足場組立・防音パネル取付","note":"計画届の30日後に着手","type":"task","dep":"PR-2;TM-4","s":3,"d":12},{"id":"TM-6","group":"仮設工事","name":"受水槽解体足場の組立","note":"","type":"task","dep":"TM-5","s":15,"d":2},{"id":"TM-7","group":"仮設工事","name":"棟屋足場の組立（CS部解体用）","note":"一部組替えあり","type":"task","dep":"TM-5","s":18,"d":2},{"id":"TM-9","group":"仮設工事","name":"EV開口解体足場の組立（B1〜RF 4か所）","note":"","type":"task","dep":"PR-12","s":36,"d":3},{"id":"F3-1","group":"解体 3F","name":"空調（冷媒回収→室内機）・照明・電線の撤去","note":"冷媒回収を先に実施","type":"task","dep":"TM-2","s":4,"d":4},{"id":"F3-3","group":"解体 3F","name":"トイレ・キッチンの解体","note":"衛生陶器・配管含む","type":"task","dep":"F3-1","s":8,"d":3},{"id":"F3-2","group":"解体 3F","name":"既存天井の解体（下地＋ジプトーン）","note":"","type":"task","dep":"F3-1","s":8,"d":9},{"id":"F3-4","group":"解体 3F","name":"間仕切り・CB壁の解体","note":"","type":"task","dep":"F3-2","s":12,"d":6},{"id":"F3-5","group":"解体 3F","name":"旧OA床・タイルカーペット・床仕上の撤去","note":"","type":"task","dep":"F3-4","s":18,"d":4},{"id":"F3-6","group":"解体 3F","name":"床上げ部の解体・RC躯体はつり","note":"構造協議後に着手","type":"task","dep":"F3-4;PR-12","s":20,"d":3},{"id":"F2-1","group":"解体 2F","name":"空調（冷媒回収→室内機）・照明・電線の撤去","note":"冷媒回収を先に実施","type":"task","dep":"TM-2","s":9,"d":5},{"id":"F2-3","group":"解体 2F","name":"トイレ・キッチン（2か所）の解体","note":"衛生陶器・配管含む","type":"task","dep":"F2-1","s":14,"d":3},{"id":"F2-2","group":"解体 2F","name":"既存天井の解体（下地＋ジプトーン）","note":"","type":"task","dep":"F2-1","s":11,"d":9},{"id":"F2-4","group":"解体 2F","name":"間仕切り・CB壁の解体","note":"","type":"task","dep":"F2-2","s":19,"d":6},{"id":"F2-5","group":"解体 2F","name":"旧OA床・床仕上・床上げ部の撤去","note":"","type":"task","dep":"F2-4","s":22,"d":11},{"id":"F2-6","group":"解体 2F","name":"RC躯体はつり","note":"構造協議後に着手","type":"task","dep":"F2-5;PR-12","s":26,"d":10},{"id":"F1-1","group":"解体 1F","name":"空調（冷媒回収→室内機）・照明・電線・配管の撤去","note":"冷媒回収を先に実施","type":"task","dep":"TM-2","s":17,"d":5},{"id":"F1-2","group":"解体 1F","name":"木製ラック（高さ3.6m）の解体","note":"","type":"task","dep":"","s":18,"d":4},{"id":"F1-4","group":"解体 1F","name":"トイレの解体","note":"衛生陶器・配管含む","type":"task","dep":"F1-1","s":22,"d":2},{"id":"F1-3","group":"解体 1F","name":"既存天井の解体（出入口コンクリート天井含む）","note":"","type":"task","dep":"F1-1","s":22,"d":4},{"id":"F1-5","group":"解体 1F","name":"間仕切り・CB壁の解体","note":"","type":"task","dep":"F1-3","s":26,"d":4},{"id":"F1-6","group":"解体 1F","name":"床上げ部・床仕上の解体","note":"","type":"task","dep":"F1-5","s":30,"d":3},{"id":"F1-7","group":"解体 1F","name":"RC躯体はつり","note":"構造協議後に着手","type":"task","dep":"F1-5;PR-12","s":28,"d":11},{"id":"B1-1","group":"解体 B1","name":"空調（冷媒回収→室内機）・照明・電線・配管の撤去","note":"冷媒回収を先に実施","type":"task","dep":"TM-2","s":23,"d":5},{"id":"B1-2","group":"解体 B1","name":"キュービクル・ボイラー・スチールラックの解体","note":"停止・切離し後に実施","type":"task","dep":"PR-10","s":25,"d":4},{"id":"B1-4","group":"解体 B1","name":"トイレ・キッチン（2基）の解体","note":"衛生陶器・配管含む","type":"task","dep":"B1-1","s":27,"d":3},{"id":"B1-3","group":"解体 B1","name":"既存天井の解体（下地＋ジプトーン）","note":"","type":"task","dep":"B1-1","s":28,"d":4},{"id":"B1-5","group":"解体 B1","name":"浴室の解体（壁・タイル・床防水・シンダーコン）","note":"床は厚み約25cm想定","type":"task","dep":"B1-4","s":28,"d":8},{"id":"B1-6","group":"解体 B1","name":"間仕切り（木）・CB壁の解体","note":"","type":"task","dep":"B1-3","s":32,"d":4},{"id":"B1-7","group":"解体 B1","name":"床上げ部・床仕上の解体","note":"","type":"task","dep":"B1-3","s":34,"d":6},{"id":"B1-8","group":"解体 B1","name":"RC躯体はつり","note":"構造協議後に着手","type":"task","dep":"B1-6;PR-12","s":36,"d":3},{"id":"RF-1","group":"解体 屋上","name":"受水槽（樹脂タンク）の解体","note":"給水停止後に実施","type":"task","dep":"TM-6","s":17,"d":2},{"id":"RF-2","group":"解体 屋上","name":"受水槽鉄骨の解体","note":"","type":"task","dep":"RF-1","s":19,"d":3},{"id":"RF-4","group":"解体 屋上","name":"棟屋雨樋の撤去","note":"","type":"task","dep":"TM-7","s":20,"d":2},{"id":"RF-3","group":"解体 屋上","name":"屋上配管・アンテナの撤去","note":"","type":"task","dep":"RF-1","s":21,"d":2},{"id":"RF-5","group":"解体 屋上","name":"棟屋CS部コンクリートスラブの一部撤去","note":"構造協議後に着手","type":"task","dep":"TM-7;PR-12","s":22,"d":4},{"id":"RF-7","group":"解体 屋上","name":"屋上作業の雨天予備","note":"","type":"buffer","dep":"RF-6","s":27,"d":2},{"id":"ST-1","group":"解体 階段・EV開口","name":"階段の照明器具・スチールBOXの撤去","note":"","type":"task","dep":"TM-10","s":38,"d":2},{"id":"EV-0","group":"解体 階段・EV開口","name":"EV開口の墨出し","note":"","type":"task","dep":"TM-9","s":39,"d":1},{"id":"EV-1","group":"解体 階段・EV開口","name":"EV開口のカッター入れ（5か所）","note":"","type":"task","dep":"EV-0","s":40,"d":2},{"id":"ST-2","group":"解体 階段・EV開口","name":"階段床仕上材（ノンスリップ含む）の撤去","note":"","type":"task","dep":"ST-1","s":40,"d":4},{"id":"ST-3","group":"解体 階段・EV開口","name":"階段の塗装脆弱部の撤去","note":"最上段付近は雑足場使用","type":"task","dep":"ST-1","s":42,"d":3},{"id":"EV-2","group":"解体 階段・EV開口","name":"EV開口の斫り（厚み約20cm・5か所）","note":"構造協議後・平日日中","type":"task","dep":"EV-1;PR-12","s":44,"d":4},{"id":"EV-3","group":"解体 階段・EV開口","name":"鉄筋出し作業","note":"","type":"task","dep":"EV-2","s":47,"d":5},{"id":"EX-1","group":"解体 外部","name":"外壁配管・外壁電気配管（鉄管）の撤去","note":"","type":"task","dep":"TM-5","s":17,"d":5},{"id":"EX-6","group":"解体 外部","name":"外壁照明器具の撤去","note":"","type":"task","dep":"TM-5","s":19,"d":2},{"id":"EX-4","group":"解体 外部","name":"鉄格子（3式）・水平ルーバーの撤去","note":"","type":"task","dep":"TM-5","s":22,"d":3},{"id":"EX-3","group":"解体 外部","name":"外壁ダクト（10か所）・ベントキャップの撤去","note":"","type":"task","dep":"EX-1","s":23,"d":3},{"id":"EX-5","group":"解体 外部","name":"雨樋（5か所）の撤去","note":"","type":"task","dep":"TM-5","s":25,"d":2},{"id":"EX-2","group":"解体 外部","name":"エアコン室外機（37台）の撤去・冷媒管・ドレン処理","note":"フロン回収を含む","type":"task","dep":"B1-1","s":29,"d":7},{"id":"EX-7","group":"解体 外部","name":"スチールシャッター（3式）・外部ALC（1F）の解体","note":"","type":"task","dep":"F1-7","s":36,"d":4},{"id":"EX-8","group":"解体 外部","name":"駐輪場・スチールゲートの撤去","note":"","type":"task","dep":"EX-7","s":42,"d":3},{"id":"EX-9","group":"解体 外部","name":"既存アスファルトの撤去（約85㎡）","note":"車両動線を考慮し最後","type":"task","dep":"EX-8","s":45,"d":2},{"id":"WM-3","group":"産廃・現場管理","name":"現場管理・安全巡回・近隣対応・粉じん対策","note":"通期","type":"task","dep":"","s":0,"d":52},{"id":"WM-2","group":"産廃・現場管理","name":"解体材の荷出し・搬出（ユニック・ダンプ）","note":"通期","type":"task","dep":"","s":6,"d":45}],"notes":["※ 本工程表は当社見積範囲の解体工事のみを対象としています。解体後の内装・外装・防水・EV本体設置・設備等の別途工事は含みません。","※ 工期は 2026年11月16日〜2027年1月22日（引渡し）です。着工前の週は契約・届出・石綿事前調査等の準備期間です。","※ 休工日は日曜・祝日・年末年始（12/29〜1/3）です。はつり等の高騒音作業は平日日中のみ行い、近隣へ事前にお知らせします。","※ 石綿（アスベスト）事前調査の結果、含有が確認された場合は、届出（14日前）・除去工事の協議のため工程を調整します（予備期間を確保）。","※ RC躯体のはつり・EV新設開口・棟屋スラブ一部撤去は、構造協議の完了後に着手します。","※ 外部足場は後工事のため解体完了後も存置します（足場解体は本工程表に含みません）。","※ 天候・行政協議・追加工事等により工程が変動する場合は、速やかにご相談のうえ工程表を更新します。"]}</script>
+<script>
+(() => {
+'use strict';
+const state = JSON.parse(document.getElementById('state').textContent);
+const DAY = 86400000;
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+const P = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const diffDays = (a, b) => Math.round((b - a) / DAY);
+const md = d => (d.getMonth()+1) + '/' + d.getDate();
+const WD = '日月火水木金土';
+const fmtJ = d => d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日（' + WD[d.getDay()] + '）';
+const TYPES = { task: '作業', milestone: '◆マイルストーン', approval: '申請・承認待ち', buffer: '予備日' };
+let dirty = false, history = [];
+
+/* ---------- 稼働日カレンダー ---------- */
+let holSet, breaks, W = [], idxMap = new Map(), OFFSET = 0, base;
+function isOff(d) {
+  const w = d.getDay();
+  if (w === 0 || (w === 6 && !state.satWork)) return true;
+  const k = iso(d);
+  return holSet.has(k) || breaks.some(b => k >= b[0] && k <= b[1]);
+}
+function buildCalendar() {
+  holSet = new Set(state.holidays); breaks = state.breaks;
+  const st = P(state.start);
+  base = st; while (isOff(base)) base = addDays(base, 1);      // index 0 = 着工日以降の最初の稼働日
+  W = []; idxMap = new Map();
+  const back = [];
+  let d = addDays(base, -1);
+  for (let n = 0; n < 240; d = addDays(d, -1), n++) if (!isOff(d)) back.push(d);
+  OFFSET = back.length;
+  W = back.reverse();
+  d = base;
+  for (let n = 0; n < 900; d = addDays(d, 1), n++) if (!isOff(d)) W.push(d);
+  W.forEach((x, i) => idxMap.set(iso(x), i - OFFSET));
+}
+const dateOf = i => W[Math.max(0, Math.min(W.length - 1, i + OFFSET))];
+function idxOf(d, snap) {                                       // snap: 'fwd'|'bwd' 休工日のとき次/前の稼働日
+  let x = d, n = 0;
+  while (isOff(x) && n++ < 60) x = addDays(x, snap === 'bwd' ? -1 : 1);
+  return idxMap.get(iso(x));
+}
+const endIdx = t => t.s + t.d - 1;
+
+/* ---------- 履歴・保存状態 ---------- */
+function snapshot() { history.push(JSON.stringify(state)); if (history.length > 60) history.shift(); $('#btnUndo').disabled = false; }
+function touch() { dirty = true; $('#dirty').textContent = '● 未保存の変更があります'; }
+function commit(fn) { snapshot(); fn(); touch(); render(); }
+function undo() {
+  if (!history.length) return;
+  const s = JSON.parse(history.pop()); Object.keys(state).forEach(k => delete state[k]); Object.assign(state, s);
+  $('#btnUndo').disabled = !history.length; touch(); render();
+}
+
+/* ---------- 描画 ---------- */
+const groupColor = g => (state.groups.find(x => x.name === g) || {}).color || '#607d8b';
+let range = { min: null, total: 0 };
+const posPct = d => diffDays(range.min, d) / range.total * 100;
+
+function render() {
+  buildCalendar();
+  document.querySelectorAll('[data-meta]').forEach(el => { if (document.activeElement !== el) el.textContent = state.meta[el.dataset.meta] || ''; });
+  $('#startDate').value = state.start; $('#satWork').checked = !!state.satWork;
+  $('#holText').value = state.holidays.slice().sort().join('\n') + '\n' + state.breaks.map(b => b[0] + '〜' + b[1]).join('\n');
+
+  // 範囲
+  const T = state.tasks;
+  const dates = []; T.forEach(t => { dates.push(dateOf(t.s), dateOf(endIdx(t))); });
+  let minD = dates.reduce((a, b) => a < b ? a : b, dates[0]);
+  let maxD = dates.reduce((a, b) => a > b ? a : b, dates[0]);
+  minD = addDays(minD, -((minD.getDay() + 6) % 7));            // 月曜始まり
+  range = { min: minD, total: diffDays(minD, maxD) + 1 };
+  const projEnd = T.filter(t => t.s >= 0).reduce((a, t) => { const e = dateOf(endIdx(t)); return e > a ? e : a; }, dateOf(0));
+  const wdays = endIdxAll() + 1;
+  const months = Math.round(diffDays(base, projEnd) / 30.44 * 10) / 10;
+  $('#period').textContent = fmtJ(base) + ' 〜 ' + fmtJ(projEnd) + '　約' + months + 'か月（稼働日' + wdays + '日）';
+
+  // 休工日の網掛け
+  const stops = [];
+  for (let i = 0; i < range.total; i++) {
+    const c = isOff(addDays(range.min, i)) ? '#eef0f4' : '#fff';
+    stops.push(`${c} ${(i / range.total * 100).toFixed(4)}%, ${c} ${((i + 1) / range.total * 100).toFixed(4)}%`);
+  }
+  const shade = `linear-gradient(to right, ${stops.join(',')})`;
+  const wp = 7 / range.total * 100;
+  const weekLine = `repeating-linear-gradient(to right, transparent 0, transparent calc(${wp}% - 1px), #c9ced8 calc(${wp}% - 1px), #c9ced8 ${wp}%)`;
+
+  // ヘッダー
+  const mons = [], weeks = [];
+  for (let i = 0; i < range.total;) {
+    const d = addDays(range.min, i), mEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+    const len = Math.min(range.total - i, diffDays(d, mEnd) + 1);
+    mons.push({ label: (d.getFullYear() !== range.min.getFullYear() && d.getMonth() === 0 ? d.getFullYear() + '年' : '') + (d.getMonth() + 1) + '月', len }); i += len;
+  }
+  const w1 = base.getDay() === 0 ? addDays(base, -6) : addDays(base, 1 - base.getDay());
+  for (let i = 0; i < range.total; i += 7) {
+    const d = addDays(range.min, i), n = Math.round(diffDays(w1, d) / 7) + 1;
+    weeks.push({ label: md(d), len: Math.min(7, range.total - i), n });
+  }
+  let h = '<colgroup><col style="width:34px"><col style="width:225px"><col style="width:176px"><col><col style="width:150px"><col class="ctlcol" style="width:112px"></colgroup><thead>';
+  h += '<tr><th rowspan="2">No.</th><th rowspan="2">工　種　・　作　業</th><th rowspan="2">期　間</th><th style="padding:0"><div style="display:flex">' +
+    mons.map((m, i) => `<div style="width:${m.len / range.total * 100}%;text-align:center;color:#fff;background:${i % 2 ? '#2e5d9e' : '#1a3a6b'};font-size:11px;padding:2px 0;letter-spacing:2px;border-right:1px solid #fff;overflow:hidden;white-space:nowrap">${m.label}</div>`).join('') +
+    '</div></th><th rowspan="2">備　考</th><th rowspan="2" class="ctlcol">操作</th></tr>';
+  h += '<tr><th style="padding:0"><div style="display:flex">' + weeks.map(w =>
+    `<div style="width:${w.len / range.total * 100}%;text-align:center;font-size:8.5px;line-height:1.15;padding:2px 0;border-right:1px solid #bbb;background:#f3f5fb;overflow:hidden"><b style="display:block;font-size:8px;color:#444">${w.n < 1 ? '着工前' : 'W' + w.n}</b>${w.label}</div>`).join('') + '</div></th></tr></thead><tbody>';
+
+  // 本体
+  const byId = Object.fromEntries(T.map(t => [t.id, t]));
+  let seq = 0;
+  state.groups.forEach((g, gi) => {
+    h += `<tr class="grp"><td colspan="6"><span>■ </span><span class="gname" contenteditable data-gedit="${gi}">${esc(g.name)}</span>` +
+      `<span class="gctl noprint"><input type="color" value="${esc(g.color)}" data-gcolor="${gi}" title="バーの色"> <button data-gadd="${gi}">＋行追加</button> <button data-gup="${gi}">▲</button><button data-gdn="${gi}">▼</button><button data-gdel="${gi}">✕</button></span></td></tr>`;
+    T.forEach((t, ti) => {
+      if (t.group !== g.name) return;
+      seq++;
+      const ms = t.type === 'milestone';
+      const s = dateOf(t.s), e = dateOf(endIdx(t));
+      const single = ms || t.type === 'approval' || t.d === 1;
+      const per = single ? md(s) : md(s) + '〜' + md(e);
+      const deps = (t.dep || '').split(/[;,\s]+/).filter(Boolean).map(x => byId[x]).filter(Boolean);
+      const bad = deps.filter(p => (ms || t.type === 'approval') ? t.s < endIdx(p) : t.s <= endIdx(p));
+      let cell;
+      if (ms) {
+        const x = posPct(addDays(s, 0)) + 0.5 / range.total * 100, right = x > 76;
+        cell = `<div class="ms-mark" data-drag="${ti}" style="left:${x}%"></div><div class="ms-lbl" style="${right ? 'right:' + (100 - x + 1.2) + '%' : 'left:' + (x + 1.2) + '%'}">${esc(t.name)}</div>`;
+      } else {
+        const l = posPct(s), w = Math.max(posPct(addDays(e, 1)) - l, 0.5);
+        const cls = t.type === 'approval' ? 'approval' : t.type === 'buffer' ? 'buffer' : '';
+        cell = `<div class="bar ${cls}" data-drag="${ti}" style="left:${l}%;width:${w}%;background:${esc(g.color)}" title="${esc(t.name)}"><span class="hl" data-h="l"></span><span class="hr" data-h="r"></span></div>`;
+      }
+      const dtl = `<span class="print-only">${per}</span>`;
+      const inputs = single ? `<input type="date" value="${iso(s)}" data-ps="${ti}">` : `<input type="date" value="${iso(s)}" data-ps="${ti}"><span class="sep">〜</span><input type="date" value="${iso(e)}" data-pe="${ti}">`;
+      h += `<tr class="row${ms ? ' ms' : ''}${bad.length ? ' warn' : ''}"><td class="no">${seq}${bad.length ? `<span class="warnmark noprint" title="先行作業（${esc(bad.map(b => b.name).join('、'))}）の完了前に開始しています">⚠</span>` : ''}</td>` +
+        `<td class="name" contenteditable data-tname="${ti}">${ms ? '◆ ' : ''}${esc(ms ? t.name : t.name)}</td>` +
+        `<td class="per"><span class="noprint">${inputs}</span>${dtl}</td>` +
+        `<td class="tl" style="background-image:${weekLine},${shade}">${cell}</td>` +
+        `<td class="note" contenteditable data-tnote="${ti}">${esc(t.note)}</td>` +
+        `<td class="ctl ctlcol"><select data-ttype="${ti}">${Object.entries(TYPES).map(([k, v]) => `<option value="${k}"${k === t.type ? ' selected' : ''}>${v}</option>`).join('')}</select> <button data-tup="${ti}">▲</button><button data-tdn="${ti}">▼</button><button data-tdel="${ti}">✕</button></td></tr>`;
+    });
+  });
+  h += '</tbody>';
+  $('#gantt').innerHTML = h;
+  // 印刷時は期間欄をテキストに差し替え（画面ではinput）
+
+  // 凡例
+  $('#legend').innerHTML = '<b>凡例：</b>' + state.groups.map(g => `<span class="lg"><i style="background:${esc(g.color)}"></i>${esc(g.name)}</span>`).join('') +
+    '<span class="lg"><i class="bar approval" style="position:static"></i>申請・承認待ち</span><span class="lg"><i class="bar buffer" style="position:static"></i>予備日（天候・調整）</span><span class="lg"><span style="display:inline-block;width:11px;height:11px;background:#7b1fa2;transform:rotate(45deg) scale(.75)"></span>マイルストーン</span><span class="lg"><i style="background:#eef0f4;border:1px solid #bbb"></i>休工日</span>';
+  if (document.activeElement !== $('#notes')) $('#notes').innerHTML = state.notes.map(n => '<p>' + esc(n) + '</p>').join('');
+}
+function endIdxAll() { return state.tasks.reduce((a, t) => Math.max(a, endIdx(t)), 0); }
+
+/* ---------- 編集操作 ---------- */
+const T = () => state.tasks;
+document.addEventListener('change', e => {
+  const el = e.target, ds = el.dataset;
+  if (el.id === 'startDate') { if (el.value) commit(() => { state.start = el.value; }); return; }
+  if (el.id === 'satWork') { commit(() => { state.satWork = el.checked; }); return; }
+  if (ds.ps !== undefined && el.value) commit(() => {
+    const t = T()[+ds.ps], e0 = endIdx(t), ns = idxOf(P(el.value), 'fwd');
+    t.s = ns; if ((t.type === 'task' || t.type === 'buffer') && e0 >= ns) t.d = e0 - ns + 1;
+  });
+  if (ds.pe !== undefined && el.value) commit(() => {
+    const t = T()[+ds.pe], ne = idxOf(P(el.value), 'bwd'); t.d = Math.max(1, ne - t.s + 1);
+  });
+  if (ds.ttype !== undefined) commit(() => { const t = T()[+ds.ttype]; t.type = el.value; if (t.type === 'milestone' || t.type === 'approval') t.d = 1; else if (t.d < 1) t.d = 1; });
+  if (ds.gcolor !== undefined) commit(() => { state.groups[+ds.gcolor].color = el.value; });
+});
+document.addEventListener('focusout', e => {
+  const el = e.target, ds = el.dataset;
+  if (el.dataset && el.dataset.meta) { if (state.meta[ds.meta] !== el.textContent) { snapshot(); state.meta[ds.meta] = el.textContent.trim(); touch(); } return; }
+  if (ds.tname !== undefined) { const v = el.textContent.replace(/^◆\s*/, '').trim(); if (v !== T()[+ds.tname].name) { snapshot(); T()[+ds.tname].name = v; touch(); render(); } return; }
+  if (ds.tnote !== undefined) { const v = el.textContent.trim(); if (v !== T()[+ds.tnote].note) { snapshot(); T()[+ds.tnote].note = v; touch(); } return; }
+  if (ds.gedit !== undefined) { const g = state.groups[+ds.gedit], v = el.textContent.trim(); if (v && v !== g.name) { snapshot(); T().forEach(t => { if (t.group === g.name) t.group = v; }); g.name = v; touch(); render(); } return; }
+  if (el.id === 'notes') { snapshot(); state.notes = [...el.querySelectorAll('p')].map(p => p.textContent.trim()).filter(Boolean); if (!state.notes.length && el.textContent.trim()) state.notes = el.innerText.split('\n').map(s => s.trim()).filter(Boolean); touch(); render(); }
+});
+document.addEventListener('keydown', e => {
+  if (e.target.isContentEditable && e.key === 'Enter' && !e.target.id) { e.preventDefault(); e.target.blur(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.target.isContentEditable && e.target.tagName !== 'INPUT') { e.preventDefault(); undo(); }
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const ds = b.dataset;
+  if (ds.tdel !== undefined) commit(() => T().splice(+ds.tdel, 1));
+  else if (ds.tup !== undefined || ds.tdn !== undefined) commit(() => {
+    const i = +(ds.tup !== undefined ? ds.tup : ds.tdn), dir = ds.tup !== undefined ? -1 : 1, g = T()[i].group;
+    let j = i + dir; while (j >= 0 && j < T().length && T()[j].group !== g) j += dir;
+    if (j >= 0 && j < T().length) { const x = T()[i]; T()[i] = T()[j]; T()[j] = x; }
+  });
+  else if (ds.gadd !== undefined) commit(() => {
+    const g = state.groups[+ds.gadd].name, mine = T().filter(t => t.group === g), last = mine[mine.length - 1];
+    const s = last ? last.s : 0; let at = last ? T().indexOf(last) + 1 : T().length;
+    let n = 1; while (T().some(t => t.id === 'N-' + n)) n++;
+    T().splice(at, 0, { id: 'N-' + n, group: g, name: '新規作業（名称を編集）', note: '', type: 'task', dep: '', s, d: 5 });
+  });
+  else if (ds.gdel !== undefined) commit(() => { const g = state.groups[+ds.gdel].name; state.tasks = T().filter(t => t.group !== g); state.groups.splice(+ds.gdel, 1); });
+  else if (ds.gup !== undefined || ds.gdn !== undefined) commit(() => {
+    const i = +(ds.gup !== undefined ? ds.gup : ds.gdn), j = i + (ds.gup !== undefined ? -1 : 1);
+    if (j >= 0 && j < state.groups.length) { const x = state.groups[i]; state.groups[i] = state.groups[j]; state.groups[j] = x; }
+  });
+  else if (b.id === 'btnGroup') commit(() => { let n = 1; while (state.groups.some(g => g.name === '新規グループ' + n)) n++; state.groups.push({ name: '新規グループ' + n, color: '#607d8b' }); });
+  else if (b.id === 'btnUndo') undo();
+  else if (b.id === 'btnPrint') window.print();
+  else if (b.id === 'btnSave') save();
+  else if (b.id === 'btnHol') commit(() => {
+    const hs = [], bs = [];
+    $('#holText').value.split(/\n/).map(s => s.trim()).filter(Boolean).forEach(l => {
+      const m = l.match(/^(\d{4}-\d{2}-\d{2})\s*[〜~～-]\s*(\d{4}-\d{2}-\d{2})$/);
+      if (m) bs.push([m[1], m[2]]); else if (/^\d{4}-\d{2}-\d{2}$/.test(l)) hs.push(l);
+    });
+    state.holidays = hs; state.breaks = bs;
+  });
+});
+/* ---------- バーのドラッグ ---------- */
+let drag = null;
+document.addEventListener('pointerdown', e => {
+  const el = e.target.closest('[data-drag]'); if (!el) return;
+  const ti = +el.dataset.drag, t = T()[ti], td = el.closest('td.tl');
+  const mode = e.target.dataset && e.target.dataset.h ? e.target.dataset.h : 'm';
+  drag = { ti, t, el, td, mode, x0: e.clientX, W: td.getBoundingClientRect().width, s0: t.s, d0: t.d, sd: dateOf(t.s), ed: dateOf(endIdx(t)), moved: false, ns: t.s, nd: t.d };
+  el.setPointerCapture && el.setPointerCapture(e.pointerId); e.preventDefault();
+});
+document.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const dd = Math.round((e.clientX - drag.x0) / drag.W * range.total);
+  if (dd !== 0) drag.moved = true;
+  const t = drag.t; let ns = drag.s0, nd = drag.d0;
+  const single = t.type === 'milestone' || t.type === 'approval';
+  if (drag.mode === 'm' || single) ns = idxOf(addDays(drag.sd, dd), 'fwd');
+  else if (drag.mode === 'r') nd = Math.max(1, idxOf(addDays(drag.ed, dd), 'bwd') - drag.s0 + 1);
+  else { ns = Math.min(idxOf(addDays(drag.sd, dd), 'fwd'), drag.s0 + drag.d0 - 1); nd = drag.s0 + drag.d0 - ns; }
+  drag.ns = ns; drag.nd = nd;
+  const sD = dateOf(ns), eD = dateOf(ns + nd - 1);
+  if (t.type === 'milestone') drag.el.style.left = (posPct(sD) + 0.5 / range.total * 100) + '%';
+  else { const l = posPct(sD); drag.el.style.left = l + '%'; drag.el.style.width = Math.max(posPct(addDays(eD, 1)) - l, 0.5) + '%'; }
+});
+document.addEventListener('pointerup', () => {
+  if (!drag) return; const d = drag; drag = null;
+  if (d.moved && (d.ns !== d.s0 || d.nd !== d.d0)) commit(() => { d.t.s = d.ns; d.t.d = d.nd; }); else render();
+});
+
+/* ---------- 保存 ---------- */
+function save() {
+  const clone = document.documentElement.cloneNode(true);
+  clone.querySelector('#state').textContent = JSON.stringify(state).replace(/</g, '\\u003c');
+  clone.querySelectorAll('[data-render]').forEach(n => { n.innerHTML = ''; });
+  clone.querySelectorAll('[data-meta]').forEach(n => { n.textContent = ''; });
+  clone.querySelector('#period').textContent = '';
+  clone.querySelector('#dirty').textContent = '';
+  const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  const nm = (state.meta.name || '工程表').replace(/[\\/:*?"<>|]/g, '');
+  const dd = new Date();
+  a.href = URL.createObjectURL(blob); a.download = '工程表_' + nm + '_' + dd.getFullYear() + pad(dd.getMonth() + 1) + pad(dd.getDate()) + '.html';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+  dirty = false; $('#dirty').textContent = '保存しました（ダウンロードフォルダ）';
+}
+window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+window.__kt = { state, render, dateOf, idxOf, commit, endIdxAll };   // 動作確認用
+render();
+})();
+</script>
+<script>
+(function(){var z=1,v=document.getElementById('zVal'),pz=1;
+function set(n){z=Math.max(.6,Math.min(2.5,Math.round(n*10)/10));document.body.style.zoom=z;v.textContent=Math.round(z*100)+'%';try{localStorage.setItem('kt_zoom',z)}catch(e){}}
+document.getElementById('zIn').onclick=function(){set(z+.1)};
+document.getElementById('zOut').onclick=function(){set(z-.1)};
+document.getElementById('zReset').onclick=function(){set(1)};
+window.addEventListener('beforeprint',function(){pz=z;document.body.style.zoom=1});
+window.addEventListener('afterprint',function(){document.body.style.zoom=pz});
+document.addEventListener('keydown',function(e){if(e.ctrlKey&&(e.key==='+'||e.key==='=')){e.preventDefault();set(z+.1)}else if(e.ctrlKey&&e.key==='-'){e.preventDefault();set(z-.1)}else if(e.ctrlKey&&e.key==='0'){e.preventDefault();set(1)}});
+document.addEventListener('wheel',function(e){if(e.ctrlKey){e.preventDefault();set(z+(e.deltaY<0?.1:-.1))}},{passive:false});
+})();
+</script>
+
+
+</body></html>

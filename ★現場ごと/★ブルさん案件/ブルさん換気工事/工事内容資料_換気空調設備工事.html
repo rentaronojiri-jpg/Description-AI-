@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>工事内容資料 - PoRiCoMi ～Luxury Dog Salon～ 新築工事（換気・空調設備工事）</title>
+<style>
+  @page { size: A3 landscape; margin: 10mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Meiryo', 'MS Gothic', 'Yu Gothic', sans-serif;
+    font-size: 12px;
+    color: #111;
+    background: #fff;
+    padding: 10mm;
+    line-height: 1.5;
+  }
+  .cover {
+    text-align: center;
+    padding: 60px 0 30px;
+    border-bottom: 3px solid #1a3a6b;
+    margin-bottom: 16px;
+  }
+  .cover .kicker { color: #2e5d9e; font-weight: bold; letter-spacing: 4px; font-size: 13px; margin-bottom: 10px; }
+  .cover h1 { font-size: 26px; color: #1a3a6b; letter-spacing: 2px; margin-bottom: 8px; }
+  .cover .sub { font-size: 14px; color: #444; }
+  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 11.5px; }
+  .info-table td { border: 1px solid #aaa; padding: 5px 9px; }
+  .info-table .label { background: #dde4f0; font-weight: bold; width: 130px; white-space: nowrap; }
+
+  h2.section-title {
+    background: #1a3a6b; color: #fff; font-size: 14px; font-weight: bold;
+    padding: 6px 12px; margin: 22px 0 10px; letter-spacing: 1px;
+  }
+  h3.sub-title {
+    color: #1a3a6b; font-size: 12.5px; font-weight: bold; margin: 14px 0 6px;
+    border-left: 5px solid #2e5d9e; padding-left: 8px;
+  }
+  table.data {
+    width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px;
+  }
+  table.data th {
+    background: #2e5d9e; color: #fff; padding: 5px 6px; border: 1px solid #1a3a6b; text-align: center;
+  }
+  table.data td { border: 1px solid #bbb; padding: 4px 6px; }
+  table.data tr:nth-child(even) td { background: #f4f7fc; }
+  table.data td.num { text-align: right; white-space: nowrap; }
+  table.data td.center { text-align: center; }
+  .note-box {
+    background: #fff8e6; border: 1px solid #e0c060; padding: 8px 12px; font-size: 10.5px;
+    color: #6b5200; margin: 10px 0 16px; line-height: 1.7;
+  }
+  .warn-box {
+    background: #fdecea; border: 1px solid #e0908a; padding: 8px 12px; font-size: 10.5px;
+    color: #8a2b23; margin: 10px 0 16px; line-height: 1.8;
+  }
+  .flow-box {
+    background: #eef3fb; border: 1px solid #9db3d6; padding: 10px 14px; font-size: 11px;
+    line-height: 1.8; margin-bottom: 14px;
+  }
+  .summary-box {
+    background: #f0f5ea; border: 1px solid #9dc47a; padding: 10px 14px; font-size: 11px;
+    line-height: 1.8; margin: 14px 0 20px;
+  }
+  .page-break { page-break-before: always; }
+
+  /* ===== ガントチャート ===== */
+  .gantt { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; }
+  .gantt th, .gantt td { border: 1px solid #888; vertical-align: middle; text-align: center; }
+  .col-no { width: 26px; }
+  .col-name { width: 230px; }
+  .col-w { width: 78px; }
+  .col-note { width: 150px; }
+  .hd-label { background: #e8eaf6; font-weight: bold; padding: 4px; }
+  .hw { background: #2e5d9e; color: #fff; font-weight: bold; padding: 5px 2px; font-size: 11px; }
+  .hw-fin { background: #5a3a8b; color: #fff; font-weight: bold; padding: 5px 2px; font-size: 11px; }
+  .section-row td { background: #dde4f0; font-weight: bold; font-size: 10.5px; padding: 3px 6px; color: #1a3a6b; }
+  .task-row td { padding: 3px 4px; height: 28px; }
+  .task-row:nth-child(odd) { background: #fafafa; }
+  .task-row:nth-child(even) { background: #f0f4fb; }
+  .task-name-cell { text-align: left; padding: 4px 7px !important; line-height: 1.4; }
+  .task-sub { font-size: 8.5px; color: #555; }
+  .bar { display: block; height: 16px; border-radius: 3px; margin: 2px auto; width: 90%; }
+  .final-cell { background: #f5f0ff !important; border: 2px solid #5a3a8b !important; }
+  .star { font-size: 20px; color: #c0ca33; line-height: 1; }
+
+  .c-survey { background: #455a64; }
+  .c-open1  { background: #7b9e3f; }
+  .c-open4  { background: #4f7a2a; }
+  .c-duct1  { background: #2e7d32; }
+  .c-duct4  { background: #1b5e20; }
+  .c-pipe1  { background: #0277bd; }
+  .c-pipe4  { background: #01579b; }
+  .c-out    { background: #6d4c41; }
+  .c-in     { background: #8d6e63; }
+  .c-elecA  { background: #f57f17; }
+  .c-elecB  { background: #ef6c00; }
+  .c-vac    { background: #7b1fa2; }
+  .c-run    { background: #ad1457; }
+  .c-check  { background: #00796b; }
+  .c-done   { background: #546e7a; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 5px 14px; margin-top: 8px; padding: 6px 10px; border: 1px solid #bbb; background: #fafafa; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 9.5px; }
+  .legend-box { width: 20px; height: 11px; border-radius: 2px; flex-shrink: 0; }
+
+  .footer-note { font-size: 9.5px; color: #555; line-height: 1.8; margin-top: 10px; }
+
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+
+<!-- ============ 表紙 ============ -->
+<div class="cover">
+  <div class="kicker">工 事 内 容 資 料</div>
+  <h1>PoRiCoMi ～Luxury Dog Salon～ 新築工事</h1>
+  <div class="sub">換気設備工事・空調設備工事（1F・4F）｜ブルさん電気工事 施工分</div>
+</div>
+
+<table class="info-table">
+  <tr>
+    <td class="label">物件名</td>
+    <td colspan="3">PoRiCoMi ～Luxury Dog Salon～ 新築工事</td>
+    <td class="label">対象階</td>
+    <td>1F（店舗・客席等）／4F（ホテル・トリミングサロン等）</td>
+  </tr>
+  <tr>
+    <td class="label">プラン作成者</td>
+    <td colspan="3">三菱電機住環境システムズ株式会社</td>
+    <td class="label">施工担当</td>
+    <td>ブルさん電気工事</td>
+  </tr>
+  <tr>
+    <td class="label">換気プラン作成日</td>
+    <td>2026年6月22日（PLAN NO: 26A-154）</td>
+    <td class="label">空調プラン作成日</td>
+    <td>2026年7月7日（PLAN NO: 26A-154s）</td>
+    <td class="label">資料作成日</td>
+    <td>2026年7月29日</td>
+  </tr>
+</table>
+
+<div class="note-box">
+  ※本資料は三菱電機住環境システムズ株式会社作成のプランPDF（換気プラン／空調プラン／24H換気計算書／一般換気計算書）を基に整理したものです。価格は事業者向け積算見積価格であり、一般消費者向け販売価格ではありません。室外機置場・搬入経路は現地確認が必要な未確定事項です。
+</div>
+
+<!-- ============ 換気設備工事 ============ -->
+<h2 class="section-title">1. 換気設備工事</h2>
+
+<h3 class="sub-title">1F 換気設備</h3>
+<table class="data">
+  <tr><th>系統</th><th>型名</th><th>仕様</th><th>数量</th><th>単価（税別）</th><th>備考</th></tr>
+  <tr><td class="center">1F排気①</td><td>BFS-150TUG2</td><td>ストレートシロッコファン 天吊埋込タイプ消音形</td><td class="center">1</td><td class="num">¥201,000</td><td>ファン本体</td></tr>
+  <tr><td class="center">1F排気①</td><td>W-25SB</td><td>ステンレス製ウェザーカバー 防鳥網付</td><td class="center">1</td><td class="num">¥35,400</td><td>外部フード</td></tr>
+  <tr><td class="center">1F給気②</td><td>BFS-150STUA2</td><td>ストレートシロッコファン 給気タイプ消音形</td><td class="center">1</td><td class="num">¥243,000</td><td>ファン本体</td></tr>
+  <tr><td class="center">A</td><td>BFS-25G4</td><td>給排気グリル 消音形</td><td class="center">2</td><td class="num">※要現物確認</td><td>1Fページ単価欄が判読不可（4F同型番は¥60,100）</td></tr>
+  <tr><td class="center">B</td><td>P-23GL6</td><td>給排気グリル 風量調節形</td><td class="center">3</td><td class="num">¥10,200</td><td></td></tr>
+  <tr><td class="center">C</td><td>P-18GL6</td><td>給排気グリル 風量調節形</td><td class="center">1</td><td class="num">¥5,500</td><td></td></tr>
+  <tr><td class="center">D</td><td>P-13GL6</td><td>給排気グリル 風量調節形</td><td class="center">2</td><td class="num">¥4,300</td><td></td></tr>
+  <tr><td class="center">別売</td><td>BFS-2025GF4</td><td>給排気グリル用フィルター</td><td class="center">数量記載なし</td><td class="num">—</td><td>別途手配</td></tr>
+</table>
+
+<h3 class="sub-title">4F 換気設備</h3>
+<table class="data">
+  <tr><th>系統</th><th>型名</th><th>仕様</th><th>数量</th><th>単価（税別）</th><th>備考</th></tr>
+  <tr><td class="center">4F排気③</td><td>BFS-210TUG2</td><td>ストレートシロッコファン 天吊埋込タイプ消音形</td><td class="center">1</td><td class="num">¥310,000</td><td>ファン本体</td></tr>
+  <tr><td class="center">4F排気③</td><td>W-30SB</td><td>ステンレス製ウェザーカバー 防鳥網付</td><td class="center">1</td><td class="num">¥39,500</td><td>外部フード</td></tr>
+  <tr><td class="center">4F給気④</td><td>BFS-210STUA2</td><td>ストレートシロッコファン 給気タイプ消音形</td><td class="center">1</td><td class="num">¥373,000</td><td>ファン本体</td></tr>
+  <tr><td class="center">A</td><td>BFS-25G4</td><td>給排気グリル 消音形</td><td class="center">2</td><td class="num">¥60,100</td><td></td></tr>
+  <tr><td class="center">B</td><td>P-23GL6</td><td>給排気グリル 風量調節形</td><td class="center">5</td><td class="num">¥10,200</td><td></td></tr>
+  <tr><td class="center">C</td><td>P-18GL6</td><td>給排気グリル 風量調節形</td><td class="center">2</td><td class="num">¥5,500</td><td></td></tr>
+  <tr><td class="center">D</td><td>P-13GL6</td><td>給排気グリル 風量調節形</td><td class="center">4</td><td class="num">¥4,300</td><td></td></tr>
+  <tr><td class="center">別売</td><td>BFS-2025GF4</td><td>給排気グリル用フィルター</td><td class="center">2</td><td class="num">—</td><td>別途手配</td></tr>
+</table>
+
+<h3 class="sub-title">換気計算結果</h3>
+<table class="data">
+  <tr><th>階</th><th>計算書種別</th><th>必要／決定換気量</th><th>選定機器</th><th>備考</th></tr>
+  <tr><td class="center">1F</td><td>24H換気計算書（第二号様式・法定）</td><td class="num">必要換気量 150 ㎥/h</td><td>第1種換気</td><td>床面積計162.33㎡、気積471.0㎥、換気回数0.32回/h</td></tr>
+  <tr><td class="center">1F</td><td>一般換気計算書（実使用ベース）</td><td class="num">決定風量 1,255 ㎥/h</td><td>BFS-150TUG2 / BFS-150STUA2</td><td>客席960＋トイレ2室210＋ストック85</td></tr>
+  <tr><td class="center">4F</td><td>24H換気計算書（第二号様式・法定）</td><td class="num">必要換気量 200 ㎥/h</td><td>第1種換気</td><td>床面積計220.36㎡、気積639.6㎥、換気回数0.31回/h</td></tr>
+  <tr><td class="center">4F</td><td>一般換気計算書（実使用ベース）</td><td class="num">決定風量 2,105 ㎥/h</td><td>BFS-210TUG2 / BFS-210STUA2</td><td>ホテル770が最大内訳、全11室合計</td></tr>
+</table>
+<div class="note-box">
+  法定必要換気量（0.3回/h基準）に対し、実際に選定された機種能力は8〜10倍規模。ドッグサロンという用途特性（動物の臭気・トイレ換気・人員稼働）を踏まえ、法定基準ではなく実使用ベースの一般換気計算書の数値で機器選定されている。24時間換気設備は建築確認の完了検査対象のため、検査済証取得前に完成させる必要がある。※動物の臭いは取れません（PDF記載の注記）。
+</div>
+
+<!-- ============ 空調設備工事 ============ -->
+<div class="page-break"></div>
+<h2 class="section-title">2. 空調設備工事（ビル用マルチエアコン）</h2>
+
+<h3 class="sub-title">1F 空調設備</h3>
+<table class="data">
+  <tr><th>符号</th><th>型名</th><th>仕様</th><th>数量</th><th>備考</th></tr>
+  <tr><td class="center">室外機</td><td>PUHY-MP560DM</td><td>ビル用マルチエアコン YシリーズGR高効率</td><td class="center">1</td><td>①〜⑥の6系統を接続</td></tr>
+  <tr><td class="center">①②③</td><td>PDFY-MP140GM</td><td>天井ビルトイン形室内機</td><td class="center">3</td><td>吹出口ユニットPAC-SH19UN×12、下吸込ダクトPAC-KD48CDF×3</td></tr>
+  <tr><td class="center">④</td><td>PDFY-MP56GM</td><td>天井ビルトイン形室内機</td><td class="center">1</td><td></td></tr>
+  <tr><td class="center">⑤</td><td>PMFY-MP22BM</td><td>1方向天井カセット形（小容量）室内機</td><td class="center">1</td><td></td></tr>
+  <tr><td class="center">⑥</td><td>※要現物確認</td><td>配管区分は①②③と同じ（液9.52/ガス15.88）</td><td class="center">1</td><td>PDF上型番判読不可</td></tr>
+  <tr><td class="center">①〜⑥共通</td><td>CMR-MP100KT</td><td>遮断弁キット</td><td class="center">6</td><td></td></tr>
+  <tr><td class="center">①〜⑥共通</td><td>PAR-48MA</td><td>BAスマートリモコン</td><td class="center">6</td><td class="num">¥80,000／台</td></tr>
+  <tr><td class="center">⑤付近</td><td>PAC-SL46FK</td><td>フロンガス警報器</td><td class="center">1</td><td></td></tr>
+  <tr><td class="center">⑦（単独系統）</td><td>PUZ-ERMP40KA16 + PD-RP40GA22</td><td>スリムER室外機＋天井ビルトイン形室内機</td><td class="center">1</td><td class="num">室外機¥1,118,000</td></tr>
+  <tr><td class="center">⑧（単独系統）</td><td>PUZ-ERMP63KA16 + PD-RP63GA22</td><td>スリムER室外機＋天井ビルトイン形室内機</td><td class="center">1</td><td class="num">室外機¥1,371,000</td></tr>
+</table>
+
+<h3 class="sub-title">4F 空調設備</h3>
+<table class="data">
+  <tr><th>符号</th><th>型名</th><th>仕様</th><th>数量</th><th>備考</th></tr>
+  <tr><td class="center">室外機</td><td>PUHY-MP560DM</td><td>ビル用マルチエアコン YシリーズGR高効率</td><td class="center">1</td><td>①〜⑩の10系統を接続</td></tr>
+  <tr><td class="center">①</td><td>PLFY-MP36LM</td><td>2方向天井カセット形室内機</td><td class="center">1</td><td></td></tr>
+  <tr><td class="center">②③</td><td>PMFY-MP45FM</td><td>1方向天井カセット形（大容量）室内機</td><td class="center">2</td><td></td></tr>
+  <tr><td class="center">④⑥</td><td>PDFY-MP140GM</td><td>天井ビルトイン形室内機</td><td class="center">2</td><td>配管区分：液9.52/ガス15.88</td></tr>
+  <tr><td class="center">⑤</td><td>PMFY-MP28BM</td><td>1方向天井カセット形室内機</td><td class="center">1</td><td></td></tr>
+  <tr><td class="center">⑦⑧</td><td>※要現物確認（PDFY-MP45GM系との記載あり）</td><td>天井ビルトイン形室内機</td><td class="center">2</td><td>配管接続径が⑨⑩と異なる記載のためOCR誤読の可能性あり</td></tr>
+  <tr><td class="center">⑨⑩</td><td>PDFY-MP45GM</td><td>天井ビルトイン形室内機</td><td class="center">2</td><td>分岐ジョイントCMY-Y202DG4等使用</td></tr>
+  <tr><td class="center">①〜⑩共通</td><td>CMR-MP100KT</td><td>遮断弁キット</td><td class="center">10</td><td></td></tr>
+  <tr><td class="center">①〜⑩共通</td><td>PAR-48MA</td><td>BAスマートリモコン</td><td class="center">10</td><td class="num">¥80,000／台</td></tr>
+  <tr><td class="center">①⑤⑦⑧</td><td>PAC-SL46FK</td><td>フロンガス警報器</td><td class="center">4</td><td></td></tr>
+</table>
+
+<div class="warn-box">
+  <strong>要現物確認事項（PDFテキスト抽出上、判読不可・記載相違の疑いがある箇所）</strong><br>
+  ① 1Fページ「BFS-25G4×2（記号A）」の単価欄／② 空調LA・1Fページ「⑥」室内機の型番／③ 空調LA・4Fページ「⑦⑧」室内機の正式型番（⑨⑩「PDFY-MP45GM」と表記重複だが配管接続径が異なる）／④ 1F単独系統⑦⑧（スリムER）のリモコン型番。着工前に原本PDF・図面で目視確認のうえ確定すること。
+</div>
+
+<h3 class="sub-title">工事範囲の要約</h3>
+<div class="flow-box">
+  <strong>PDF記載から確認できる工事範囲：</strong>換気ダクト工事（ファン本体設置・グリル分岐配管・外壁フード取付）／冷媒配管工事（室外機〜室内機の液管・ガス管接続、4F系統は分岐ジョイント使用）／遮断弁キット設置／ダクト付属部材取付（下吸込キャンバスダクト・吹出口ユニット）／フロンガス警報器設置・配線／リモコン設置・配線／単独系統エアコン設置（1FスリムER×2台）。<br><br>
+  <strong>一般的な施工手順として推定される内容（PDF非記載・参考）：</strong>天井開口・野縁組み（下地補強）→ダクト・冷媒配管敷設→機器吊り込み・据付→電気配線接続→気密試験・真空引き→冷媒charge→試運転調整、の順で進行することが多い。ダクト工事は天井仕上げ前、電気配線・弱電配線は内装仕上げ前に完了させる必要がある。室外機設置場所は現地確認が必要な未確定事項。
+</div>
+
+<!-- ============ 工程表 ============ -->
+<div class="page-break"></div>
+<h2 class="section-title">3. 工程表（換気・空調設備工事）</h2>
+
+<table class="info-table">
+  <tr>
+    <td class="label">工事名称</td>
+    <td colspan="3">PoRiCoMi ～Luxury Dog Salon～ 新築工事　換気設備工事・空調設備工事（1F・4F）</td>
+    <td class="label">施工業者</td>
+    <td>ブルさん電気工事</td>
+  </tr>
+  <tr>
+    <td class="label">想定工期</td>
+    <td colspan="3"><strong>着工より約6週間（W1〜W6）</strong>　※着工日未定のため相対週表記</td>
+    <td class="label">施工範囲</td>
+    <td>1F・4F 換気設備＋ビル用マルチエアコン設備（並行施工）</td>
+  </tr>
+</table>
+
+<div class="flow-box">
+  換気ダクト工事は天井仕上げ前に先行させる必要があるため、着工直後の天井開口・野縁組みに続けてW2〜W3でダクト配管と冷媒配管を並行して進める。1F・4Fはそれぞれ独立した室外機系統を持つため同一週内でフロアを分けて並行施工し、系統数が多い4F（10系統）はダクト・配管工程がやや長引く想定。機器据付は配管ルート確定後（W3〜W4）に行い、電気配線はW4、気密試験・真空引きはW4後半〜W5、冷媒charge・試運転調整（メーカー立会い）はW5に設定。24時間換気設備は建築確認の完了検査対象のため、W5〜W6で風量確認・是正を終えたうえでW6の竣工・引渡しにつなげる。
+</div>
+
+<table class="gantt">
+  <colgroup>
+    <col class="col-no"><col class="col-name">
+    <col class="col-w"><col class="col-w"><col class="col-w"><col class="col-w"><col class="col-w"><col class="col-w">
+    <col class="col-note">
+  </colgroup>
+  <thead>
+    <tr>
+      <th class="hd-label col-no">No.</th>
+      <th class="hd-label col-name">工　種</th>
+      <th class="hw">着工<br>1週目</th>
+      <th class="hw">着工<br>2週目</th>
+      <th class="hw">着工<br>3週目</th>
+      <th class="hw">着工<br>4週目</th>
+      <th class="hw">着工<br>5週目</th>
+      <th class="hw-fin">着工<br>6週目</th>
+      <th class="hd-label col-note">備　考</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <tr class="section-row"><td colspan="9">▼ 着工前・準備工事</td></tr>
+    <tr class="task-row">
+      <td>1</td>
+      <td class="task-name-cell">着工前確認・現地調査<br><span class="task-sub">室外機置場（1F・4F・スリムER）確定、搬入経路確認</span></td>
+      <td><span class="bar c-survey"></span></td><td></td><td></td><td></td><td></td><td></td>
+      <td class="task-name-cell">室外機置場は未確定事項。最優先で確定</td>
+    </tr>
+    <tr class="task-row">
+      <td>2</td>
+      <td class="task-name-cell">天井開口・野縁組み（1F）<br><span class="task-sub">下地補強、機器搬入経路確保</span></td>
+      <td><span class="bar c-open1"></span></td><td><span class="bar c-open1"></span></td><td></td><td></td><td></td><td></td>
+      <td class="task-name-cell">室内機①〜⑥取付位置に対応</td>
+    </tr>
+    <tr class="task-row">
+      <td>3</td>
+      <td class="task-name-cell">天井開口・野縁組み（4F）<br><span class="task-sub">下地補強、天井ビルトイン形⑦⑧含む</span></td>
+      <td><span class="bar c-open4"></span></td><td><span class="bar c-open4"></span></td><td></td><td></td><td></td><td></td>
+      <td class="task-name-cell">系統数10と1Fより多く範囲広い</td>
+    </tr>
+
+    <tr class="section-row"><td colspan="9">▼ ダクト・配管工事</td></tr>
+    <tr class="task-row">
+      <td>4</td>
+      <td class="task-name-cell">換気ダクト工事（1F）<br><span class="task-sub">排気①・給気②ファン設置、グリルB/C/D分岐配管、外壁フードW-25SB</span></td>
+      <td></td><td><span class="bar c-duct1"></span></td><td><span class="bar c-duct1"></span></td><td></td><td></td><td></td>
+      <td class="task-name-cell">天井仕上げ前に先行完了</td>
+    </tr>
+    <tr class="task-row">
+      <td>5</td>
+      <td class="task-name-cell">換気ダクト工事（4F）<br><span class="task-sub">排気③・給気④ファン設置、グリルB/C/D分岐配管、外壁フードW-30SB</span></td>
+      <td></td><td><span class="bar c-duct4"></span></td><td><span class="bar c-duct4"></span></td><td></td><td></td><td></td>
+      <td class="task-name-cell">グリル数多く1Fよりボリューム大</td>
+    </tr>
+    <tr class="task-row">
+      <td>6</td>
+      <td class="task-name-cell">冷媒配管工事（1F）<br><span class="task-sub">室外機PUHY-MP560DM〜室内機①〜⑥、単独系統⑦⑧、遮断弁キット×6</span></td>
+      <td></td><td><span class="bar c-pipe1"></span></td><td><span class="bar c-pipe1"></span></td><td></td><td></td><td></td>
+      <td class="task-name-cell">ダクト工事と天井内で並行施工</td>
+    </tr>
+    <tr class="task-row">
+      <td>7</td>
+      <td class="task-name-cell">冷媒配管工事（4F）<br><span class="task-sub">室外機〜室内機①〜⑩、分岐ジョイント使用、遮断弁キット×10</span></td>
+      <td></td><td><span class="bar c-pipe4"></span></td><td><span class="bar c-pipe4"></span></td><td><span class="bar c-pipe4"></span></td><td></td><td></td>
+      <td class="task-name-cell">10系統・分岐ジョイントあり、1Fより1週長め</td>
+    </tr>
+
+    <tr class="section-row"><td colspan="9">▼ 機器据付工事</td></tr>
+    <tr class="task-row">
+      <td>8</td>
+      <td class="task-name-cell">機器据付工事（室外機）<br><span class="task-sub">PUHY-MP560DM×2台（1F・4F）、スリムER室外機×2台（1F）</span></td>
+      <td></td><td></td><td><span class="bar c-out"></span></td><td></td><td></td><td></td>
+      <td class="task-name-cell">置場確定後、配管敷設と前後して実施</td>
+    </tr>
+    <tr class="task-row">
+      <td>9</td>
+      <td class="task-name-cell">機器据付工事（室内機）<br><span class="task-sub">1F①〜⑥・4F①〜⑩吊り込み、下吸込ダクト・吹出口ユニット取付</span></td>
+      <td></td><td></td><td><span class="bar c-in"></span></td><td><span class="bar c-in"></span></td><td></td><td></td>
+      <td class="task-name-cell">配管ルート確定後に実施。ビルトイン形は開口精度に注意</td>
+    </tr>
+
+    <tr class="section-row"><td colspan="9">▼ 電気配線工事</td></tr>
+    <tr class="task-row">
+      <td>10</td>
+      <td class="task-name-cell">電気配線工事（動力・制御・リモコン）<br><span class="task-sub">室外機〜室内機制御線、リモコンPAR-48MA配線（1F6台・4F10台）</span></td>
+      <td></td><td></td><td></td><td><span class="bar c-elecA"></span></td><td></td><td></td>
+      <td class="task-name-cell">機器据付完了箇所から順次着手</td>
+    </tr>
+    <tr class="task-row">
+      <td>11</td>
+      <td class="task-name-cell">電気配線工事（フロンガス警報器）<br><span class="task-sub">PAC-SL46FK設置・配線（1F1台・4F4台）</span></td>
+      <td></td><td></td><td></td><td><span class="bar c-elecB"></span></td><td></td><td></td>
+      <td class="task-name-cell">室内機設置完了後に実施</td>
+    </tr>
+
+    <tr class="section-row"><td colspan="9">▼ 試運転・検査</td></tr>
+    <tr class="task-row">
+      <td>12</td>
+      <td class="task-name-cell">気密試験・真空引き<br><span class="task-sub">1F・4F冷媒配管接続部の気密試験、真空引き</span></td>
+      <td></td><td></td><td></td><td><span class="bar c-vac"></span></td><td><span class="bar c-vac"></span></td><td></td>
+      <td class="task-name-cell">冷媒charge前の必須工程</td>
+    </tr>
+    <tr class="task-row">
+      <td>13</td>
+      <td class="task-name-cell">冷媒charge・試運転調整<br><span class="task-sub">冷媒充填、全系統試運転・能力調整、メーカー立会い</span></td>
+      <td></td><td></td><td></td><td></td><td><span class="bar c-run"></span></td><td></td>
+      <td class="task-name-cell">メーカー（三菱電機）立会い日程を早めに調整</td>
+    </tr>
+    <tr class="task-row">
+      <td>14</td>
+      <td class="task-name-cell">24時間換気設備完成・確認検査対応<br><span class="task-sub">法定必要換気量（1F150/4F200㎥h）・決定風量の実測確認</span></td>
+      <td></td><td></td><td></td><td></td><td><span class="bar c-check"></span></td><td><span class="bar c-check"></span></td>
+      <td class="task-name-cell">建築確認の完了検査対象。検査済証取得前に完成必須</td>
+    </tr>
+
+    <tr class="section-row"><td colspan="9">▼ 竣工</td></tr>
+    <tr class="task-row">
+      <td>15</td>
+      <td class="task-name-cell">竣工・引渡し<br><span class="task-sub">最終試運転確認、取扱説明、関連図書・保証書引渡し</span></td>
+      <td></td><td></td><td></td><td></td><td></td><td><span class="bar c-done"></span></td>
+      <td class="task-name-cell">施主・元請立会いのもと引渡し</td>
+    </tr>
+    <tr class="task-row">
+      <td>—</td>
+      <td class="task-name-cell"><strong>竣工</strong></td>
+      <td></td><td></td><td></td><td></td><td></td>
+      <td class="final-cell"><span class="star">★</span></td>
+      <td class="task-name-cell"><strong style="color:#5a3a8b;">着工6週目　竣工予定</strong></td>
+    </tr>
+
+  </tbody>
+</table>
+
+<div class="legend">
+  <strong style="font-size:9.5px; margin-right:4px;">凡例：</strong>
+  <div class="legend-item"><div class="legend-box c-survey"></div>現地調査</div>
+  <div class="legend-item"><div class="legend-box c-open1"></div>天井開口(1F)</div>
+  <div class="legend-item"><div class="legend-box c-open4"></div>天井開口(4F)</div>
+  <div class="legend-item"><div class="legend-box c-duct1"></div>換気ダクト(1F)</div>
+  <div class="legend-item"><div class="legend-box c-duct4"></div>換気ダクト(4F)</div>
+  <div class="legend-item"><div class="legend-box c-pipe1"></div>冷媒配管(1F)</div>
+  <div class="legend-item"><div class="legend-box c-pipe4"></div>冷媒配管(4F)</div>
+  <div class="legend-item"><div class="legend-box c-out"></div>室外機据付</div>
+  <div class="legend-item"><div class="legend-box c-in"></div>室内機据付</div>
+  <div class="legend-item"><div class="legend-box c-elecA"></div>電気配線(動力・制御)</div>
+  <div class="legend-item"><div class="legend-box c-elecB"></div>電気配線(警報器)</div>
+  <div class="legend-item"><div class="legend-box c-vac"></div>気密試験・真空引き</div>
+  <div class="legend-item"><div class="legend-box c-run"></div>冷媒charge・試運転</div>
+  <div class="legend-item"><div class="legend-box c-check"></div>換気設備確認検査</div>
+  <div class="legend-item"><div class="legend-box c-done"></div>竣工・引渡し</div>
+  <div class="legend-item"><span class="star" style="font-size:13px; line-height:1;">★</span>竣工</div>
+</div>
+
+<div class="footer-note">
+  ※本工程表は着工日を基準とした相対週（W1〜W6）表記の予定案です。着工日確定後、実日程に置き換えてご使用ください。<br>
+  ※1F・4Fは基本的に同時並行で進行しますが、系統数の多い4F（10系統）はダクト・冷媒配管工事がやや後ろにずれ込む前提です。<br>
+  ※室外機置場（No.1）が現地条件により変更となった場合、No.6〜No.9の開始が後ろ倒しになる可能性があります。<br>
+  ※気密試験・真空引き（No.12）で漏れ等の不具合が見つかった場合、No.13以降のスケジュールに影響します。<br>
+  ※24時間換気設備（No.14）は建築確認の完了検査対象のため、検査日程が判明次第、W5〜W6の位置を調整する必要があります。<br>
+  ※本資料は三菱電機作成プランのテキスト抽出に基づくため、上記「要現物確認事項」は着工前に原本PDF・図面で確定してください。
+</div>
+
+</body>
+</html>

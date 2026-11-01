@@ -1,0 +1,603 @@
+<title>大宮プランニング｜隠れ家バー コンセプト提案</title>
+<style>
+  /*
+    このプランは「隠れ家バー」という世界観そのものを提示する資料のため、
+    ライト/ダークの出し分けは行わず、ウォルナットの薄暗い空間トーンに単一で振り切っている。
+  */
+  :root{
+    --void:#1b120c;
+    --panel:#271a11;
+    --panel-2:#33241a;
+    --walnut:#8a5a34;
+    --walnut-line:#4a3220;
+    --brass:#cc9c4f;
+    --brass-soft:#a9814a;
+    --parchment:#ece1cd;
+    --smoke:#a3907b;
+    --line:rgba(204,156,79,0.22);
+
+    --font-display:"YuMincho","Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif;
+    --font-body:"Yu Gothic Medium","Yu Gothic","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+
+    --fs-display:clamp(2rem, 1.5rem + 2vw, 3.2rem);
+    --fs-h2:clamp(1.35rem, 1.15rem + 0.9vw, 1.8rem);
+    --fs-h3:1.1rem;
+    --fs-body:1rem;
+    --fs-small:0.86rem;
+    --fs-label:0.78rem;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--void);
+    color:var(--parchment);
+    font-family:var(--font-body);
+    font-size:var(--fs-body);
+    line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  body{
+    background-image:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(204,156,79,0.10), transparent 60%),
+      repeating-linear-gradient(100deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 7px);
+  }
+
+  .page{
+    max-width:920px;
+    margin:0 auto;
+    padding:64px 28px 120px;
+  }
+
+  /* ---------- cover ---------- */
+  .cover{
+    padding-bottom:44px;
+    margin-bottom:44px;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-size:var(--fs-label);
+    letter-spacing:0.18em;
+    color:var(--brass);
+    margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px;
+    height:1px;
+    background:var(--brass);
+    display:inline-block;
+  }
+  h1.title{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:var(--fs-display);
+    line-height:1.35;
+    margin:0 0 18px;
+    text-wrap:balance;
+    color:var(--parchment);
+  }
+  .title small{
+    display:block;
+    font-size:0.42em;
+    color:var(--smoke);
+    font-family:var(--font-body);
+    letter-spacing:0.08em;
+    margin-top:10px;
+    font-weight:400;
+  }
+  .cover-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:28px;
+    margin-top:30px;
+    font-size:var(--fs-small);
+    color:var(--smoke);
+  }
+  .cover-meta div b{
+    display:block;
+    color:var(--parchment);
+    font-size:var(--fs-body);
+    font-weight:600;
+    margin-top:2px;
+  }
+  .cover-meta div span{
+    font-size:0.76rem;
+    letter-spacing:0.1em;
+    color:var(--brass-soft);
+  }
+
+  /* ---------- sections ---------- */
+  section{
+    margin-bottom:56px;
+  }
+  h2{
+    font-family:var(--font-display);
+    font-size:var(--fs-h2);
+    font-weight:600;
+    color:var(--parchment);
+    margin:0 0 6px;
+  }
+  .section-lede{
+    color:var(--smoke);
+    font-size:var(--fs-small);
+    margin:0 0 26px;
+    max-width:60ch;
+  }
+
+  .concept-quote{
+    font-family:var(--font-display);
+    font-size:1.3rem;
+    line-height:1.9;
+    color:var(--parchment);
+    border-left:2px solid var(--brass);
+    padding:4px 0 4px 24px;
+    margin:0 0 24px;
+    text-wrap:balance;
+  }
+  .concept-body p{ margin:0 0 16px; color:#d8cab5; max-width:64ch; }
+  .concept-body p:last-child{ margin-bottom:0; }
+
+  /* ---------- site condition list ---------- */
+  .site-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .site-item{
+    background:var(--panel);
+    padding:20px 22px;
+  }
+  .site-item .tag{
+    font-size:0.72rem;
+    letter-spacing:0.12em;
+    color:var(--brass);
+    margin-bottom:8px;
+    display:block;
+  }
+  .site-item p{
+    margin:0;
+    font-size:var(--fs-small);
+    color:#d8cab5;
+  }
+
+  /* ---------- floor plan ---------- */
+  .plan-wrap{
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:28px;
+  }
+  .plan-svg-frame{
+    width:100%;
+    overflow-x:auto;
+  }
+  .plan-svg-frame svg{
+    display:block;
+    width:100%;
+    height:auto;
+    min-width:560px;
+  }
+  .plan-caption{
+    margin-top:16px;
+    font-size:0.78rem;
+    color:var(--smoke);
+    border-top:1px solid var(--line);
+    padding-top:12px;
+  }
+
+  .capacity-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:28px;
+    font-size:var(--fs-small);
+  }
+  .capacity-table caption{
+    text-align:left;
+    font-size:var(--fs-label);
+    letter-spacing:0.1em;
+    color:var(--brass-soft);
+    margin-bottom:10px;
+  }
+  .capacity-table th, .capacity-table td{
+    text-align:left;
+    padding:11px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  .capacity-table th{
+    color:var(--smoke);
+    font-weight:500;
+    font-size:0.78rem;
+    letter-spacing:0.05em;
+  }
+  .capacity-table td.num, .capacity-table th.num{
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+  .capacity-table tfoot td{
+    border-bottom:none;
+    border-top:1px solid var(--walnut-line);
+    color:var(--parchment);
+    font-weight:600;
+  }
+
+  /* ---------- material palette ---------- */
+  .material-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));
+    gap:16px;
+  }
+  .material-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+  }
+  .swatch{
+    height:88px;
+    position:relative;
+  }
+  .swatch::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.25));
+  }
+  .material-card .info{
+    padding:14px 16px 16px;
+  }
+  .material-card .info .name{
+    font-family:var(--font-display);
+    font-size:1.02rem;
+    color:var(--parchment);
+    margin:0 0 4px;
+  }
+  .material-card .info .desc{
+    font-size:0.8rem;
+    color:var(--smoke);
+    margin:0;
+    line-height:1.65;
+  }
+
+  /* ---------- lighting spec ---------- */
+  .spec-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:grid;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .spec-list li{
+    background:var(--panel);
+    padding:16px 20px;
+    display:grid;
+    grid-template-columns:150px 1fr;
+    gap:18px;
+    font-size:var(--fs-small);
+    align-items:baseline;
+  }
+  .spec-list li .k{
+    color:var(--brass);
+    font-size:0.82rem;
+    letter-spacing:0.04em;
+  }
+  .spec-list li .v{ color:#d8cab5; }
+
+  /* ---------- next steps ---------- */
+  .steps{
+    list-style:none;
+    margin:0;
+    padding:0;
+    counter-reset:step;
+    display:flex;
+    flex-direction:column;
+    gap:0;
+  }
+  .steps li{
+    counter-increment:step;
+    display:grid;
+    grid-template-columns:44px 1fr;
+    gap:18px;
+    padding:18px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .steps li:last-child{ border-bottom:none; }
+  .steps li::before{
+    content:counter(step, decimal-leading-zero);
+    font-family:var(--font-display);
+    font-size:1.05rem;
+    color:var(--brass);
+    font-variant-numeric:tabular-nums;
+  }
+  .steps li .step-title{
+    font-weight:600;
+    color:var(--parchment);
+    margin:0 0 4px;
+    font-size:var(--fs-small);
+  }
+  .steps li p{
+    margin:0;
+    font-size:0.82rem;
+    color:var(--smoke);
+  }
+
+  footer{
+    margin-top:64px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+    font-size:0.76rem;
+    color:var(--smoke);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  a{ color:var(--brass); }
+
+  @media (max-width:640px){
+    .site-grid{ grid-template-columns:1fr; }
+    .spec-list li{ grid-template-columns:110px 1fr; }
+    .cover-meta{ gap:18px 26px; }
+  }
+
+  @media print{
+    body{ background:var(--void); }
+  }
+</style>
+
+<div class="page">
+
+  <div class="cover">
+    <span class="eyebrow">CONCEPT PROPOSAL</span>
+    <h1 class="title">大宮プランニング
+      <small>隠れ家バー内装コンセプト提案 — ウォルナットが香る、大人の止まり木</small>
+    </h1>
+    <div class="cover-meta">
+      <div><span>案件</span><b>大宮 テナント内装計画（新規バー）</b></div>
+      <div><span>現況</span><b>躯体・ボード下地完了／土間コンクリート</b></div>
+      <div><span>作成日</span><b>2026年7月7日</b></div>
+      <div><span>参照資料</span><b>現地写真8点・手描きレイアウトメモ</b></div>
+    </div>
+  </div>
+
+  <section id="concept">
+    <span class="eyebrow">コンセプト</span>
+    <h2>ウォルナットに沈む、大人の止まり木</h2>
+    <p class="concept-quote">通りの喧騒から一枚扉を隔てた先に、木肌の温度だけが灯る部屋を。</p>
+    <div class="concept-body">
+      <p>現地はホテルが並ぶ通りに面した間口で、外の賑わいがすぐそこに感じられる立地。だからこそ内部は一転、ウォルナットの重い色調と低い灯りで「探して辿り着く」体験を作る。素材のトーンを外に見せず、扉を開けた瞬間の温度差でゲストを迎える構成とする。</p>
+      <p>主役はカウンター。長い一枚のウォルナット天板を空間の背骨に据え、その奥に酒棚を背景照明で浮かび上がらせる。壁沿いのテーブル席は控えめな灯りで距離を作り、会話がこもる密度を保つ。革張りのスツールと真鍮の金物が、木の重さに硬質な艶を差す。</p>
+    </div>
+  </section>
+
+  <section id="site">
+    <span class="eyebrow">現地状況</span>
+    <h2>現地写真から読み取れる条件</h2>
+    <p class="section-lede">石膏ボードまでの下地施工済み、土間コンクリートの状態。設備の位置を活かした計画とする。</p>
+    <div class="site-grid">
+      <div class="site-item">
+        <span class="tag">入口</span>
+        <p>通り側は掃き出しの引き違いガラス戸＋シャッター。隣接して「HOTEL」の看板が見える立地で、通行人の目に触れる開口。表構えは控えめに、内部で世界観を切り替える設計が有効。</p>
+      </div>
+      <div class="site-item">
+        <span class="tag">採光</span>
+        <p>両側の長手壁の上部に、横長の高窓が複数配置済み。視線は遮りつつ光は取り込める高さのため、日中の自然光と夜間の間接照明を両立しやすい。</p>
+      </div>
+      <div class="site-item">
+        <span class="tag">設備</span>
+        <p>壁掛けエアコンを2基設置済み（奥壁・側壁）。火災盤・消火器も配置済みで、防災動線は現況を踏襲する前提でレイアウトを検討。</p>
+      </div>
+      <div class="site-item">
+        <span class="tag">バックヤード</span>
+        <p>奥側にL字に張り出す躯体があり、キッチン・倉庫・酒蔵スペースに割り当て可能。メインホールと動線を分離しやすい配置。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="plan">
+    <span class="eyebrow">ゾーニング／レイアウト</span>
+    <h2>手描きメモを反映したプランA</h2>
+    <p class="section-lede">現地で共有いただいたレイアウトメモをもとにした配置案。寸法は概略で、実測後に確定する。</p>
+
+    <div class="plan-wrap">
+      <div class="plan-svg-frame">
+        <svg viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="大宮バー ゾーニング図">
+          <defs>
+            <pattern id="floorTex" width="14" height="14" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+              <rect width="14" height="14" fill="#241811"/>
+              <line x1="0" y1="0" x2="0" y2="14" stroke="#33241a" stroke-width="1"/>
+            </pattern>
+          </defs>
+
+          <!-- outer shell -->
+          <rect x="60" y="40" width="700" height="540" fill="url(#floorTex)" stroke="#cc9c4f" stroke-width="2"/>
+          <!-- back alcove: kitchen (top) -->
+          <rect x="760" y="40" width="200" height="210" fill="#2c1e14" stroke="#cc9c4f" stroke-width="2"/>
+          <!-- back alcove: liquor shelf + cellar -->
+          <rect x="760" y="250" width="140" height="330" fill="#2c1e14" stroke="#cc9c4f" stroke-width="2"/>
+
+          <!-- WC / pillar box -->
+          <rect x="60" y="40" width="120" height="110" fill="none" stroke="#8a5a34" stroke-width="1.5" stroke-dasharray="4 4"/>
+          <text x="120" y="100" text-anchor="middle" fill="#a3907b" font-size="17" font-family="var(--font-body)">WC</text>
+
+          <!-- bar counter -->
+          <rect x="470" y="150" width="46" height="360" fill="#8a5a34" stroke="#ecdcb8" stroke-width="1"/>
+          <text x="493" y="150" text-anchor="middle" fill="#cc9c4f" font-size="16" transform="rotate(-90 493 330)" font-family="var(--font-body)" letter-spacing="2">BAR COUNTER</text>
+
+          <!-- counter stools -->
+          <g fill="none" stroke="#cc9c4f" stroke-width="1.6">
+            <circle cx="440" cy="175" r="12"/>
+            <circle cx="440" cy="225" r="12"/>
+            <circle cx="440" cy="275" r="12"/>
+            <circle cx="440" cy="325" r="12"/>
+            <circle cx="440" cy="375" r="12"/>
+            <circle cx="440" cy="425" r="12"/>
+            <circle cx="440" cy="475" r="12"/>
+          </g>
+
+          <!-- tables along left wall (4 x 2-top) -->
+          <g>
+            <g>
+              <rect x="220" y="170" width="70" height="46" fill="none" stroke="#ecdcb8" stroke-width="1.5"/>
+              <circle cx="210" cy="180" r="9" fill="none" stroke="#cc9c4f" stroke-width="1.4"/>
+              <circle cx="210" cy="206" r="9" fill="none" stroke="#cc9c4f" stroke-width="1.4"/>
+            </g>
+            <g>
+              <rect x="220" y="260" width="70" height="46" fill="none" stroke="#ecdcb8" stroke-width="1.5"/>
+              <circle cx="210" cy="270" r="9" fill="none" stroke="#cc9c4f" stroke-width="1.4"/>
+              <circle cx="210" cy="296" r="9" fill="none" stroke="#cc9c4f" stroke-width="1.4"/>
+            </g>
+            <g>
+              <rect x="220" y="350" width="70" height="46" fill="none" stroke="#ecdcb8" stroke-width="1.5"/>
+              <circle cx="210" cy="360" r="9" fill="none" stroke="#cc9c4f" stroke-width="1.4"/>
+              <circle cx="210" cy="386" r="9" fill="none" stroke="#cc9c4f" stroke-width="1.4"/>
+            </g>
+            <g>
+              <rect x="220" y="440" width="70" height="46" fill="none" stroke="#ecdcb8" stroke-width="1.5"/>
+              <circle cx="210" cy="450" r="9" fill="none" stroke="#cc9c4f" stroke-width="1.4"/>
+              <circle cx="210" cy="476" r="9" fill="none" stroke="#cc9c4f" stroke-width="1.4"/>
+            </g>
+          </g>
+          <text x="255" y="530" text-anchor="middle" fill="#a3907b" font-size="15" font-family="var(--font-body)">テーブル 2名席 ×4</text>
+
+          <!-- kitchen label -->
+          <text x="860" y="140" text-anchor="middle" fill="#a3907b" font-size="16" font-family="var(--font-body)">キッチン</text>
+          <!-- liquor shelf + cellar label -->
+          <text x="830" y="405" text-anchor="middle" fill="#a3907b" font-size="15" font-family="var(--font-body)">酒棚＋酒蔵</text>
+          <text x="830" y="428" text-anchor="middle" fill="#7a6a58" font-size="12" font-family="var(--font-body)">(バー背面から補充動線)</text>
+
+          <!-- entrance -->
+          <path d="M 330 580 A 60 60 0 0 0 390 520" fill="none" stroke="#cc9c4f" stroke-width="1.4" stroke-dasharray="3 4"/>
+          <line x1="330" y1="580" x2="330" y2="520" stroke="#ecdcb8" stroke-width="3"/>
+          <text x="330" y="612" text-anchor="middle" fill="#cc9c4f" font-size="16" font-family="var(--font-body)" letter-spacing="2">入口</text>
+
+          <!-- sofa nook bottom left -->
+          <rect x="90" y="500" width="80" height="50" fill="none" stroke="#ecdcb8" stroke-width="1.5"/>
+          <circle cx="80" cy="512" r="8" fill="none" stroke="#cc9c4f" stroke-width="1.4"/>
+          <circle cx="80" cy="538" r="8" fill="none" stroke="#cc9c4f" stroke-width="1.4"/>
+          <text x="130" y="570" text-anchor="middle" fill="#a3907b" font-size="13" font-family="var(--font-body)">ソファ席</text>
+        </svg>
+      </div>
+      <p class="plan-caption">図は現地メモ（450 / 300 / 450mm等の記載あり）をもとにした概念図で、正確な縮尺ではありません。実測図面をもとに最終確定します。</p>
+    </div>
+
+    <table class="capacity-table">
+      <caption>想定席数（プランA）</caption>
+      <thead>
+        <tr><th>ゾーン</th><th class="num">卓数</th><th class="num">席数</th><th>備考</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>バーカウンター</td><td class="num">1</td><td class="num">7</td><td>ハイスツール・革張り想定</td></tr>
+        <tr><td>テーブル席（2名掛け）</td><td class="num">4</td><td class="num">8</td><td>壁沿い、間接照明で個室感を演出</td></tr>
+        <tr><td>ソファ席</td><td class="num">1</td><td class="num">2〜4</td><td>入口脇、待ち合わせ・小グループ向け</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>合計</td><td class="num">6</td><td class="num">約17〜19</td><td></td></tr>
+      </tfoot>
+    </table>
+  </section>
+
+  <section id="material">
+    <span class="eyebrow">マテリアル&nbsp;&amp;&nbsp;カラー</span>
+    <h2>木の温度と、真鍮の艶</h2>
+    <p class="section-lede">ウォルナット主体の重心に、黒皮鉄・真鍮・革の異素材を少量差し込む配合。</p>
+    <div class="material-grid">
+      <div class="material-card">
+        <div class="swatch" style="background:linear-gradient(160deg,#6b4327,#3d2716);"></div>
+        <div class="info">
+          <p class="name">ウォルナット材</p>
+          <p class="desc">カウンター天板・背面棚・入口枠。木目を活かしたオイル仕上げ。</p>
+        </div>
+      </div>
+      <div class="material-card">
+        <div class="swatch" style="background:linear-gradient(160deg,#241a13,#120c08);"></div>
+        <div class="info">
+          <p class="name">黒皮鉄／マットブラック</p>
+          <p class="desc">什器脚・照明レール・建具金物。輪郭を締める役割。</p>
+        </div>
+      </div>
+      <div class="material-card">
+        <div class="swatch" style="background:linear-gradient(160deg,#d8ad5c,#95712f);"></div>
+        <div class="info">
+          <p class="name">真鍮（ブラス）</p>
+          <p class="desc">看板文字・グラスハンガー・水栓。差し色として面積は最小限に。</p>
+        </div>
+      </div>
+      <div class="material-card">
+        <div class="swatch" style="background:linear-gradient(160deg,#4a1f1c,#2a1210);"></div>
+        <div class="info">
+          <p class="name">レザー（ボルドー）</p>
+          <p class="desc">スツール座面・ソファ席の張地。深いワインレッドで艶を足す。</p>
+        </div>
+      </div>
+      <div class="material-card">
+        <div class="swatch" style="background:linear-gradient(160deg,#584c3f,#3a3128);"></div>
+        <div class="info">
+          <p class="name">左官モルタル（外周壁）</p>
+          <p class="desc">既存ボード下地に左官仕上げ。木の艶を引き立てる乾いた質感。</p>
+        </div>
+      </div>
+      <div class="material-card">
+        <div class="swatch" style="background:linear-gradient(160deg,#2b241d,#151109);"></div>
+        <div class="info">
+          <p class="name">土間コンクリート（床）</p>
+          <p class="desc">既存の土間を活かし、部分的にダークワックス仕上げで艶を調整。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="lighting">
+    <span class="eyebrow">照明計画</span>
+    <h2>灯りの密度を、席ごとに変える</h2>
+    <p class="section-lede">全灯せず、ゾーンごとに光源を分離して「隠れ家」の陰影をつくる。</p>
+    <ul class="spec-list">
+      <li><span class="k">カウンター上部</span><span class="v">真鍮ペンダント×5〜7灯、電球色2200K、手元だけを照らす低め吊り</span></li>
+      <li><span class="k">背面酒棚</span><span class="v">棚板下にライン照明を仕込み、ボトルをバックライトで浮かせる</span></li>
+      <li><span class="k">テーブル席</span><span class="v">壁付きブラケット灯を各卓間に配置し、隣席との視線を遮る陰影を作る</span></li>
+      <li><span class="k">高窓まわり</span><span class="v">日中は自然光を活かし、夜間はロールスクリーンで遮光して灯りを内側に閉じる</span></li>
+      <li><span class="k">入口サイン</span><span class="v">屋号は控えめな真鍮エッチングプレートのみ。看板照明は設けず「探して辿り着く」体験を優先</span></li>
+    </ul>
+  </section>
+
+  <section id="next">
+    <span class="eyebrow">次のステップ</span>
+    <h2>確定に向けて</h2>
+    <ol class="steps">
+      <li>
+        <div class="step-title">現地実測</div>
+        <p>手描きメモの寸法（450 / 300 / 450mm等）を正式な実測に置き換え、什器発注寸法を確定する。</p>
+      </li>
+      <li>
+        <div class="step-title">設備位置の突き合わせ</div>
+        <p>給排水・電源の既存位置とバーカウンター・キッチンの計画位置を照合し、配管ルートを検討する。</p>
+      </li>
+      <li>
+        <div class="step-title">什器・造作の見積取得</div>
+        <p>ウォルナットカウンター・背面棚・スツールの製作見積を確保。既存の見積書テンプレートに合わせて作成する。</p>
+      </li>
+      <li>
+        <div class="step-title">照明・電気容量の確認</div>
+        <p>ペンダント・バックライト・ブラケット灯の追加による電気容量への影響を確認する。</p>
+      </li>
+      <li>
+        <div class="step-title">プランBの検討（任意）</div>
+        <p>ソファ席の増減や酒蔵スペースの見せ方など、席数と収納量のバランスを見て代替案が必要か判断する。</p>
+      </li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>大宮プランニング — 隠れ家バー コンセプト提案</span>
+    <span>作成: 2026年7月7日 ／ 参照: 現地写真8点・手描きレイアウトメモ</span>
+  </footer>
+
+</div>

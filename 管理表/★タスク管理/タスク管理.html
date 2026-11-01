@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>案件別タスク管理 | 株式会社AXIS</title>
+<style>
+:root{
+  --bg:#f4f5f7; --card:#fff; --text:#1f2937; --sub:#6b7280; --line:#e5e7eb;
+  --accent:#1d4ed8; --accent-bg:#eff4ff; --danger:#dc2626; --warn:#d97706; --ok:#16a34a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Yu Gothic UI","Meiryo",system-ui,sans-serif;font-size:15px}
+.layout{display:grid;grid-template-columns:280px 1fr;gap:16px;max-width:1100px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:20px;margin:0 0 2px}
+.lead{color:var(--sub);margin:0 0 14px;font-size:12px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+input,select,textarea,button{font:inherit}
+input[type=text],input[type=date],select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+button{cursor:pointer;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 14px;color:var(--text)}
+button:hover{background:#f3f4f6}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{background:#1e40af}
+button.sm{padding:4px 9px;font-size:13px}
+button.danger:hover{color:var(--danger);border-color:var(--danger)}
+
+/* sidebar */
+.side form{display:flex;gap:6px;margin-bottom:12px}
+.pj{padding:10px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer}
+.pj:hover{background:#fafafa}
+.pj.on{border-color:var(--accent);background:var(--accent-bg)}
+.pj .n{font-weight:600;word-break:break-all}
+.pj .m{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-top:2px}
+.pj .m .o{color:var(--danger);font-weight:600}
+.bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--ok);transition:width .3s}
+.side-foot{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+
+/* main */
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:12px}
+.head h2{margin:0;font-size:20px;word-break:break-all}
+.head .acts{display:flex;gap:6px;flex-shrink:0}
+.note{width:100%;min-height:54px;resize:vertical;margin-bottom:12px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.stat b{display:block;font-size:20px}
+.stat span{font-size:12px;color:var(--sub)}
+.stat.over b{color:var(--danger)}
+form.add{display:grid;grid-template-columns:2fr 1fr .8fr .8fr auto;gap:8px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.toolbar .search{flex:1;min-width:140px}
+.toolbar select{width:auto}
+.tabs{display:flex;gap:4px}
+.tabs button{padding:6px 12px;border-radius:99px}
+.tabs button.on{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);font-weight:600}
+ul{list-style:none;margin:0;padding:0}
+li.task{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px solid var(--line)}
+li.task:last-child{border-bottom:0}
+li.task input[type=checkbox]{width:20px;height:20px;accent-color:var(--ok);cursor:pointer}
+.title{font-weight:600;word-break:break-all}
+.done .title{text-decoration:line-through;color:var(--sub);font-weight:400}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;font-size:12px;color:var(--sub)}
+.memo{font-size:12px;color:var(--sub);margin-top:3px;white-space:pre-wrap;word-break:break-all}
+.tag{padding:1px 8px;border-radius:99px;background:#f3f4f6}
+.tag.p-high{background:#fee2e2;color:#b91c1c}
+.tag.p-mid{background:#fef3c7;color:#92400e}
+.tag.p-low{background:#e0f2fe;color:#075985}
+.tag.over{background:#fee2e2;color:var(--danger);font-weight:600}
+.tag.today{background:#fef3c7;color:var(--warn);font-weight:600}
+li.task .acts{display:flex;gap:4px}
+.empty{text-align:center;color:var(--sub);padding:32px 0}
+.foot{margin-top:10px;font-size:12px;color:var(--sub);display:flex;justify-content:space-between;align-items:center}
+
+dialog{border:0;border-radius:12px;padding:20px;width:min(440px,92vw);box-shadow:0 10px 40px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+dialog label{display:block;font-size:12px;color:var(--sub);margin:10px 0 3px}
+dialog .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+dialog .btns{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+
+@media(max-width:800px){
+  .layout{grid-template-columns:1fr}
+  form.add{grid-template-columns:1fr 1fr}
+  form.add input[name=title]{grid-column:1/-1}
+  form.add button{grid-column:1/-1}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media print{
+  body{background:#fff}
+  .side,.stats,form.add,.toolbar,.acts,.foot,.note-edit{display:none!important}
+  .layout{display:block;padding:0}
+  .panel{border:0;padding:0}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="side">
+    <h1>案件別タスク管理</h1>
+    <p class="lead">株式会社AXIS ／ このブラウザに自動保存</p>
+    <div class="panel">
+      <form id="pjForm" autocomplete="off">
+        <input type="text" id="pjName" placeholder="新しい案件名（例：上尾）" required>
+        <button class="primary" type="submit">追加</button>
+      </form>
+      <div id="pjList"></div>
+      <div class="side-foot">
+        <button class="sm" id="exportBtn">バックアップ書出</button>
+        <button class="sm" id="importBtn">読込</button>
+        <input type="file" id="file" accept="application/json" hidden>
+      </div>
+    </div>
+  </aside>
+
+  <main class="panel" id="main"></main>
+</div>
+
+<dialog id="dlg">
+  <form method="dialog" id="dlgForm">
+    <h3 style="margin:0" id="dlgTitle">タスクを編集</h3>
+    <label>タスク内容</label><input type="text" name="title" required>
+    <div class="row">
+      <div><label>期限</label><input type="date" name="due"></div>
+      <div><label>優先度</label>
+        <select name="prio"><option value="1">高</option><option value="2">中</option><option value="3">低</option></select></div>
+    </div>
+    <div class="row">
+      <div><label>担当</label><input type="text" name="owner"></div>
+      <div><label>移動先の案件</label><select name="pj"></select></div>
+    </div>
+    <label>メモ</label><textarea name="memo" rows="3"></textarea>
+    <div class="btns"><button type="button" id="dlgCancel">キャンセル</button><button class="primary" type="submit">保存</button></div>
+  </form>
+</dialog>
+
+<script>
+const KEY = 'axis_projects_v2', OLD = 'axis_tasks_v1';
+const $ = id => document.getElementById(id);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+let db = { projects: [], current: null };
+let filter = 'active';
+
+/* 読込と、旧形式（案件なしタスク一覧）からの移行 */
+try { const s = localStorage.getItem(KEY); if (s) db = JSON.parse(s); } catch(e) {}
+if (!db.projects.length) {
+  try {
+    const old = JSON.parse(localStorage.getItem(OLD)) || [];
+    const map = {};
+    old.forEach(t => {
+      const name = t.project || '未分類';
+      const p = map[name] || (map[name] = { id: uid(), name, note: '', tasks: [] });
+      p.tasks.push({ id: uid(), title: t.title, due: t.due || '', prio: t.prio || 2, owner: '', memo: '', done: !!t.done });
+    });
+    db.projects = Object.values(map);
+  } catch(e) {}
+}
+if (!db.projects.some(p => p.id === db.current)) db.current = db.projects[0] ? db.projects[0].id : null;
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e) {} };
+
+const cur = () => db.projects.find(p => p.id === db.current);
+const todayStr = () => { const d = new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const PRIO = {1:['高','p-high'],2:['中','p-mid'],3:['低','p-low']};
+const WD = ['日','月','火','水','木','金','土'];
+const fmtDate = s => { const d = new Date(s+'T00:00:00'); return (d.getMonth()+1)+'/'+d.getDate()+'（'+WD[d.getDay()]+'）'; };
+const isOver = t => !t.done && t.due && t.due < todayStr();
+const stat = p => { const d = p.tasks.filter(t=>t.done).length; return { total:p.tasks.length, done:d, over:p.tasks.filter(isOver).length, rate:p.tasks.length?Math.round(d/p.tasks.length*100):0 }; };
+
+/* 左：案件一覧 */
+function renderSide(){
+  $('pjList').innerHTML = db.projects.length ? db.projects.map(p => {
+    const s = stat(p);
+    return `<div class="pj ${p.id===db.current?'on':''}" data-id="${p.id}">
+      <div class="n">${esc(p.name)}</div>
+      <div class="m"><span>${s.done}/${s.total} 完了</span>${s.over?`<span class="o">超過 ${s.over}</span>`:`<span>${s.rate}%</span>`}</div>
+      <div class="bar"><i style="width:${s.rate}%"></i></div>
+    </div>`;
+  }).join('') : '<div class="empty" style="padding:12px 0">案件がありません</div>';
+}
+
+/* 右：選択中の案件 */
+function visibleTasks(p){
+  const q = ($('q')?.value || '').trim().toLowerCase();
+  const sort = $('sort')?.value || 'due';
+  const r = p.tasks.filter(t =>
+    (filter==='all' || (filter==='done')===t.done) &&
+    (!q || (t.title+' '+t.owner+' '+t.memo).toLowerCase().includes(q)));
+  r.sort((a,b) => sort==='prio' ? a.prio-b.prio || (a.due||'9').localeCompare(b.due||'9')
+                 : sort==='new' ? 0
+                 : (a.due||'9').localeCompare(b.due||'9') || a.prio-b.prio);
+  if (sort==='new') r.reverse();
+  return r;
+}
+
+function listHtml(list){
+  const today = todayStr();
+  return list.length ? list.map(t => {
+      let due = '';
+      if (t.due) {
+        const c = isOver(t) ? 'over' : (!t.done && t.due===today ? 'today' : '');
+        due = `<span class="tag ${c}">${c==='over'?'期限超過 ':c==='today'?'本日 ':'期限 '}${fmtDate(t.due)}</span>`;
+      }
+      return `<li class="task ${t.done?'done':''}" data-id="${t.id}">
+        <input type="checkbox" ${t.done?'checked':''} aria-label="完了">
+        <div>
+          <div class="title">${esc(t.title)}</div>
+          <div class="meta"><span class="tag ${PRIO[t.prio][1]}">優先度 ${PRIO[t.prio][0]}</span>${t.owner?`<span class="tag">担当 ${esc(t.owner)}</span>`:''}${due}</div>
+          ${t.memo?`<div class="memo">${esc(t.memo)}</div>`:''}
+        </div>
+        <div class="acts"><button class="sm edit">編集</button><button class="sm danger del">削除</button></div>
+      </li>`;
+    }).join('') : '<li class="empty">該当するタスクはありません</li>';
+}
+
+function renderMain(){
+  const p = cur();
+  if (!p) { $('main').innerHTML = '<div class="empty">左のフォームから案件を追加してください</div>'; return; }
+  const s = stat(p);
+  const prevQ = $('q')?.value || '', prevSort = $('sort')?.value || 'due';
+  const list = visibleTasks(p);
+  $('main').innerHTML = `
+    <div class="head">
+      <h2>${esc(p.name)}</h2>
+      <div class="acts"><button class="sm" id="renamePj">案件名を変更</button><button class="sm danger" id="delPj">案件を削除</button><button class="sm" onclick="window.print()">印刷</button></div>
+    </div>
+    <textarea class="note note-edit" id="note" placeholder="案件メモ（現場住所・担当・注意事項など）">${esc(p.note||'')}</textarea>
+    <div class="stats">
+      <div class="stat"><b>${s.total}</b><span>タスク数</span></div>
+      <div class="stat"><b>${s.total-s.done}</b><span>未完了</span></div>
+      <div class="stat over"><b>${s.over}</b><span>期限超過</span></div>
+      <div class="stat"><b>${s.rate}%</b><span>完了率</span></div>
+    </div>
+    <form class="add" id="addForm" autocomplete="off">
+      <input type="text" name="title" placeholder="この案件のタスクを追加（例：見積書を提出）" required>
+      <input type="text" name="owner" placeholder="担当">
+      <input type="date" name="due" title="期限">
+      <select name="prio" title="優先度"><option value="1">高</option><option value="2" selected>中</option><option value="3">低</option></select>
+      <button class="primary" type="submit">追加</button>
+    </form>
+    <div class="toolbar">
+      <div class="tabs" id="tabs">
+        <button data-f="active" class="${filter==='active'?'on':''}">未完了</button>
+        <button data-f="all" class="${filter==='all'?'on':''}">すべて</button>
+        <button data-f="done" class="${filter==='done'?'on':''}">完了</button>
+      </div>
+      <input class="search" type="text" id="q" placeholder="この案件内を検索" value="${esc(prevQ)}">
+      <select id="sort">
+        <option value="due">期限順</option><option value="prio">優先度順</option><option value="new">追加が新しい順</option>
+      </select>
+    </div>
+    <ul id="list">${listHtml(list)}</ul>
+    <div class="foot"><span id="cnt">${list.length} 件を表示</span><button class="sm" id="clearDone">完了を一括削除</button></div>`;
+  $('sort').value = prevSort;
+}
+
+const render = () => { renderSide(); renderMain(); };
+
+/* 案件の操作 */
+$('pjForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('pjName').value.trim(); if (!name) return;
+  const p = { id: uid(), name, note: '', tasks: [] };
+  db.projects.push(p); db.current = p.id; save(); $('pjName').value = ''; render();
+});
+$('pjList').addEventListener('click', e => {
+  const el = e.target.closest('.pj'); if (!el) return;
+  db.current = el.dataset.id; filter = 'active'; save(); render();
+});
+
+/* 右ペインのイベント（再描画されるので委譲） */
+$('main').addEventListener('submit', e => {
+  if (e.target.id !== 'addForm') return;
+  e.preventDefault();
+  const f = e.target, p = cur(), title = f.title.value.trim(); if (!title) return;
+  p.tasks.push({ id: uid(), title, owner: f.owner.value.trim(), due: f.due.value, prio: +f.prio.value, memo: '', done: false });
+  save(); render(); $('main').querySelector('input[name=title]').focus();
+});
+$('main').addEventListener('input', e => {
+  if (e.target.id === 'note') { cur().note = e.target.value; save(); }
+  else if (e.target.id === 'q') {
+    const l = visibleTasks(cur());
+    $('list').innerHTML = listHtml(l); $('cnt').textContent = l.length + ' 件を表示';
+  }
+});
+$('main').addEventListener('change', e => { if (e.target.id === 'sort') renderMain(); });
+$('main').addEventListener('click', e => {
+  const p = cur(), t = e.target;
+  if (t.closest('#tabs') && t.dataset.f) { filter = t.dataset.f; return renderMain(); }
+  if (t.id === 'renamePj') { const n = prompt('案件名', p.name); if (n && n.trim()) { p.name = n.trim(); save(); render(); } return; }
+  if (t.id === 'delPj') {
+    if (!confirm('案件「' + p.name + '」とタスク ' + p.tasks.length + ' 件を削除しますか？\n（元に戻せません）')) return;
+    db.projects = db.projects.filter(x => x !== p); db.current = db.projects[0] ? db.projects[0].id : null; save(); return render();
+  }
+  if (t.id === 'clearDone') {
+    const n = p.tasks.filter(x=>x.done).length;
+    if (!n) return alert('完了済みのタスクはありません');
+    if (!confirm('完了済み ' + n + ' 件を削除しますか？')) return;
+    p.tasks = p.tasks.filter(x=>!x.done); save(); return render();
+  }
+  const li = t.closest('li.task'); if (!li) return;
+  const task = p.tasks.find(x => x.id === li.dataset.id); if (!task) return;
+  if (t.type === 'checkbox') { task.done = t.checked; save(); render(); }
+  else if (t.classList.contains('del')) {
+    if (!confirm('「' + task.title + '」を削除しますか？')) return;
+    p.tasks = p.tasks.filter(x => x !== task); save(); render();
+  } else if (t.classList.contains('edit')) openEdit(task, p);
+});
+
+/* 編集ダイアログ（案件間の移動も可） */
+let editing = null;
+function openEdit(task, p){
+  editing = { task, p };
+  const f = $('dlgForm');
+  f.title.value = task.title; f.due.value = task.due; f.prio.value = task.prio; f.owner.value = task.owner; f.memo.value = task.memo;
+  f.pj.innerHTML = db.projects.map(x => `<option value="${x.id}" ${x===p?'selected':''}>${esc(x.name)}</option>`).join('');
+  $('dlg').showModal();
+}
+$('dlgCancel').onclick = () => $('dlg').close();
+$('dlgForm').addEventListener('submit', () => {
+  const f = $('dlgForm'), { task, p } = editing;
+  Object.assign(task, { title: f.title.value.trim() || task.title, due: f.due.value, prio: +f.prio.value, owner: f.owner.value.trim(), memo: f.memo.value.trim() });
+  if (f.pj.value !== p.id) {
+    p.tasks = p.tasks.filter(x => x !== task);
+    db.projects.find(x => x.id === f.pj.value).tasks.push(task);
+  }
+  save(); render();
+});
+
+/* バックアップ */
+$('exportBtn').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' }));
+  a.download = '案件別タスク_' + todayStr().replace(/-/g,'') + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+};
+$('importBtn').onclick = () => $('file').click();
+$('file').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!d || !Array.isArray(d.projects)) throw 0;
+      if (!confirm('現在のデータを、読み込んだ内容（' + d.projects.length + '案件）で置き換えますか？')) return;
+      db = { projects: d.projects.map(p => ({ id: p.id || uid(), name: String(p.name||'名称未設定'), note: p.note||'',
+        tasks: (p.tasks||[]).map(t => ({ id: t.id || uid(), title: String(t.title||''), due: t.due||'', prio: [1,2,3].includes(t.prio)?t.prio:2, owner: t.owner||'', memo: t.memo||'', done: !!t.done })) })),
+        current: d.current };
+      if (!db.projects.some(p => p.id === db.current)) db.current = db.projects[0] ? db.projects[0].id : null;
+      save(); render();
+    } catch(err) { alert('読み込めないファイルです'); }
+  };
+  r.readAsText(f); e.target.value = '';
+};
+
+render();
+</script>
+</body>
+</html>

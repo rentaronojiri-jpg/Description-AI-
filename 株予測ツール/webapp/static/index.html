@@ -28,6 +28,15 @@
   </div>
   <div class="hint-row">証券コード（7203）／ティッカー（AAPL）／会社名（英語表記）に対応。常にオンラインで最新データを取得します。</div>
 
+  <div class="lists-wrap">
+    <div class="lists-tabs">
+      <button class="tab-btn active" data-tab="history">🕘 閲覧履歴</button>
+      <button class="tab-btn" data-tab="favorites">★ お気に入り</button>
+    </div>
+    <div id="list-history" class="chip-list"></div>
+    <div id="list-favorites" class="chip-list hidden"></div>
+  </div>
+
   <div id="app-body" style="margin-top:22px;">
 
     <div id="state-empty" class="card state-panel">
@@ -53,7 +62,10 @@
       <div class="card">
         <div class="result-head">
           <div class="name-block">
-            <div class="name-title"><span id="r-name"></span></div>
+            <div class="name-title">
+              <span id="r-name"></span>
+              <button id="favorite-btn" class="favorite-btn" title="お気に入りに登録">☆</button>
+            </div>
             <div class="name-sub"><span id="r-symbol"></span></div>
           </div>
           <div class="price-block">
@@ -78,14 +90,19 @@
         </div>
       </div>
 
-      <div class="grid2">
+      <div class="agents-label">🧑‍💼 専門エージェントチームによる評価</div>
+      <div class="grid3">
         <div class="card">
-          <div class="card-title">テクニカル分析<span class="section-score" id="r-tech-score"></span></div>
+          <div class="card-title">テクニカル分析エージェント<span class="section-score" id="r-tech-score"></span></div>
           <ul class="reason-list" id="r-tech-reasons"></ul>
         </div>
         <div class="card">
-          <div class="card-title">ファンダメンタルズ分析<span class="section-score" id="r-fund-score"></span></div>
+          <div class="card-title">ファンダメンタルズ分析エージェント<span class="section-score" id="r-fund-score"></span></div>
           <ul class="reason-list" id="r-fund-reasons"></ul>
+        </div>
+        <div class="card">
+          <div class="card-title">世界情勢分析エージェント<span class="section-score" id="r-world-score"></span></div>
+          <ul class="reason-list" id="r-world-reasons"></ul>
         </div>
       </div>
 

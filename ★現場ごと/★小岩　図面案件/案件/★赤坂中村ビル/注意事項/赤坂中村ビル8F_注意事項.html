@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="UTF-8">
+<title>赤坂中村ビル8F 注意事項</title>
+<style>
+  @page { size: A4; margin: 15mm; }
+  body { font-family: "Yu Gothic", "Meiryo", sans-serif; color:#222; background:#eee; margin:0; padding:20px; }
+  .page { background:#fff; width:210mm; min-height:297mm; box-sizing:border-box; margin:0 auto; padding:18mm 16mm; box-shadow:0 0 6px rgba(0,0,0,.2); }
+  h1 { font-size:20pt; border-bottom:3px solid #222; padding-bottom:6px; margin:0 0 4px; }
+  .meta { text-align:right; font-size:10pt; margin-bottom:14px; }
+  h2 { font-size:13pt; background:#222; color:#fff; padding:4px 10px; margin:20px 0 8px; }
+  table { width:100%; border-collapse:collapse; font-size:11pt; }
+  th, td { border:1px solid #888; padding:6px 8px; text-align:left; vertical-align:top; }
+  th { background:#f0f0f0; width:28%; }
+  ul { margin:0; padding-left:1.2em; font-size:11pt; line-height:1.9; }
+  .note { border:2px solid #c00; padding:8px 12px; margin-top:14px; font-size:11pt; line-height:1.8; }
+  .todo li { list-style:none; margin-left:-1.2em; }
+  .hint { font-size:9pt; color:#a60; }
+  .toolbar { max-width:210mm; margin:0 auto 10px; font-size:10pt; }
+  .toolbar button { padding:6px 14px; margin-right:6px; cursor:pointer; }
+  [contenteditable]:hover { background:#fffbe0; }
+  [contenteditable]:focus { outline:2px solid #4a90e2; background:#fffbe0; }
+  @media print { body{background:#fff;padding:0} .page{box-shadow:none;margin:0;padding:0;width:auto;min-height:0;page-break-after:always} .toolbar,.hint{display:none} [contenteditable]:hover{background:none} }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  文字をクリックすると直接編集できます。
+  <button onclick="window.print()">印刷 / PDF保存</button>
+  <button onclick="saveHtml()">編集内容をHTMLで保存</button>
+</div>
+
+<!-- 1枚目 -->
+<div class="page">
+  <h1>赤坂中村ビル 8F 注意事項</h1>
+  <div class="meta">2026年10月2日</div>
+
+  <h2>養生・搬入出・作業時間</h2>
+  <ul>
+    <li>1F〜エレベーターまで床養生（シート）：毎回 取付および取外し</li>
+    <li>エレベーター内プラベニ養生（壁・床）：毎回 取付および取外し</li>
+    <li>搬入搬出時間：8:30まで　または　21:00〜</li>
+    <li>清掃：終了時 必ず掃除をすること&nbsp;</li>
+    <li>騒音作業：8:20まで　または　21:00〜　または　日曜・祭日</li>
+    <li>コピー機：工事中は完全養生し、EVホールに保管</li>
+    <li>喫煙所：外部、非常階段で必ずスタンド式灰皿を設置<br>
+        ※消火器・2L程度の容器に水を入れて必ず置くこと</li>
+    <li>トイレ：向かいのビル B1 のトイレを使用</li><li>長尺物：非常階段で搬入搬出</li><li>9:00〜12:00 は清掃の方がいるため、良い対応を心がける（毎日）&nbsp;</li>
+  </ul>
+
+  <div class="note">
+    ※ 工事前に B1〜7F まで説明・挨拶まわりを行う<br>
+    ※ 特に注意する点は直接伝えます
+  </div>
+
+  <h2>連絡・手配（要対応）</h2>
+  <ul class="todo">
+    <li>☐ ALSOK（警備）：<span>　　　　　　　　</span></li>
+    <li>☐ ホーチキ（防災）：<span>　　　　　　　　</span></li>
+  </ul>
+  <p class="hint">※原文は名称の横に空欄の○のみ（連絡済み・日程などを記入）</p>
+</div>
+
+<!-- 2枚目 -->
+<div class="page">
+  <h1>仕上げ・確認事項</h1>
+  <div class="meta">赤坂中村ビル 8F</div>
+
+  <h2>EVホール 仕上げ</h2>
+  <table>
+    <tbody><tr><th>部位</th><th>仕上げ</th><th>備考</th></tr>
+    <tr><td>天井</td><td>AEP塗装</td><td>下地処理</td></tr>
+    <tr><td>壁</td><td>左官（珪藻土）</td><td>下地処理</td></tr>
+    <tr><td>床</td><td>塩ビタイル <span class="hint">※原文「塩タイル」</span></td><td>下地処理</td></tr>
+    <tr><td>巾木</td><td>サンメイト H100（塗装仕上）</td><td></td></tr>
+  </tbody></table>
+
+  <h2>確認事項</h2>
+  <ul>
+    <li>床上げ部分：かまち素材および納まり</li>
+    <li>重量ブロック厚さ：100mm ／ 120mm ／ 150mm → <b>消防へ確認</b><br>
+        <span class="hint">※原文は100mmに○印、120・150mmに小さな○印あり。どれで確定かは要確認</span></li>
+    <li><br></li>
+  </ul>
+</div>
+
+<script>
+function saveHtml() {
+  document.querySelectorAll('[contenteditable]').forEach(e => e.removeAttribute('contenteditable'));
+  var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  document.querySelectorAll('.page').forEach(e => e.setAttribute('contenteditable', 'true'));
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html], {type: 'text/html'}));
+  a.download = '赤坂中村ビル8F_注意事項.html';
+  a.click();
+}
+</script>
+
+
+</body></html>

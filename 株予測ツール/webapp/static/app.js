@@ -17,9 +17,143 @@ const els = {
 };
 
 let currentSymbol = null;
+let currentName = null;
 let searchDebounceTimer = null;
 let activeSuggestionIndex = -1;
 let lastCandidates = [];
+
+// ---------------------------------------------------------------------
+// 閲覧履歴・お気に入り（ブラウザのlocalStorageに保存）
+// ---------------------------------------------------------------------
+
+const STORAGE_KEYS = { history: "stockpred.history.v1", favorites: "stockpred.favorites.v1" };
+const HISTORY_LIMIT = 20;
+
+function loadList(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveList(key, list) {
+  try {
+    localStorage.setItem(key, JSON.stringify(list));
+  } catch (e) {
+    // localStorageが使えない環境では履歴・お気に入りは保存されない
+  }
+}
+
+let historyList = loadList(STORAGE_KEYS.history);
+let favoritesList = loadList(STORAGE_KEYS.favorites);
+
+function isFavorite(symbol) {
+  return favoritesList.some((it) => it.symbol === symbol);
+}
+
+function addToHistory(symbol, name) {
+  historyList = historyList.filter((it) => it.symbol !== symbol);
+  historyList.unshift({ symbol, name, ts: Date.now() });
+  historyList = historyList.slice(0, HISTORY_LIMIT);
+  saveList(STORAGE_KEYS.history, historyList);
+  renderHistoryList();
+}
+
+function removeHistoryItem(symbol) {
+  historyList = historyList.filter((it) => it.symbol !== symbol);
+  saveList(STORAGE_KEYS.history, historyList);
+  renderHistoryList();
+}
+
+function toggleFavorite(symbol, name) {
+  if (isFavorite(symbol)) {
+    favoritesList = favoritesList.filter((it) => it.symbol !== symbol);
+  } else {
+    favoritesList.unshift({ symbol, name });
+  }
+  saveList(STORAGE_KEYS.favorites, favoritesList);
+  renderFavoritesList();
+  updateFavoriteButton();
+}
+
+function removeFavorite(symbol) {
+  favoritesList = favoritesList.filter((it) => it.symbol !== symbol);
+  saveList(STORAGE_KEYS.favorites, favoritesList);
+  renderFavoritesList();
+  updateFavoriteButton();
+}
+
+function updateFavoriteButton() {
+  const btn = document.getElementById("favorite-btn");
+  if (!btn) return;
+  const fav = !!currentSymbol && isFavorite(currentSymbol);
+  btn.textContent = fav ? "★" : "☆";
+  btn.classList.toggle("active", fav);
+  btn.title = fav ? "お気に入りから削除" : "お気に入りに登録";
+}
+
+function renderChipList(container, items, { emptyText, onRemove }) {
+  if (!items.length) {
+    container.innerHTML = `<div class="chip-empty">${emptyText}</div>`;
+    return;
+  }
+  container.innerHTML = items.map((it) => `
+    <div class="chip" data-symbol="${escapeHtml(it.symbol)}">
+      <span class="chip-symbol">${escapeHtml(it.symbol)}</span>
+      <span class="chip-name">${escapeHtml(it.name || "")}</span>
+      <button class="chip-remove" data-symbol="${escapeHtml(it.symbol)}" title="削除">×</button>
+    </div>
+  `).join("");
+
+  container.querySelectorAll(".chip").forEach((chip) => {
+    chip.addEventListener("click", (e) => {
+      if (e.target.classList.contains("chip-remove")) return;
+      const symbol = chip.getAttribute("data-symbol");
+      els.input.value = symbol;
+      runAnalysis(symbol);
+    });
+  });
+  container.querySelectorAll(".chip-remove").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onRemove(btn.getAttribute("data-symbol"));
+    });
+  });
+}
+
+function renderHistoryList() {
+  renderChipList(document.getElementById("list-history"), historyList, {
+    emptyText: "まだ閲覧履歴はありません",
+    onRemove: removeHistoryItem,
+  });
+}
+
+function renderFavoritesList() {
+  renderChipList(document.getElementById("list-favorites"), favoritesList, {
+    emptyText: "お気に入り登録した銘柄はありません",
+    onRemove: removeFavorite,
+  });
+}
+
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach((b) => b.classList.toggle("active", b === btn));
+    const tab = btn.getAttribute("data-tab");
+    document.getElementById("list-history").classList.toggle("hidden", tab !== "history");
+    document.getElementById("list-favorites").classList.toggle("hidden", tab !== "favorites");
+  });
+});
+
+document.getElementById("favorite-btn").addEventListener("click", () => {
+  if (!currentSymbol) return;
+  toggleFavorite(currentSymbol, currentName);
+});
+
+renderHistoryList();
+renderFavoritesList();
 
 let priceChart, rsiChart, macdChart;
 let priceSeries = {};
@@ -164,8 +298,8 @@ async function runAnalysis(query) {
       throw new Error(data.error || "分析に失敗しました。");
     }
     currentSymbol = data.symbol;
-    renderResult(data);
     showState("result");
+    renderResult(data);
   } catch (e) {
     els.errorMessage.textContent = e.message || String(e);
     showState("error");
@@ -215,8 +349,12 @@ function renderReasons(container, reasons) {
 }
 
 function renderResult(data) {
+  currentName = data.name;
   document.getElementById("r-name").textContent = data.name;
   document.getElementById("r-symbol").textContent = data.symbol;
+
+  addToHistory(data.symbol, data.name);
+  updateFavoriteButton();
 
   const priceEl = document.getElementById("r-price");
   const changeEl = document.getElementById("r-change");
@@ -236,7 +374,7 @@ function renderResult(data) {
   document.getElementById("r-score-marker").style.left = `${pos}%`;
 
   document.getElementById("r-weight-note").textContent =
-    `テクニカル ${Math.round(data.combined.tech_weight * 100)}% ＋ ファンダメンタルズ ${Math.round(data.combined.fund_weight * 100)}% の加重平均`;
+    `テクニカル ${Math.round(data.combined.tech_weight * 100)}% ＋ ファンダメンタルズ ${Math.round(data.combined.fund_weight * 100)}% ＋ 世界情勢 ${Math.round(data.combined.world_weight * 100)}% の加重平均（3専門エージェントのチーム評価）`;
 
   const now = new Date();
   document.getElementById("r-updated").textContent =
@@ -244,8 +382,10 @@ function renderResult(data) {
 
   document.getElementById("r-tech-score").textContent = `${data.tech.score >= 0 ? "+" : ""}${data.tech.score}`;
   document.getElementById("r-fund-score").textContent = `${data.fund.score >= 0 ? "+" : ""}${data.fund.score}`;
+  document.getElementById("r-world-score").textContent = `${data.world.score >= 0 ? "+" : ""}${data.world.score}`;
   renderReasons(document.getElementById("r-tech-reasons"), data.tech.reasons);
   renderReasons(document.getElementById("r-fund-reasons"), data.fund.reasons);
+  renderReasons(document.getElementById("r-world-reasons"), data.world.reasons);
 
   renderMetrics(data);
   renderForecastNote(data);

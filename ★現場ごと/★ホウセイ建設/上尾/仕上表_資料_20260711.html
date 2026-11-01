@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>内装仕上表資料</title>
+<style>
+  @page { size: A4; margin: 15mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Yu Gothic", "Meiryo", sans-serif;
+    color: #222;
+    margin: 0;
+    background: #f4f4f2;
+  }
+  .sheet {
+    max-width: 1000px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 30px 40px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 3px solid #2b4a6f;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  header h1 {
+    font-size: 26px;
+    letter-spacing: 4px;
+    margin: 0;
+    color: #2b4a6f;
+  }
+  .company {
+    text-align: right;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #444;
+  }
+  .meta-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+  .meta-table td {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+  }
+  .meta-table td.label {
+    background: #eef2f7;
+    width: 120px;
+    font-weight: bold;
+    color: #2b4a6f;
+  }
+  h2.section-title {
+    font-size: 16px;
+    color: #fff;
+    background: #2b4a6f;
+    padding: 6px 14px;
+    margin: 12px 0 8px;
+    border-radius: 3px;
+  }
+  .floorplan-box {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .floorplan-box img {
+    max-width: 92%;
+    max-height: 560px;
+    border: 1px solid #ccc;
+  }
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+  .legend {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 12px;
+    margin: 8px 0 4px;
+  }
+  .legend span.swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 4px;
+    vertical-align: middle;
+    border: 1px solid #999;
+  }
+  table.finish-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+  table.finish-table th {
+    background: #2b4a6f;
+    color: #fff;
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+  table.finish-table td {
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    vertical-align: middle;
+    text-align: center;
+  }
+  table.finish-table td.name-cell {
+    text-align: left;
+  }
+  table.finish-table td.note-cell {
+    text-align: left;
+    font-size: 11.5px;
+    color: #555;
+  }
+  .photo-cell img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 1px solid #bbb;
+    border-radius: 3px;
+  }
+  .color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+    border: 1px solid #999;
+  }
+  .paint-swatch {
+    width: 120px;
+    height: 120px;
+    background: #ffffff;
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #999;
+  }
+  footer {
+    margin-top: 8px;
+    font-size: 10.5px;
+    color: #888;
+    border-top: 1px solid #ddd;
+    padding-top: 5px;
+    display: flex;
+    justify-content: space-between;
+  }
+  @media print {
+    body { background: #fff; }
+    .sheet { box-shadow: none; margin: 0; max-width: 100%; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <h1>内 装 仕 上 表</h1>
+    <div class="company">
+      株式会社AXIS<br>
+      埼玉県草加市小山2-29-10（〒340-0045）<br>
+      TEL: 090-9825-2087
+    </div>
+  </header>
+
+  <table class="meta-table">
+    <tr>
+      <td class="label">工事名称</td>
+      <td>尾山台団地第4地区第1号棟107号室　商店改装工事（店舗名：ポフタブナ）厨房区画</td>
+      <td class="label">作成日</td>
+      <td>2026年7月11日</td>
+    </tr>
+  </table>
+
+  <h2 class="section-title">1. 仕上材配置図（色分け平面図）</h2>
+  <div class="floorplan-box">
+    <img src="images/floorplan.png" alt="内装仕上げ色分け平面図">
+  </div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#e2231a;"></span>LL-6113（ホール・客席）</span>
+    <span><span class="swatch" style="background:#2ea52e;"></span>TH32734（物入・カウンター周り）</span>
+    <span><span class="swatch" style="background:#d477c9;"></span>TH32028（トイレ）</span>
+    <span>厨房天井：TH32028指定だが白塗装で仕上げ</span>
+  </div>
+
+  <h2 class="section-title page-break">2. 壁・天井仕上材一覧（商品写真）</h2>
+  <table class="finish-table">
+    <colgroup>
+      <col style="width:14%">
+      <col style="width:20%">
+      <col style="width:22%">
+      <col style="width:15%">
+      <col style="width:29%">
+    </colgroup>
+    <tr>
+      <th>使用箇所</th>
+      <th>仕上材</th>
+      <th>品番／メーカー</th>
+      <th>商品写真</th>
+      <th>備考</th>
+    </tr>
+    <tr>
+      <td class="name-cell"><span class="color-dot" style="background:#e2231a;"></span>ホール・客席（壁）</td>
+      <td class="name-cell">クロス（木目調デザインウッド）</td>
+      <td>LL-6113<br><span style="color:#777;font-size:11px;">リリカラ　LIGHT</span></td>
+      <td class="photo-cell"><img src="images/LL-6113.jpg" alt="LL-6113"></td>
+      <td class="note-cell">遊び心のある木目調デザイン。準不燃対応。ホール・客席の主壁面に使用。</td>
+    </tr>
+    <tr>
+      <td class="name-cell"><span class="color-dot" style="background:#2ea52e;"></span>物入・厨房カウンター周り（壁）</td>
+      <td class="name-cell">クロス（レンガ調）</td>
+      <td>TH32734<br><span style="color:#777;font-size:11px;">サンゲツ　FAITH（フェイス）</span></td>
+      <td class="photo-cell"><img src="images/TH32734.jpg" alt="TH32734"></td>
+      <td class="note-cell">目地幅広め・角に丸みを持たせたベーシックな赤レンガ調。防カビ・表面強化仕様。</td>
+    </tr>
+    <tr>
+      <td class="name-cell"><span class="color-dot" style="background:#d477c9;"></span>トイレ（壁）</td>
+      <td class="name-cell">クロス（自然の景観柄）</td>
+      <td>TH32028<br><span style="color:#777;font-size:11px;">サンゲツ　FAITH（フェイス）</span></td>
+      <td class="photo-cell"><img src="images/TH32028.jpg" alt="TH32028"></td>
+      <td class="note-cell">海岸線をイメージした砂目・波柄。不燃・防カビ・抗菌仕様。</td>
+    </tr>
+    <tr>
+      <td class="name-cell">厨房（天井）</td>
+      <td class="name-cell">白塗装仕上げ</td>
+      <td>―</td>
+      <td class="photo-cell"><div class="paint-swatch">白塗装</div></td>
+      <td class="note-cell">平面図上はTH32028指定エリア内だが、厨房天井のみ白塗装で仕上げる。</td>
+    </tr>
+  </table>
+
+  <footer>
+    <span>出典：メーカー公式サイト／商品カタログ画像（リリカラ株式会社、サンゲツ株式会社）</span>
+    <span>作成：株式会社AXIS</span>
+  </footer>
+
+</div>
+</body>
+</html>

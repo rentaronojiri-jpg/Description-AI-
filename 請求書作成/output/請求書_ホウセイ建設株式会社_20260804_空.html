@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>請求書_ホウセイ建設株式会社_20260804_空</title>
+<style>
+  * { box-sizing: border-box; }
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  body {
+    font-family: "Yu Gothic", "MS Gothic", sans-serif;
+    font-size: 14px;
+    color: #1a1a1a;
+    background: #fff;
+    margin: 40px 50px;
+  }
+  .title {
+    text-align: center;
+    font-size: 40px;
+    font-weight: bold;
+    letter-spacing: 20px;
+    color: #123456;
+    margin: 10px 0 30px 0;
+  }
+  .top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .client-block { width: 55%; }
+  .client-name {
+    font-size: 20px;
+    border-bottom: 2px solid #333;
+    display: inline-block;
+    padding-bottom: 4px;
+    margin-bottom: 18px;
+  }
+  .client-name .onchu { font-size: 14px; margin-left: 14px; }
+  .lead-text { margin-bottom: 18px; }
+  .meta-row { margin-bottom: 4px; }
+  .meta-row .label { display: inline-block; width: 80px; }
+  .company-block {
+    width: 44%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .company-text {
+    text-align: left;
+    line-height: 1.9;
+    white-space: nowrap;
+  }
+  .stamp-img {
+    width: 110px;
+    flex-shrink: 0;
+    margin-top: -20px;
+  }
+  .invoice-meta {
+    margin-top: 70px;
+  }
+  .invoice-meta .label { display: inline-block; width: 110px; }
+
+  .amount-box {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin: 20px 0 24px 0;
+  }
+  .amount-box .label { font-size: 15px; }
+  .amount-box .amount {
+    font-size: 30px;
+    font-weight: bold;
+  }
+  .amount-box .zeiKomi { font-size: 14px; }
+
+  table.items {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+  }
+  table.items th {
+    background: #123456;
+    color: #fff;
+    font-weight: normal;
+    padding: 8px 6px;
+    text-align: center;
+    border: 1px solid #123456;
+    font-size: 14px;
+  }
+  table.items td {
+    padding: 8px 6px;
+    border: 1px solid #ccc;
+    height: 30px;
+  }
+  table.items tbody tr:nth-child(even) td { background: #daeaf6; }
+  table.items .num { text-align: right; padding-right: 12px; }
+  table.items .center { text-align: center; }
+
+  .bottom-section {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0;
+  }
+  .furikomi-block { width: 48%; }
+  table.furikomi {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid #000;
+  }
+  table.furikomi td {
+    border: 1px solid #000;
+    padding: 8px 10px;
+  }
+  table.furikomi .label {
+    width: 70px;
+    text-align: center;
+    background: #fff;
+    white-space: nowrap;
+  }
+
+  .summary-block { width: 48%; }
+  table.summary {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  table.summary td {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+  }
+  table.summary tr.stripe td { background: #daeaf6; }
+  table.summary .label { text-align: right; padding-right: 20px; }
+  table.summary .num { text-align: right; padding-right: 12px; }
+
+  .tax-detail {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  .tax-detail th {
+    background: #123456;
+    color: #fff;
+    font-weight: normal;
+    padding: 6px;
+    border: 1px solid #123456;
+  }
+  .tax-detail td {
+    padding: 8px;
+    border: 1px solid #ccc;
+    background: #daeaf6;
+  }
+
+  .footer-note {
+    margin-top: 24px;
+    font-size: 13px;
+  }
+  .footer-line {
+    border-bottom: 1px solid #333;
+    width: 320px;
+    margin-top: 24px;
+  }
+  .bottom-bar {
+    margin-top: 12px;
+    border-top: 4px solid #123456;
+  }
+
+  @media print {
+    body { margin: 15px 25px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="title">請 求 書</div>
+
+<div class="top-section">
+  <div class="client-block">
+    <div class="client-name">ホウセイ建設株式会社<span class="onchu">御中</span></div>
+    <div class="lead-text">下記の通り、ご請求申し上げます。</div>
+    <div class="meta-row"><span class="label">請求日</span></div>
+  </div>
+
+  <div class="company-block">
+    <div class="company-text">
+    株式会社AXIS<br>
+    3400045<br>
+    埼玉県草加市小山2-29-10
+    <div class="invoice-meta">
+      <div class="meta-row"><span class="label">インボイス番号</span>T7030001171938</div>
+      <div class="meta-row"><span class="label">担当</span>：090-9825-2087</div>
+    </div>
+    </div>
+    <img class="stamp-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASIAAAEYCAIAAAB3PWwqAAAQAElEQVR4nOydCfxM1f//z9hpmyFZUkQo4h6pEHESKqQSX1Ih0iLRN/+0fPNtUWnRQvuCbJF9ibZvOmzLknPTXqR+ffumZIZIWZr/+8yduXPvmeVz78w9d+583OfDg5n7mZnPmLnve8753PM55w5nUCQS8fHxkYlvZj4+0vHNzMdHOr6Z+fhIxzczHx/p+Gbm4yMd38x8fKTjm5mPj3R8M/PxkY5vZj4+0vHNzMdHOr6Z+fhIxzczHx/p+Gbm4yMd38x8fKTjm5mPj3R8M/PxkY5vZj4+0vHNzMdHOr6Z+fhIxzczHx/p+Gbm4yMd38x8fKTjm5mPj3R8M/PxkY5vZj4+0vHNzMdHOr6Z+fhIxzczHx/p+Gbm4yMd38x8fKTjm5mPj3R8M/PxkY5vZj4+0vHNzMdHOr6Z+fhIxzczHx/p+Gbm4yMd38x8fKTjm5mPj3R8M/PxkY5vZj4+0vHNzMdHOr6Z+fhIxzczHx/p+Gbm4yMd38x8fKTjm5mPj3R8M/PxkY5vZj4+0vHNzMdHOv8fAAAA//8jX2ycAAAABklEQVQDABua5/aEH7TUAAAAAElFTkSuQmCC" alt="株式会社AXIS 印">
+  </div>
+</div>
+
+<div class="amount-box">
+  <span class="label">ご請求金額</span>
+  <span class="amount"></span>
+  <span class="zeiKomi">（税込）</span>
+</div>
+
+<table class="items">
+  <thead>
+    <tr>
+      <th style="width:10%">日付</th>
+      <th style="width:28%">内容</th>
+      <th style="width:8%">数量</th>
+      <th style="width:7%">単位</th>
+      <th style="width:12%">単価</th>
+      <th style="width:6%">税率</th>
+      <th style="width:15%">合計(税込)</th>
+      <th style="width:14%">備考</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td>&nbsp;</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+<div class="bottom-section">
+  <div class="furikomi-block">
+    <table class="furikomi">
+      <tr>
+        <td class="label" rowspan="2">振込先</td>
+        <td>ＧＭＯあおぞらネット銀行　法人第二営業部</td>
+      </tr>
+      <tr>
+        <td>2465409　株式会社ＡＸＩＳ</td>
+      </tr>
+      <tr>
+        <td class="label">振込期日</td>
+        <td style="text-align:center"></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="summary-block">
+    <table class="summary">
+      <tr><td class="label">小計</td><td class="num"></td></tr>
+      <tr class="stripe"><td class="label">消費税</td><td class="num"></td></tr>
+      <tr><td class="label">合計</td><td class="num"></td></tr>
+    </table>
+    <table class="tax-detail">
+      <tr><th>消費税</th><th>税抜金額</th></tr>
+      <tr><td>&nbsp;</td><td></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="footer-note">恐れ入りますがお振込手数料は貴社のご負担にてお願いいたします。</div>
+<div class="footer-line"></div>
+<div class="bottom-bar"></div>
+
+</body>
+</html>

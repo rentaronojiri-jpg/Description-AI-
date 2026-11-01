@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="UTF-8">
+<title>鉄骨階段修繕工事　工事内容ご説明資料</title>
+<style>
+  :root {
+    --navy: #1a1a4e;
+    --light-blue: #e0e0f0;
+    --section-bg: #e8e8f0;
+    --stripe: #f9f9f9;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "MS Gothic", "Yu Gothic", sans-serif;
+    font-size: 11pt;
+    margin: 0;
+    color: #000;
+    background: #ccc;
+  }
+
+  /* ===== 編集モードUI ===== */
+  #edit-toolbar {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 9999;
+    display: flex;
+    gap: 8px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  #edit-toolbar button {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10pt;
+    font-family: inherit;
+  }
+  #btn-print { background: var(--navy); color: #fff; }
+  #btn-print:hover { background: #111133; }
+  #btn-save { background: #16a34a; color: #fff; }
+  #btn-save:hover { background: #15803d; }
+
+  /* ===== ページ（用紙）===== */
+  .sheet {
+    background: #fff;
+    width: 950px;
+    margin: 20px auto;
+    padding: 30px 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    page-break-after: always;
+  }
+  .sheet:last-child { page-break-after: auto; }
+
+  h1 {
+    text-align: center;
+    font-size: 19pt;
+    letter-spacing: 6px;
+    margin: 0 0 6px 0;
+  }
+  h1 input.editable {
+    display: inline-block;
+    width: auto;
+    max-width: 90%;
+    text-align: center;
+    font-size: 19pt;
+    letter-spacing: 6px;
+    font-weight: bold;
+    font-family: inherit;
+    color: #000;
+    border: none;
+    border-bottom: 2px solid #000;
+    background: transparent;
+    padding: 0 0 4px 0;
+  }
+  h1 input.editable:focus {
+    outline: 2px solid #2563eb;
+    background: #f0f6ff;
+  }
+  .sub-title { text-align: center; font-size: 11pt; color: #333; margin: 0 0 20px 0; }
+  .sub-title input.editable {
+    display: block;
+    width: auto;
+    max-width: 90%;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 11pt;
+    color: #333;
+    font-family: inherit;
+  }
+
+  .cover-company {
+    margin: 0 0 18px 0;
+  }
+  .cover-company table {
+    margin-right: auto;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    line-height: 1.5;
+  }
+  .cover-company td {
+    padding: 2px 0;
+    white-space: nowrap;
+  }
+  .cover-company td.co-label {
+    text-align: left;
+    color: #333;
+    padding-right: 10px;
+  }
+  .cover-company td.co-name {
+    text-align: left;
+    font-size: 11.5pt;
+    font-weight: bold;
+    padding-bottom: 4px;
+  }
+  .cover-company input.editable {
+    text-align: left;
+  }
+  .cover-company .co-name input.editable { font-weight: bold; font-size: 11.5pt; }
+  .sheet.cover { position: relative; }
+
+  table.cover-meta {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10pt;
+    margin: 18px 0 20px 0;
+  }
+  table.cover-meta td {
+    border-bottom: 1px solid #000;
+    padding: 6px 6px;
+  }
+  table.cover-meta td.label {
+    width: 130px;
+    background: #f5f5f5;
+    font-weight: bold;
+  }
+  input.editable, textarea.editable {
+    border: 1px dashed #2563eb;
+    background: #f0f6ff;
+    padding: 2px 4px;
+    font-size: 10pt;
+    font-family: inherit;
+    color: #000;
+    border-radius: 2px;
+    width: 100%;
+  }
+  input.editable:focus, textarea.editable:focus { outline: 2px solid #2563eb; background: #dbeafe; }
+  textarea.editable { resize: vertical; line-height: 1.8; }
+
+  .lead-box {
+    border: 1px solid #aaa;
+    background: #fafafa;
+    padding: 14px 18px;
+    font-size: 10pt;
+    line-height: 2;
+    margin-bottom: 18px;
+  }
+  .lead-box textarea.editable { min-height: 90px; }
+
+  .cover-photo {
+    width: 100%;
+    border: 1px solid #999;
+    margin-bottom: 6px;
+  }
+  .cover-photo-cap { text-align: center; font-size: 9pt; color: #555; margin-bottom: 18px; }
+
+  h2.doc-title {
+    font-size: 14pt;
+    background: var(--section-bg);
+    border: 1px solid #000;
+    padding: 8px 12px;
+    margin: 0 0 16px 0;
+  }
+  h2.doc-title input.editable {
+    display: block;
+    width: 100%;
+    font-size: 14pt;
+    font-weight: bold;
+    font-family: inherit;
+    color: #000;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+  h2.doc-title input.editable:focus {
+    outline: 2px solid #2563eb;
+    background: #dbeafe;
+  }
+
+  .note {
+    font-size: 9pt;
+    color: #555;
+    margin-top: 6px;
+  }
+
+  /* ===== 写真グリッド ===== */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 10px;
+  }
+  .photo-card {
+    border: 1px solid #999;
+    padding: 8px;
+  }
+  .photo-card img {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .photo-tag {
+    display: inline-block;
+    background: var(--navy);
+    color: #fff;
+    font-size: 9pt;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-bottom: 5px;
+  }
+  input.photo-tag.editable {
+    display: inline-block;
+    width: auto;
+    background: var(--navy);
+    color: #fff;
+    font-size: 9pt;
+    padding: 2px 8px;
+    border: 1px dashed #93c5fd;
+    border-radius: 3px;
+    margin-bottom: 5px;
+  }
+  input.photo-tag.editable:focus {
+    outline: 2px solid #2563eb;
+    background: #111133;
+  }
+  .photo-card textarea.editable {
+    width: 100%;
+    font-size: 9.5pt;
+    line-height: 1.6;
+    min-height: 90px;
+  }
+
+  /* ===== 工事内容テーブル ===== */
+  table.scope {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10.5pt;
+    margin-bottom: 8px;
+  }
+  table.scope th {
+    background: var(--navy);
+    color: #fff;
+    padding: 8px 6px;
+    border: 1px solid #000;
+    font-weight: normal;
+  }
+  table.scope td {
+    padding: 7px 6px;
+    border: 1px solid #aaa;
+    vertical-align: top;
+  }
+  table.scope tbody tr:nth-child(even) td { background: var(--stripe); }
+  table.scope .num { text-align: center; }
+  table.scope textarea.editable { min-height: 40px; }
+  table.scope input.editable.center { text-align: center; }
+
+  /* ===== 施工の流れ ===== */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 8px 0 18px 0;
+  }
+  .flow-step {
+    flex: 1 1 150px;
+    border: 1px solid var(--navy);
+    border-radius: 6px;
+    padding: 10px 12px;
+    background: #f4f4fa;
+    font-size: 9.5pt;
+    text-align: center;
+    position: relative;
+  }
+  .flow-step .num-badge {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    background: var(--navy);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 9.5pt;
+    margin-bottom: 4px;
+  }
+  .flow-step input.editable {
+    text-align: center;
+    font-size: 9.5pt;
+  }
+  .flow-arrow {
+    align-self: center;
+    font-size: 14pt;
+    color: var(--navy);
+  }
+
+  .page-foot { text-align: center; font-size: 9pt; color: #888; margin-top: 10px; }
+
+  /* ===== 印刷スタイル ===== */
+  @media print {
+    body { background: #fff; }
+    #edit-toolbar { display: none !important; }
+    .sheet { box-shadow: none; margin: 0; width: auto; padding: 15px 20px; }
+    input.editable, textarea.editable {
+      border: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+      resize: none !important;
+      overflow: hidden !important;
+    }
+    .photo-card { break-inside: avoid; }
+    input.photo-tag.editable {
+      background: var(--navy) !important;
+      color: #fff !important;
+      border: none !important;
+      padding: 2px 8px !important;
+    }
+    h1 input.editable {
+      border-bottom: 2px solid #000 !important;
+      padding: 0 0 4px 0 !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- 編集ツールバー -->
+<div id="edit-toolbar">
+  <button id="btn-save">💾 保存（.html）</button>
+  <button id="btn-print">印刷 / PDF保存</button>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ1：表紙 -->
+<!-- ============================================================ -->
+<div class="sheet cover">
+
+  <div class="cover-company">
+    <table>
+      <tbody><tr>
+        <td colspan="2" class="co-name"><input class="editable" style="width:260px;" value="株式会社AXIS"></td>
+      </tr>
+      <tr>
+        <td class="co-label">住　所</td>
+        <td><input class="editable" style="width:260px;" value="〒340-0045　埼玉県草加市小山2-29-10"></td>
+      </tr>
+      <tr>
+        <td class="co-label">TEL</td>
+        <td><input class="editable" style="width:260px;" value="090-9825-2087"></td>
+      </tr>
+      <tr>
+        <td class="co-label">担　当</td>
+        <td><input class="editable" style="width:260px;" value="菊池 匠"></td>
+      </tr>
+    </tbody></table>
+  </div>
+
+  <h1><input class="editable" value="鉄骨階段修繕工事"></h1>
+  <div class="sub-title"><input class="editable" value="工事内容ご説明資料"></div>
+
+  <table class="cover-meta">
+    <tbody>
+    <tr>
+      <td class="label">提　出　先</td>
+      <td colspan="3"><input class="editable" value="英進工業株式会社 様"></td>
+    </tr>
+    <tr>
+      <td class="label">案　件　名</td>
+      <td colspan="3"><input class="editable" value="トダカ尾久コーポ大規模改修工事"></td>
+    </tr>
+    <tr>
+      <td class="label">工事場所</td>
+      <td colspan="3"><input class="editable" value="東京都荒川区東尾久3-30-5"></td>
+    </tr>
+    <tr>
+      <td class="label">対象部位</td>
+      <td colspan="3"><input class="editable" value="建物外部　鉄骨階段（ささら桁・踏板・梁・手摺・躯体取合い部）一式"></td>
+    </tr>
+    <tr>
+      <td class="label">作　成　日</td>
+      <td><input class="editable" value="2026年9月11日"></td>
+      <td class="label">関連御見積書</td>
+      <td><input class="editable" value="2026-0716-001"></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="lead-box">
+    <textarea class="editable" oninput="autoGrow(this)" style="height: 100px;">現地調査の結果、外部鉄骨階段におきまして経年による発錆・腐食が各所で進行しており、部材によっては腐食による貫通穴が生じている箇所も確認いたしました。
+つきましては、安全性確保および建物の長寿命化のため、鉄骨階段修繕工事のご提案と現況写真をご報告申し上げます。詳細な工事金額につきましては別紙御見積書をご参照ください。</textarea>
+  </div>
+
+  <img class="cover-photo" src="写真/S__90955790.jpg" alt="鉄骨階段　現状全景">
+  <div class="cover-photo-cap">写真0　鉄骨階段　現状全景（各梁の接合部にサビ汁の流出が見られる）</div>
+
+  <div class="page-foot">- 1 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ2：現状の劣化状況（写真1） -->
+<!-- ============================================================ -->
+<div class="sheet">
+  <h2 class="doc-title"><input class="editable" value="１．現状の劣化状況（現地調査写真）"></h2>
+  <div class="photo-grid">
+    <div class="photo-card">
+      <input class="photo-tag editable" value="踏板（階段ステップ）">
+      <img src="写真/S__90955793.jpg" alt="踏板の腐食穴">
+      <textarea class="editable" oninput="autoGrow(this)" style="height: 88px;">階段踏板（チェッカープレート）の複数箇所で発錆が進行し、貫通穴が発生。歩行時の安全性に影響する状態。</textarea>
+    </div>
+    <div class="photo-card">
+      <input class="photo-tag editable" value="桁（ささら桁）下面">
+      <img src="写真/S__90955820.jpg" alt="桁下面の貫通穴">
+      <textarea class="editable" oninput="autoGrow(this)" style="height: 88px;">階段を支える桁の下面に腐食による大きな貫通穴を確認。強度低下が懸念されるため溶接による補修が必要。</textarea>
+    </div>
+    <div class="photo-card">
+      <input class="photo-tag editable" value="梁　端部">
+      <img src="写真/S__90955781.jpg" alt="梁端部の腐食穴">
+      <textarea class="editable" oninput="autoGrow(this)" style="height: 88px;">梁端部の腐食が進行し、角部に穴あきが発生。雨水の浸入により今後さらに拡大するおそれがある。</textarea>
+    </div>
+    <div class="photo-card">
+      <input class="photo-tag editable" value="梁　側面">
+      <img src="写真/S__90955780.jpg" alt="梁側面の腐食">
+      <textarea class="editable" oninput="autoGrow(this)" style="height: 88px;">梁側面に複数の腐食点が点在し、一部で塗膜が剥離。放置すると穴あきに進行する可能性が高い。</textarea>
+    </div>
+  </div>
+
+  <div class="page-foot">- 2 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ3：現状の劣化状況（写真2） -->
+<!-- ============================================================ -->
+<div class="sheet">
+  <h2 class="doc-title"><input class="editable" value="１．現状の劣化状況（現地調査写真　つづき）"></h2>
+
+  <div class="photo-grid">
+    <div class="photo-card">
+      <input class="photo-tag editable" value="ブラケット溶接部">
+      <img src="写真/S__90955800.jpg" alt="ブラケット溶接部の腐食">
+      <textarea class="editable" oninput="autoGrow(this)" style="height: 88px;">部材取付ブラケットの溶接部が腐食により欠損。接合強度が低下しているため再溶接による補修が必要。</textarea>
+    </div>
+    <div class="photo-card">
+      <input class="photo-tag editable" value="躯体取合い部">
+      <img src="写真/S__90955779.jpg" alt="躯体取合い部の塗膜浮き">
+      <textarea class="editable" oninput="autoGrow(this)" style="height: 88px;">梁と外壁の取合い部で塗膜の浮き・発錆が進行。躯体との隙間から雨水が浸入している可能性がある。</textarea>
+    </div>
+    <div class="photo-card">
+      <input class="photo-tag editable" value="目地部　ひび割れ">
+      <img src="写真/S__90955785.jpg" alt="目地のひび割れとサビ汁">
+      <textarea class="editable" oninput="autoGrow(this)" style="height: 88px;">部材接合部の目地にひび割れが発生し、内部からのサビ汁が外壁面まで流れ出している。躯体はつり・補修が必要な箇所。</textarea>
+    </div>
+    <div class="photo-card">
+      <input class="photo-tag editable" value="接合部　シール割れ">
+      <img src="写真/S__90955786.jpg" alt="接合部のシール割れ">
+      <textarea class="editable" oninput="autoGrow(this)" style="height: 88px;">部材接合部のシーリング・溶接部に割れが生じ、発錆が進行。補修が必要。</textarea>
+    </div>
+  </div>
+
+  <div class="page-foot">- 3 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ4：現状の劣化状況（写真3） -->
+<!-- ============================================================ -->
+<div class="sheet">
+  <h2 class="doc-title"><input class="editable" value="１．現状の劣化状況（現地調査写真　つづき）"></h2>
+
+  <div class="photo-grid">
+    <div class="photo-card">
+      <input class="photo-tag editable" value="階段梁部">
+      <img src="写真/S__90955807.jpg" alt="ボルト接合部の発錆">
+      <textarea class="editable" oninput="autoGrow(this)" style="height: 88px;">梁の角に発錆が見られ、サビが周囲の塗膜面へ広がっている。</textarea>
+    </div>
+    <div class="photo-card">
+      <input class="photo-tag editable" value="踊り場　接合部">
+      <img src="写真/S__90955825.jpg" alt="踊り場接合部の溶接劣化">
+      <textarea class="editable" oninput="autoGrow(this)" style="height: 88px;">踊り場を支える梁の接合部で溶接部の劣化・発錆を確認。荷重がかかる箇所のため優先的な補修が望ましい。</textarea>
+    </div>
+  </div>
+
+  <div class="note">※ 上記は代表箇所の抜粋です。現地調査時の全撮影データは別途フォルダにて保管しております。ご希望の際はお申し付けください。</div>
+
+  <div class="page-foot">- 4 -</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ページ5：施工の流れ・お願い事項 -->
+<!-- ============================================================ -->
+<div class="sheet">
+  <h2 class="doc-title"><input class="editable" value="２．施工の流れ"></h2>
+
+  <div class="flow">
+    <div class="flow-step"><div class="num-badge">1</div><br><input class="editable" value="火花養生"></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="num-badge">2</div><br><input class="editable" value="躯体はつり"></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="num-badge">3</div><br><input class="editable" value="鉄部・溶接補修"></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="num-badge">4</div><br><input class="editable" value="躯体補修"></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="num-badge">5</div><br><input class="editable" value="手摺製作・交換"></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><div class="num-badge">6</div><br><input class="editable" value="仕上げ塗装"></div>
+  </div>
+  <div class="note" style="margin-bottom:22px;">※ 仕上げ塗装は【B】塗装工事（外部鉄骨階段・手摺腰窓格子）にて別途施工いたします。</div>
+
+  <h2 class="doc-title"><input class="editable" value="３．工事にあたってのお願い・留意事項"></h2>
+  <div class="lead-box">
+    <textarea class="editable" style="min-height: 120px; height: 124px;" oninput="autoGrow(this)">・溶接作業中は火花養生を徹底いたしますが、階段のご利用を一時的に制限させていただく時間帯が発生いたします。
+・作業中は騒音（溶接機・はつり作業）が発生いたしますので、あらかじめご了承ください。
+・施工範囲は現地調査時点で確認できた箇所を対象としております。はつり後に追加の劣化が確認された場合は、別途ご相談のうえ対応いたします。
+・工期・詳細金額につきましては別紙御見積書をご参照ください。</textarea>
+  </div>
+
+  <div class="page-foot">- 5 -</div>
+</div>
+
+<script>
+  function autoGrow(el) {
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight) + 'px';
+  }
+  document.querySelectorAll('textarea.editable').forEach(autoGrow);
+
+  // 印刷時は用紙幅が画面表示時と変わり、折り返し位置がズレて文字が重なるため
+  // 印刷直前・直後にテキストエリアの高さを再計算する
+  window.addEventListener('beforeprint', () => {
+    document.querySelectorAll('textarea.editable').forEach(autoGrow);
+  });
+  window.addEventListener('afterprint', () => {
+    document.querySelectorAll('textarea.editable').forEach(autoGrow);
+  });
+
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+
+  function syncValuesToAttributes() {
+    document.querySelectorAll('input.editable').forEach(el => el.setAttribute('value', el.value));
+    document.querySelectorAll('textarea.editable').forEach(el => { el.textContent = el.value; });
+  }
+
+  function suggestFileName() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `鉄骨階段修繕工事_工事内容ご説明資料_${y}${m}${d}.html`;
+  }
+
+  function saveAsHtmlFile() {
+    syncValuesToAttributes();
+    const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = suggestFileName();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    const btn = document.getElementById('btn-save');
+    const original = btn.textContent;
+    btn.textContent = '✓ 保存しました';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  }
+
+  document.getElementById('btn-save').addEventListener('click', saveAsHtmlFile);
+</script>
+
+
+</body></html>
